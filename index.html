@@ -17,7 +17,7 @@
 <body>
 <script>
 (function () {
-  var LOGO = '.logo'; // change to your strawberry logo's selector
+  var LOGO = '[class*="logo" i], [id*="logo" i], [class*="brand" i], [id*="brand" i], [class*="strawberry" i], [id*="strawberry" i], header svg, header img, nav svg, nav img';
   document.addEventListener('click', function (e) {
     if (!e.target.closest || !e.target.closest(LOGO)) return;
     var now = Date.now(), d = {};
