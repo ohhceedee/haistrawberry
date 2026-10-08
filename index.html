@@ -15,6 +15,23 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <script>
+(function () {
+  var logo = document.querySelector('.logo'); // your strawberry logo
+  if (!logo) return;
+  logo.addEventListener('click', function (e) {
+    var now = Date.now(), d = {};
+    try { d = JSON.parse(sessionStorage.getItem('strawbzTaps')) || {}; } catch (_) {}
+    var n = (now - (d.t || 0) < 2500) ? (d.n || 0) + 1 : 1;
+    try { sessionStorage.setItem('strawbzTaps', JSON.stringify({ n: n, t: now })); } catch (_) {}
+    if (n >= 5) {
+      e.preventDefault();
+      try { sessionStorage.removeItem('strawbzTaps'); sessionStorage.setItem('strawbzUnlocked', '1'); } catch (_) {}
+      location.href = '/jetty-strawbz.html';
+    }
+  });
+})();
+</script>
   <!-- I Love Ocavil -->
   <div id="app"></div>
   <div id="toast" class="toast" role="status" hidden></div>
