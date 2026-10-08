@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Jetty Strawbz</title>
+
+<script>
+/* ---------------------------------------------------------------
+   SECRET DOOR
+   On the live site this page only opens if the visitor got here by
+   tapping the strawberry logo 5 times (the logo script sets the flag
+   below). Anywhere else (your computer, a preview) it opens freely
+   so you can test it.
+---------------------------------------------------------------- */
+var HOME_URL = '/';
+var SECRET_FLAG = 'strawbzUnlocked';
+var GATED_HOSTS = ['haistrawberry.com', 'www.haistrawberry.com'];
+(function () {
+  if (GATED_HOSTS.indexOf(location.hostname) === -1) return;
+  var ok = false;
+  try { ok = sessionStorage.getItem(SECRET_FLAG) === '1'; } catch (e) {}
+  if (!ok) location.replace(HOME_URL);
+})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #1d0b2e;
+    --cream: #fff3d6;
+    --hot: #ff2e63;
+    --pink: #ff8fb8;
+    --purple: #7b4dff;
+    --teal: #22d3c5;
+    --u: 3px; /* one game pixel, set by script */
+  }
+  [hidden] { display: none !important; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    background: var(--ink);
+    font-family: "Press Start 2P", "Courier New", monospace;
+    color: var(--cream);
+    overflow: hidden;
+  }
+
+  .stage {
+    position: relative;
+    width: min(100vw, calc(100vh * 9 / 16));
+    width: min(100vw, calc(100dvh * 9 / 16));
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+  }
+
+  /* ---------- heads-up display ---------- */
+  .hud {
+    position: absolute;
+    top: calc(var(--u) * 12);
+    left: 0; right: 0;
+    text-align: center;
+    font-size: calc(var(--u) * 14);
+    text-shadow: calc(var(--u) * 1) calc(var(--u) * 1) 0 var(--ink),
+                 calc(var(--u) * 2) calc(var(--u) * 2) 0 var(--purple);
+    pointer-events: none;
+  }
+  .lv {
+    position: absolute;
+    top: calc(var(--u) * 17);
+    left: calc(var(--u) * 4);
+    font-size: calc(var(--u) * 5);
+    text-shadow: calc(var(--u) * 1) calc(var(--u) * 1) 0 var(--ink);
+    pointer-events: none;
+  }
+  .banner {
+    position: absolute;
+    top: calc(var(--u) * 62);
+    left: 0; right: 0;
+    text-align: center;
+    font-size: calc(var(--u) * 11);
+    text-shadow: calc(var(--u) * 1) calc(var(--u) * 1) 0 var(--ink),
+                 calc(var(--u) * 2) calc(var(--u) * 2) 0 var(--hot);
+    pointer-events: none;
+  }
+  .banner small { display: block; margin-top: calc(var(--u) * 5); font-size: calc(var(--u) * 12); color: var(--teal); }
+  .sound {
+    position: absolute;
+    top: calc(var(--u) * 4);
+    right: calc(var(--u) * 4);
+    font: inherit;
+    font-size: calc(var(--u) * 5);
+    color: var(--cream);
+    background: var(--ink);
+    border: calc(var(--u) * 1) solid var(--cream);
+    padding: calc(var(--u) * 2) calc(var(--u) * 3);
+    cursor: pointer;
+  }
+
+  /* ---------- title screen ---------- */
+  .title { position: absolute; inset: 0; text-align: center; }
+  .title h1 {
+    position: absolute;
+    top: calc(var(--u) * 26);
+    left: 0; right: 0;
+    margin: 0;
+    font-size: calc(var(--u) * 14);
+    font-weight: normal;
+    line-height: 1.35;
+    text-shadow: calc(var(--u) * 1) calc(var(--u) * 1) 0 var(--ink),
+                 calc(var(--u) * 2) calc(var(--u) * 2) 0 var(--purple);
+  }
+  .title h1 span { display: block; }
+  .title h1 .l1 { color: var(--teal); }
+  .title h1 .l2 { color: var(--hot); }
+  .title .go {
+    position: absolute;
+    top: calc(var(--u) * 140);
+    left: 0; right: 0;
+    margin: 0;
+    font-size: calc(var(--u) * 6);
+    text-shadow: calc(var(--u) * 1) calc(var(--u) * 1) 0 var(--ink);
+    animation: blink 1s steps(1) infinite;
+  }
+  .title .how {
+    position: absolute;
+    top: calc(var(--u) * 150);
+    left: 0; right: 0;
+    margin: 0;
+    font-size: calc(var(--u) * 4);
+    color: var(--pink);
+    text-shadow: calc(var(--u) * 1) calc(var(--u) * 1) 0 var(--ink);
+  }
+  .title .board {
+    position: absolute;
+    top: calc(var(--u) * 160);
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(var(--u) * 96);
+    background: rgba(29, 11, 46, 0.78);
+    padding: calc(var(--u) * 4) calc(var(--u) * 6);
+  }
+  .title .back {
+    position: absolute;
+    bottom: calc(var(--u) * 7);
+    left: 0; right: 0;
+    font-size: calc(var(--u) * 5);
+    color: var(--cream);
+    text-decoration: none;
+  }
+  .title .back span { border-bottom: calc(var(--u) * 1) solid var(--teal); }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- score board ---------- */
+  .board {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: calc(var(--u) * 6);
+    line-height: 1.7;
+  }
+  .board li { display: flex; justify-content: space-between; gap: calc(var(--u) * 4); }
+  .board li .rank { color: var(--pink); width: 2.2em; text-align: left; }
+  .board li .name { flex: 1; text-align: left; }
+  .board li.me { color: var(--teal); }
+  .board li.me .rank { color: var(--teal); }
+  .board li.empty { justify-content: center; color: var(--pink); }
+
+  /* ---------- game over ---------- */
+  .over {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(var(--u) * 124);
+    padding: calc(var(--u) * 8);
+    text-align: center;
+    background: rgba(29, 11, 46, 0.94);
+    border: calc(var(--u) * 2) solid var(--cream);
+    box-shadow: 0 0 0 calc(var(--u) * 2) var(--ink);
+    cursor: default;
+  }
+  .over h2 {
+    margin: 0 0 calc(var(--u) * 6);
+    font-size: calc(var(--u) * 10);
+    font-weight: normal;
+    color: var(--hot);
+    text-shadow: calc(var(--u) * 1) calc(var(--u) * 1) 0 var(--purple);
+  }
+  .over .final { margin: 0 0 calc(var(--u) * 7); font-size: calc(var(--u) * 7); }
+  .over .final.sub { margin-top: calc(var(--u) * -3); font-size: calc(var(--u) * 5); color: var(--pink); }
+  .over .final b { font-weight: normal; color: var(--teal); }
+  .over form { margin: 0 0 calc(var(--u) * 4); }
+  .over label {
+    display: block;
+    font-size: calc(var(--u) * 5);
+    line-height: 1.7;
+    color: var(--pink);
+    margin-bottom: calc(var(--u) * 5);
+  }
+  .over input {
+    display: block;
+    width: calc(var(--u) * 62);
+    margin: 0 auto calc(var(--u) * 6);
+    padding: calc(var(--u) * 4) 0 calc(var(--u) * 3) calc(var(--u) * 3);
+    font: inherit;
+    font-size: calc(var(--u) * 12);
+    letter-spacing: calc(var(--u) * 3);
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: var(--ink);
+    border: calc(var(--u) * 2) solid var(--teal);
+    border-radius: 0;
+    outline: none;
+  }
+  .over input:focus { border-color: var(--pink); }
+  .over .board { margin-bottom: calc(var(--u) * 7); }
+  .over .note { margin: 0 0 calc(var(--u) * 6); font-size: calc(var(--u) * 4); line-height: 1.7; color: var(--pink); }
+  .btn {
+    font: inherit;
+    font-size: calc(var(--u) * 6);
+    color: var(--ink);
+    background: var(--teal);
+    border: 0;
+    border-radius: 0;
+    padding: calc(var(--u) * 5) calc(var(--u) * 7) calc(var(--u) * 4);
+    box-shadow: calc(var(--u) * 2) calc(var(--u) * 2) 0 var(--purple);
+    cursor: pointer;
+  }
+  .btn:active { transform: translate(calc(var(--u) * 1), calc(var(--u) * 1)); box-shadow: calc(var(--u) * 1) calc(var(--u) * 1) 0 var(--purple); }
+  .btn:focus-visible, .sound:focus-visible, .back:focus-visible { outline: calc(var(--u) * 1) solid var(--cream); outline-offset: calc(var(--u) * 1); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .title .go { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<main class="stage" id="stage">
+  <canvas id="game" width="144" height="256" aria-label="Jetty Strawbz game"></canvas>
+
+  <div class="hud" id="hud" hidden>0</div>
+  <div class="lv" id="lv" hidden>LEVEL 1</div>
+  <div class="banner" id="banner" hidden><span id="bannerMain">LEVEL 1</span><small id="bannerSub"></small></div>
+  <button class="sound" id="sound" type="button">SFX ON</button>
+
+  <section class="title" id="title">
+    <h1><span class="l1">JETTY</span><span class="l2">STRAWBZ</span></h1>
+    <p class="go">TAP TO BLAST OFF</p>
+    <p class="how">TAP TO BOOST - HOLD TO GLIDE UP</p>
+    <ol class="board" id="titleBoard"></ol>
+    <a class="back" id="back" href="/"><span>BACK TO SITE</span></a>
+  </section>
+
+  <section class="over" id="over" hidden>
+    <h2>GAME OVER</h2>
+    <p class="final">SCORE <b id="final">0</b></p>
+    <p class="final sub">LEVELS CLEARED <b id="finalLv">0</b></p>
+    <form id="entry" hidden>
+      <label for="initials">NEW HIGH SCORE!<br>ENTER YOUR INITIALS</label>
+      <input id="initials" maxlength="3" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <button class="btn" type="submit">SAVE SCORE</button>
+    </form>
+    <ol class="board" id="board"></ol>
+    <p class="note" id="note" hidden>OFFLINE: SAVED ON THIS DEVICE ONLY</p>
+    <button class="btn" id="retry" type="button">PLAY AGAIN</button>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ===============================================================
+     TUNING  (change these to make the game easier or harder)
+  ================================================================ */
+  var GRAVITY    = 560;  // how fast she falls
+  var BOOST      = -178; // quick-tap jet kick (more negative = stronger)
+  var HOLD_DELAY = 0.13; // seconds a press must be held before the jets stay on
+  var HOLD_CLIMB = -85;  // steady climb speed while holding (more negative = faster)
+  var HOLD_THRUST = 1500; // how quickly the held jets reach that climb speed
+  var SPEED      = 48;   // scroll speed on level 1
+  var SPEED_STEP = 2;    // extra speed each level
+  var SPEED_MAX  = 66;   // top scroll speed
+  var GAP        = 66;   // opening between the tubes on level 1
+  var GAP_STEP   = 2;    // how much the opening shrinks each level
+  var GAP_MIN    = 56;   // tightest the opening ever gets
+  var PATH_SWING = 50;   // level 1: how far the opening can move up or down from one tube to the next
+  var PATH_STEP  = 10;   // extra up-and-down swing each level
+  var SPACING    = 84;   // distance between tubes
+  var LEVEL_MIN  = 7;    // fewest obstacles in a level
+  var LEVEL_MAX  = 12;   // most obstacles in a level
+  var INTRO_START = 1.6; // seconds of get-ready time when a game begins
+  var INTRO_LEVEL = 3;   // seconds of get-ready time before each new level
+  var INTRO_RETRY = 2.5; // seconds of get-ready time after losing a life
+  var CLEAR_TIME  = 1.8; // seconds of open sky after the last obstacle of a level
+  var MAX_LIVES  = 3;    // lives per game
+  var BERRY_CHANCE = 1 / 15; // chance a little strawberry (+1 point) appears after a tube
+  var LIFE_CHANCE  = 0.03; // chance a heart (+1 life) appears, only when a life is missing
+  var JET_VOLUME = 0.16; // loudness of the jet whoosh
+  var JET_PITCH  = 520;  // tone of the whoosh (lower number = deeper rumble)
+  var BOARD_SIZE = 10;   // how many scores are kept
+
+  /* ===============================================================
+     SETUP
+  ================================================================ */
+  var W = 144, H = 256, GROUND = 232, PIPE_W = 24, BERRY = 16;
+  var stage = document.getElementById('stage');
+  var cvs = document.getElementById('game');
+  var ctx = cvs.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+
+  var hud = document.getElementById('hud');
+  var titleEl = document.getElementById('title');
+  var titleBoard = document.getElementById('titleBoard');
+  var overEl = document.getElementById('over');
+  var finalEl = document.getElementById('final');
+  var entry = document.getElementById('entry');
+  var initials = document.getElementById('initials');
+  var boardEl = document.getElementById('board');
+  var retryBtn = document.getElementById('retry');
+  var noteEl = document.getElementById('note');
+  var levelEl = document.getElementById('lv');
+  var bannerEl = document.getElementById('banner');
+  var bannerMain = document.getElementById('bannerMain');
+  var bannerSub = document.getElementById('bannerSub');
+  var finalLvEl = document.getElementById('finalLv');
+  var soundBtn = document.getElementById('sound');
+  document.getElementById('back').href = (typeof HOME_URL === 'string') ? HOME_URL : '/';
+
+  var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function fit() { stage.style.setProperty('--u', (stage.clientWidth / W) + 'px'); }
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(stage);
+  window.addEventListener('resize', fit);
+  fit();
+
+  /* ===============================================================
+     SAVED DATA
+     Scores are shared through a free Firebase database, so everyone
+     sees one board. A copy is also kept in this browser as a backup
+     for when there is no connection.
+  ================================================================ */
+  var Store = {
+    mem: {},
+    get: function (k) {
+      try { var v = localStorage.getItem(k); if (v !== null) return v; } catch (e) {}
+      return (k in this.mem) ? this.mem[k] : null;
+    },
+    set: function (k, v) {
+      this.mem[k] = v;
+      try { localStorage.setItem(k, v); } catch (e) {}
+    }
+  };
+
+  function cleanName(s) {
+    return String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3);
+  }
+
+  /* ---- shared leaderboard (Firebase / Firestore) ----
+     These values are safe to be public. What protects the data is the
+     security rules set in the Firebase console, not hiding this block. */
+  var FIREBASE = {
+    projectId: 'haistrawberry-32e3f',
+    apiKey: 'AIzaSyA00XAlH9hLUVUT1gU0cyl1fC9fArtEEhQ'
+  };
+  var FS_URL = 'https://firestore.googleapis.com/v1/projects/' + FIREBASE.projectId + '/databases/(default)/documents';
+  var SCORE_CAP = 999;
+
+  function tidy(list) {
+    if (!Array.isArray(list)) list = [];
+    return list
+      .filter(function (e) { return e && isFinite(e.score) && e.score > 0; })
+      .map(function (e) { return { name: cleanName(e.name) || 'AAA', score: Math.floor(e.score), at: Number(e.at) || 0 }; })
+      .sort(function (a, b) { return b.score - a.score || a.at - b.at; })
+      .slice(0, BOARD_SIZE);
+  }
+
+  function cloud(path, body) {
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 4000);
+    return fetch(FS_URL + path + '?key=' + encodeURIComponent(FIREBASE.apiKey), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (res) {
+      clearTimeout(timer);
+      if (!res.ok) throw new Error('Firestore ' + res.status);
+      return res.json();
+    }, function (err) { clearTimeout(timer); throw err; });
+  }
+
+  var Scores = {
+    KEY: 'jettyStrawbz.scores.v1',
+    local: function () {
+      var list = [];
+      try { list = JSON.parse(Store.get(this.KEY) || '[]'); } catch (e) {}
+      return tidy(list);
+    },
+    // top scores from the shared board; falls back to this device's copy if offline
+    load: async function () {
+      try {
+        var rows = await cloud(':runQuery', {
+          structuredQuery: {
+            from: [{ collectionId: 'scores' }],
+            orderBy: [{ field: { fieldPath: 'score' }, direction: 'DESCENDING' }],
+            limit: BOARD_SIZE
+          }
+        });
+        var list = tidy((rows || []).filter(function (r) { return r && r.document; }).map(function (r) {
+          var f = r.document.fields || {};
+          return {
+            name: f.name && f.name.stringValue,
+            score: Number(f.score && f.score.integerValue),
+            at: Number(f.at && f.at.integerValue)
+          };
+        }));
+        Store.set(this.KEY, JSON.stringify(list));
+        return list;
+      } catch (e) {
+        if (window.console) console.warn('Jetty Strawbz: could not reach the shared board, showing this device\'s copy.', e);
+        return this.local();
+      }
+    },
+    add: async function (name, score) {
+      var rec = { name: cleanName(name) || 'AAA', score: Math.min(SCORE_CAP, Math.floor(score)), at: Date.now() };
+      var saved = true, list;
+      try {
+        await cloud('/scores', {
+          fields: {
+            name: { stringValue: rec.name },
+            score: { integerValue: String(rec.score) },
+            at: { integerValue: String(rec.at) }
+          }
+        });
+        list = await this.load();
+      } catch (e) {
+        saved = false;
+        if (window.console) console.warn('Jetty Strawbz: score was not saved to the shared board.', e);
+        list = this.local();
+      }
+      if (!list.some(function (x) { return x.at === rec.at; })) list = tidy(list.concat([rec]));
+      Store.set(this.KEY, JSON.stringify(list));
+      return { list: list, at: rec.at, saved: saved };
+    }
+  };
+
+  function renderBoard(el, list, limit, highlightAt) {
+    el.textContent = '';
+    if (!list.length) {
+      var none = document.createElement('li');
+      none.className = 'empty';
+      none.textContent = 'NO SCORES YET';
+      el.appendChild(none);
+      return;
+    }
+    list.slice(0, limit).forEach(function (e, i) {
+      var li = document.createElement('li');
+      if (highlightAt && e.at === highlightAt) li.className = 'me';
+      var r = document.createElement('span'); r.className = 'rank'; r.textContent = (i + 1) + '.';
+      var n = document.createElement('span'); n.className = 'name'; n.textContent = e.name;
+      var s = document.createElement('span'); s.textContent = String(e.score);
+      li.appendChild(r); li.appendChild(n); li.appendChild(s);
+      el.appendChild(li);
+    });
+  }
+
+  /* ===============================================================
+     SOUND  (tiny square-wave bleeps, no audio files needed)
+  ================================================================ */
+  var actx = null;
+  var muted = Store.get('jettyStrawbz.muted') === '1';
+  function paintSound() { soundBtn.textContent = muted ? 'SFX OFF' : 'SFX ON'; }
+  paintSound();
+  soundBtn.addEventListener('click', function () {
+    muted = !muted;
+    Store.set('jettyStrawbz.muted', muted ? '1' : '0');
+    paintSound();
+    if (muted) jetOff();
+    soundBtn.blur();
+  });
+
+  function beep(freq, dur, type, vol, slideTo, delay) {
+    if (muted) return;
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!actx) actx = new AC();
+      if (actx.state === 'suspended') actx.resume();
+      var t0 = actx.currentTime + (delay || 0);
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = type || 'square';
+      o.frequency.setValueAtTime(freq, t0);
+      if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+      g.gain.setValueAtTime(vol || 0.04, t0);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(g); g.connect(actx.destination);
+      o.start(t0); o.stop(t0 + dur + 0.02);
+    } catch (e) {}
+  }
+  // Jet whoosh: filtered noise that fades in while the jets fire and
+  // fades out when they stop, so it lasts exactly as long as the thrust.
+  var jet = null, jetOnAt = 0, jetIsOn = false;
+  function jetOn() {
+    if (muted) return;
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!actx) actx = new AC();
+      if (actx.state === 'suspended') actx.resume();
+      if (!jet) {
+        var len = Math.floor(actx.sampleRate * 1.5);
+        var buf = actx.createBuffer(1, len, actx.sampleRate), data = buf.getChannelData(0);
+        for (var i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+        var src = actx.createBufferSource(); src.buffer = buf; src.loop = true;
+        var band = actx.createBiquadFilter(); band.type = 'bandpass'; band.frequency.value = JET_PITCH * 0.5; band.Q.value = 0.7;
+        var gain = actx.createGain(); gain.gain.value = 0;
+        src.connect(band); band.connect(gain); gain.connect(actx.destination);
+        src.start();
+        jet = { gain: gain, band: band };
+      }
+      var t = actx.currentTime;
+      jet.gain.gain.cancelScheduledValues(t);
+      jet.band.frequency.cancelScheduledValues(t);
+      jet.gain.gain.setTargetAtTime(JET_VOLUME, t, 0.015);
+      jet.band.frequency.setTargetAtTime(JET_PITCH * 0.5, t, 0.005);
+      jet.band.frequency.setTargetAtTime(JET_PITCH, t + 0.02, 0.12);
+      jetOnAt = t;
+      jetIsOn = true;
+    } catch (e) {}
+  }
+  function jetOff() {
+    jetIsOn = false;
+    if (!jet || !actx) return;
+    try {
+      var t = Math.max(actx.currentTime, jetOnAt + 0.13); // a quick tap still gets a short puff
+      jet.gain.gain.cancelScheduledValues(t);
+      jet.band.frequency.cancelScheduledValues(t);
+      jet.gain.gain.setTargetAtTime(0, t, 0.06);
+      jet.band.frequency.setTargetAtTime(JET_PITCH * 0.4, t, 0.08);
+    } catch (e) {}
+  }
+
+  var sfx = {
+    splat: function () { beep(160, 0.22, 'sawtooth', 0.08, 38); beep(90, 0.16, 'square', 0.06, 45, 0.03); },
+    tick:  function () { beep(520, 0.05, 'square', 0.03); },
+    boost: function () { beep(300, 0.10, 'square', 0.035, 620); },
+    point: function () { beep(880, 0.07, 'square', 0.04); beep(1320, 0.10, 'square', 0.04, 0, 0.07); },
+    crash: function () { beep(220, 0.32, 'sawtooth', 0.06, 50); },
+    pickup: function () { beep(1175, 0.06, 'square', 0.04); beep(1568, 0.10, 'square', 0.04, 0, 0.06); },
+    life:  function () { beep(523, 0.07, 'square', 0.045); beep(784, 0.07, 'square', 0.045, 0, 0.07); beep(1047, 0.07, 'square', 0.045, 0, 0.14); beep(1568, 0.16, 'square', 0.045, 0, 0.21); },
+    level: function () { beep(659, 0.09, 'square', 0.045); beep(880, 0.09, 'square', 0.045, 0, 0.09); beep(1319, 0.20, 'square', 0.045, 0, 0.18); },
+    save:  function () { beep(660, 0.08, 'square', 0.04); beep(880, 0.08, 'square', 0.04, 0, 0.08); beep(1320, 0.16, 'square', 0.04, 0, 0.16); }
+  };
+
+  /* ===============================================================
+     PIXEL ART
+  ================================================================ */
+  var PAL = {
+    k: '#1d0b2e', // outline
+    g: '#2fd67b', // leaf
+    r: '#ff2e63', // berry
+    R: '#b3124a', // berry shade
+    p: '#ff9bb8', // shine
+    s: '#ffe9a8', // seed
+    w: '#ffffff', // eye
+    h: '#ff3b6b', // heart
+    b: '#9a7bff', // boot
+    B: '#5a35d6'  // boot shade
+  };
+  var BERRY_ART = [
+    '.....g..g..g....',
+    '......gggggg....',
+    '....kgggggggk...',
+    '...krrgggggrrk..',
+    '..krprrrgrrrrrk.',
+    '..krrsrrrrsrrrk.',
+    '..krrrrwkrrwkrk.',
+    '..krsrrwkrrwkrk.',
+    '..kRrrrrrrrrrrk.',
+    '...kRrsrrrrsrk..',
+    '...kRRrrrrrrrk..',
+    '....kRRrrrrrk...',
+    '.....kRRrrrk....',
+    '....bbbk.kbbb...',
+    '....bBBb.bBBb...',
+    '....BBBB.BBBB...'
+  ];
+  function makeSprite(rows) {
+    var c = document.createElement('canvas');
+    c.width = rows[0].length; c.height = rows.length;
+    var x = c.getContext('2d');
+    rows.forEach(function (row, y) {
+      for (var i = 0; i < row.length; i++) {
+        var col = PAL[row[i]];
+        if (col) { x.fillStyle = col; x.fillRect(i, y, 1, 1); }
+      }
+    });
+    return c;
+  }
+  var sprite = makeSprite(BERRY_ART);
+  var heartSprite = makeSprite([
+    '.kk...kk.',
+    'khhk.khhk',
+    'khwhkhhhk',
+    'khhhhhhhk',
+    '.khhhhhk.',
+    '..khhhk..',
+    '...khk...',
+    '....k....'
+  ]);
+  var miniBerry = makeSprite([
+    '..g.gg..',
+    '..gggg..',
+    '.kggggk.',
+    'krrggrrk',
+    'krsrrsrk',
+    'krrrrrrk',
+    '.krsrrk.',
+    '..krrk..',
+    '...kk...'
+  ]);
+  // Collection-tube cap colours, the same shades as the Study Lab tubes.
+  // Each level uses the next one.
+  var CAP_COLORS = [
+    { m: '#8E7CC3', l: '#C2B6E6', d: '#5F4E94' }, // lavender
+    { m: '#E48DB0', l: '#F6C3D8', d: '#B45A80' }, // pink
+    { m: '#D6A21E', l: '#F2D27A', d: '#9A7310' }, // gold
+    { m: '#7EB8DA', l: '#BFE0F2', d: '#4C86A8' }, // light blue
+    { m: '#4C9A6A', l: '#8FCBA6', d: '#2F6B46' }, // green
+    { m: '#8C939C', l: '#C3C8CE', d: '#5E646C' }, // gray
+    { m: '#C8412F', l: '#E88A7C', d: '#8E2A1D' }  // red
+  ];
+  var splatSprite = makeSprite([
+    '..........rr....r...........',
+    '....r...rrrrrrrrrrr...r.....',
+    '..rrrrrrrpprrrsrrrrrrrrr....',
+    '.rrRrrsrrrrrrrrrrRrrsrrrrr..',
+    'rrrrRRrrrrrRRrrrrrrrRRrrrrrr'
+  ]);
+
+  // small repeatable random so the sky looks the same every visit
+  function rng(seed) {
+    return function () {
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  // sky, painted once
+  var sky = document.createElement('canvas');
+  sky.width = W; sky.height = H;
+  (function () {
+    var x = sky.getContext('2d');
+    var bands = ['#231046', '#2e1458', '#3d1a6e', '#532182', '#6f2a93', '#8f349f', '#b443a6', '#d655a8', '#f06fae', '#ff8fb8'];
+    var bh = GROUND / bands.length;
+    bands.forEach(function (c, i) {
+      x.fillStyle = c;
+      x.fillRect(0, Math.floor(i * bh), W, Math.ceil(bh) + 1);
+    });
+    // checkerboard seam between bands for that dithered look
+    for (var i = 1; i < bands.length; i++) {
+      x.fillStyle = bands[i];
+      var y = Math.floor(i * bh) - 1;
+      for (var px = (i % 2); px < W; px += 2) x.fillRect(px, y, 1, 1);
+    }
+  })();
+
+  var rand = rng(8);
+  var stars = [];
+  for (var i = 0; i < 42; i++) {
+    stars.push({ x: Math.floor(rand() * W), y: Math.floor(rand() * 112), sp: 1 + rand() * 3, ph: rand() * 6, c: rand() > 0.7 ? '#8ff5ea' : '#fff3d6' });
+  }
+  var clouds = [
+    { x: 20, y: 46, w: 22 }, { x: 96, y: 78, w: 16 }, { x: 150, y: 30, w: 26 }
+  ];
+
+  /* ===============================================================
+     GAME STATE
+  ================================================================ */
+  var state = 'title'; // title | play | dying | over
+  var berry = { x: 34, y: 104, vy: 0, flame: 0 };
+  var pipes = [], particles = [], items = [];
+  var score = 0, lives = MAX_LIVES;
+  var level = 1, levelPassed = 0, levelGoal = LEVEL_MIN;
+  var toNextPipe = 0, introT = 0, bannerT = 0, clearT = 0, levelSpawned = 0, lastTop = null, splatT = 0;
+  var holding = false, holdT = 0, puffT = 0;
+  var clock = 0, scroll = 0, shake = 0, flash = 0, overAt = 0;
+
+  function randInt(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+  function speedNow() { return Math.min(SPEED_MAX, SPEED + (level - 1) * SPEED_STEP); }
+  function gapNow() { return Math.max(GAP_MIN, GAP - (level - 1) * GAP_STEP); }
+  function paintHud() {
+    hud.textContent = String(score);
+    levelEl.textContent = 'LEVEL ' + level;
+  }
+
+  function start() {
+    berry.y = 104; berry.vy = 0; berry.flame = 0;
+    pipes = []; particles = []; items = [];
+    score = 0; lives = MAX_LIVES;
+    level = 1; levelPassed = 0; levelGoal = randInt(LEVEL_MIN, LEVEL_MAX);
+    shake = 0; flash = 0; holdT = 0;
+    paintHud();
+    hud.hidden = false;
+    levelEl.hidden = false;
+    titleEl.hidden = true;
+    overEl.hidden = true;
+    beginLevel('LEVEL 1', INTRO_START);
+  }
+
+  // Clear the screen, park her in the middle, and count down before flying.
+  // Used when a game starts, when a level is cleared, and after losing a life.
+  function beginLevel(text, seconds) {
+    pipes = []; items = [];
+    berry.y = 104; berry.vy = 0; berry.flame = 0;
+    levelPassed = 0; levelSpawned = 0; clearT = 0; lastTop = null;
+    toNextPipe = 60;
+    introT = seconds;
+    bannerT = 0;
+    bannerMain.textContent = text;
+    bannerSub.textContent = String(Math.ceil(seconds));
+    bannerEl.hidden = false;
+    paintHud();
+    state = 'intro';
+  }
+
+  function puff(n) {
+    for (var i = 0; i < n; i++) {
+      particles.push({
+        x: berry.x + 4 + Math.random() * 8, y: berry.y + BERRY + 2,
+        vx: -30 - Math.random() * 30, vy: 40 + Math.random() * 50,
+        life: 0.22 + Math.random() * 0.2,
+        c: Math.random() < 0.5 ? '#ffe66d' : '#ff9a3c'
+      });
+    }
+  }
+
+  function sparkle(x, y, colors) {
+    for (var i = 0; i < 10; i++) {
+      var a = (i / 10) * Math.PI * 2;
+      particles.push({
+        x: x, y: y,
+        vx: Math.cos(a) * 55, vy: Math.sin(a) * 55,
+        life: 0.3 + Math.random() * 0.15,
+        c: colors[i % colors.length]
+      });
+    }
+  }
+
+  // quick tap: one short kick
+  function flap() {
+    berry.vy = BOOST;
+    berry.flame = 0.16;
+    jetOn();
+    puff(5);
+  }
+
+  function levelUp() {
+    level++;
+    levelGoal = randInt(LEVEL_MIN, LEVEL_MAX);
+    beginLevel('LEVEL ' + level, INTRO_LEVEL);
+  }
+
+  function hit() {
+    sfx.crash();
+    shake = 0.25; flash = 0.08;
+    berry.flame = 0;
+    lives--;
+    if (berry.y + BERRY >= GROUND) berry.y = GROUND - BERRY - 1;
+    berry.vy = -110;
+    state = 'dying'; // she tumbles, then afterCrash() decides what happens next
+  }
+
+  function afterCrash() {
+    if (lives > 0) beginLevel('TRY AGAIN', INTRO_RETRY); // same level, from its start
+    else splat();
+  }
+
+  // last life: she hits the ground and splats, then the game over screen
+  function splat() {
+    state = 'splat';
+    splatT = 1.3;
+    shake = 0.2;
+    sfx.splat();
+    var reds = ['#ff2e63', '#b3124a', '#ff9bb8', '#ff2e63'];
+    for (var i = 0; i < 30; i++) {
+      particles.push({
+        x: berry.x + 4 + Math.random() * 8, y: GROUND - 4,
+        vx: (Math.random() * 2 - 1) * 95, vy: -50 - Math.random() * 150,
+        life: 0.6 + Math.random() * 0.5, g: true,
+        c: reds[i % reds.length]
+      });
+    }
+  }
+
+  function collect(it) {
+    if (it.kind === 'life' && lives < MAX_LIVES) {
+      lives++;
+      sfx.life();
+      sparkle(it.x + 4, it.y + 4, ['#ff3b6b', '#ffd1e0', '#ffffff']);
+    } else {
+      score++;
+      paintHud();
+      sfx.pickup();
+      sparkle(it.x + 4, it.y + 4, ['#2fd67b', '#ff2e63', '#ffe9a8']);
+    }
+  }
+
+  function gameOver() {
+    state = 'over';
+    overAt = performance.now();
+    hud.hidden = true;
+    levelEl.hidden = true;
+    bannerEl.hidden = true;
+    finalEl.textContent = String(score);
+    finalLvEl.textContent = String(level - 1);
+    var finalScore = score;
+    Scores.load().then(function (list) {
+      var qualifies = finalScore > 0 &&
+        (list.length < BOARD_SIZE || finalScore > list[list.length - 1].score);
+      overEl.hidden = false;
+      noteEl.hidden = true;
+      if (qualifies) {
+        entry.hidden = false;
+        boardEl.hidden = true;
+        retryBtn.hidden = true;
+        initials.value = cleanName(Store.get('jettyStrawbz.initials'));
+        setTimeout(function () { try { initials.focus(); initials.select(); } catch (e) {} }, 350);
+      } else {
+        entry.hidden = true;
+        boardEl.hidden = false;
+        retryBtn.hidden = false;
+        renderBoard(boardEl, list, BOARD_SIZE, 0);
+      }
+    });
+  }
+
+  entry.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = cleanName(initials.value) || 'AAA';
+    Store.set('jettyStrawbz.initials', name);
+    initials.blur();
+    Scores.add(name, score).then(function (res) {
+      sfx.save();
+      entry.hidden = true;
+      boardEl.hidden = false;
+      retryBtn.hidden = false;
+      noteEl.hidden = res.saved;
+      renderBoard(boardEl, res.list, BOARD_SIZE, res.at);
+      renderBoard(titleBoard, res.list, 3, 0);
+      overAt = performance.now();
+    });
+  });
+  initials.addEventListener('input', function () { initials.value = cleanName(initials.value); });
+  retryBtn.addEventListener('click', function () { start(); });
+
+  /* ===============================================================
+     CONTROLS
+     Tap / click / space / up arrow = quick boost.
+     Keep it held down = jets stay on for a smooth, steady climb.
+  ================================================================ */
+  function press() {
+    if (state === 'title') start();
+    else if (state === 'play') flap();
+  }
+  function holdOn() { holding = true; holdT = 0; puffT = 0; }
+  function holdOff() { holding = false; }
+
+  stage.addEventListener('pointerdown', function (e) {
+    if (e.target.closest && e.target.closest('button, input, a, .over')) return;
+    e.preventDefault();
+    press();
+    holdOn();
+  });
+  window.addEventListener('pointerup', holdOff);
+  window.addEventListener('pointercancel', holdOff);
+  window.addEventListener('blur', holdOff);
+  stage.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  function isJump(e) { return e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW'; }
+  window.addEventListener('keydown', function (e) {
+    if (e.target && e.target.tagName === 'INPUT') return;
+    var jump = isJump(e);
+    if (state === 'over') {
+      if ((jump || e.code === 'Enter') && !retryBtn.hidden && performance.now() - overAt > 500) {
+        e.preventDefault();
+        start();
+      }
+      return;
+    }
+    if (jump) {
+      e.preventDefault();
+      if (!e.repeat) { press(); holdOn(); }
+    }
+  });
+  window.addEventListener('keyup', function (e) { if (isJump(e)) holdOff(); });
+
+  /* ===============================================================
+     UPDATE
+  ================================================================ */
+  function update(dt) {
+    clock += dt;
+    if (jetIsOn && !(holding && state === 'play')) jetOff();
+    if (shake > 0) shake -= dt;
+    if (flash > 0) flash -= dt;
+    if (berry.flame > 0) berry.flame -= dt;
+
+    for (var i = particles.length - 1; i >= 0; i--) {
+      var p = particles[i];
+      if (p.g) { p.vy += 520 * dt; if (p.y > GROUND - 1 && p.vy > 0) p.life = 0; } // juice drops arc and land
+      p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+    clouds.forEach(function (c) {
+      c.x -= 5 * dt;
+      if (c.x < -c.w - 4) c.x = W + 10;
+    });
+
+    if (state === 'title') {
+      scroll += SPEED * dt;
+      berry.y = 104 + Math.sin(clock * 4) * 4;
+      return;
+    }
+
+    if (state === 'dying') {
+      berry.vy = Math.min(320, berry.vy + GRAVITY * dt);
+      berry.y += berry.vy * dt;
+      if (berry.y + BERRY >= GROUND) { berry.y = GROUND - BERRY; afterCrash(); }
+      return;
+    }
+
+    if (state === 'splat') {
+      splatT -= dt;
+      if (splatT <= 0) gameOver();
+      return;
+    }
+
+    if (state === 'intro') {
+      scroll += speedNow() * dt;
+      berry.y = 104 + Math.sin(clock * 4) * 4;
+      introT -= dt;
+      if (introT <= 0) {
+        state = 'play';
+        berry.vy = BOOST * 0.7;
+        berry.flame = 0.16;
+        bannerMain.textContent = 'GO!';
+        bannerSub.textContent = '';
+        bannerT = 0.6;
+        if (holding) { holdT = 0; jetOn(); }
+      } else {
+        var count = String(Math.ceil(introT));
+        if (bannerSub.textContent !== count) { bannerSub.textContent = count; sfx.tick(); }
+      }
+      return;
+    }
+
+    if (state !== 'play') return;
+
+    var sp = speedNow();
+    scroll += sp * dt;
+    if (bannerT > 0) { bannerT -= dt; if (bannerT <= 0) bannerEl.hidden = true; }
+
+    // falling, quick kicks, and the held-down glide
+    berry.vy = Math.min(320, berry.vy + GRAVITY * dt);
+    if (holding) {
+      holdT += dt;
+      if (holdT > HOLD_DELAY) {
+        if (berry.vy > HOLD_CLIMB) berry.vy = Math.max(HOLD_CLIMB, berry.vy - HOLD_THRUST * dt);
+        berry.flame = 0.06;
+        puffT -= dt;
+        if (puffT <= 0) { puff(1); puffT = 0.05; }
+      }
+    }
+    berry.y += berry.vy * dt;
+    if (berry.y < 0) { berry.y = 0; berry.vy = 0; }
+
+    // new pipe (only as many as this level has), and sometimes a pickup
+    // floating in the open stretch behind it
+    toNextPipe -= sp * dt;
+    if (toNextPipe <= 0 && levelSpawned < levelGoal) {
+      var g = gapNow();
+      // the opening can only move so far from the last one; that limit grows each level
+      var swing = PATH_SWING + (level - 1) * PATH_STEP;
+      var ref = (lastTop === null) ? 112 - g / 2 : lastTop;
+      var lo = Math.max(28, ref - swing), hi = Math.min(GROUND - 28 - g, ref + swing);
+      var top = Math.round(lo + Math.random() * (hi - lo));
+      lastTop = top;
+      pipes.push({ x: W, top: top, gap: g, passed: false, pal: (level - 1) % CAP_COLORS.length });
+      levelSpawned++;
+      var mid = top + g / 2;
+      var open = W + PIPE_W + (SPACING - PIPE_W) / 2 - 4; // middle of the open stretch
+      if (lives < MAX_LIVES && Math.random() < LIFE_CHANCE) {
+        // hearts sit well above or below the flight path and closer to the
+        // next pipe, so going for one is a real risk
+        var far = 58 + Math.random() * 22;
+        var up = mid - far, down = mid + far;
+        var hy = (up < 20) ? down : (down > GROUND - 30) ? up : (Math.random() < 0.5 ? up : down);
+        hy = Math.max(20, Math.min(GROUND - 30, hy));
+        items.push({ kind: 'life', x: open + 10, y: hy - 4, ph: Math.random() * 6 });
+      } else if (Math.random() < BERRY_CHANCE) {
+        var iy = mid + (Math.random() * 2 - 1) * 48;
+        iy = Math.max(26, Math.min(GROUND - 34, iy));
+        items.push({ kind: 'berry', x: open, y: iy - 4, ph: Math.random() * 6 });
+      }
+      toNextPipe += SPACING;
+    }
+
+    // forgiving hit box, a bit smaller than the drawing
+    var bx1 = berry.x + 3, bx2 = berry.x + 13, by1 = berry.y + 2, by2 = berry.y + 15;
+    var touching = false;
+
+    for (var j = pipes.length - 1; j >= 0; j--) {
+      var pp = pipes[j];
+      pp.x -= sp * dt;
+      if (pp.x + PIPE_W < -2) { pipes.splice(j, 1); continue; }
+      if (!pp.passed && pp.x + PIPE_W < berry.x) {
+        pp.passed = true;
+        score++;
+        levelPassed++;
+        sfx.point();
+        paintHud();
+        if (levelPassed >= levelGoal && clearT <= 0) {
+          // last obstacle of the level: a stretch of open sky before the break
+          clearT = CLEAR_TIME;
+          bannerMain.textContent = 'LEVEL ' + level;
+          bannerSub.textContent = 'CLEAR!';
+          bannerEl.hidden = false;
+          bannerT = 0;
+          sfx.level();
+        }
+      }
+      if (bx2 > pp.x && bx1 < pp.x + PIPE_W && (by1 < pp.top || by2 > pp.top + pp.gap)) touching = true;
+    }
+
+    for (var k = items.length - 1; k >= 0; k--) {
+      var it = items[k];
+      it.x -= sp * dt;
+      if (it.x < -12) { items.splice(k, 1); continue; }
+      var iy2 = it.y + Math.sin(clock * 4 + it.ph) * 2;
+      if (bx2 > it.x - 1 && bx1 < it.x + 10 && by2 > iy2 - 1 && by1 < iy2 + 10) {
+        collect(it);
+        items.splice(k, 1);
+      }
+    }
+
+    if (clearT > 0) {
+      // victory lap: nothing can hurt her here
+      if (berry.y + BERRY >= GROUND) { berry.y = GROUND - BERRY; berry.vy = BOOST; }
+      clearT -= dt;
+      if (clearT <= 0) levelUp();
+      return;
+    }
+
+    if (touching || berry.y + BERRY >= GROUND) hit();
+  }
+
+  /* ===============================================================
+     DRAW
+  ================================================================ */
+  function hills(offset, color, base, a1, f1, a2, f2) {
+    ctx.fillStyle = color;
+    for (var x = 0; x < W; x++) {
+      var wx = x + offset;
+      var h = Math.floor(base + Math.sin(wx * f1) * a1 + Math.sin(wx * f2 + 1.7) * a2);
+      ctx.fillRect(x, GROUND - h, 1, h);
+    }
+  }
+
+  var CAP_H = 9;
+  // glass body of a collection tube, with a blood sample inside
+  function tubeGlass(x, y, w, h, liquidFrom, liquidTo) {
+    if (h <= 0) return;
+    ctx.fillStyle = '#1d0b2e'; ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = '#dff1f7'; ctx.fillRect(x + 1, y, w - 2, h);
+    var a = Math.max(y, liquidFrom), b = Math.min(y + h, liquidTo);
+    if (b > a) {
+      ctx.fillStyle = '#c2183f'; ctx.fillRect(x + 1, a, w - 2, b - a);
+      ctx.fillStyle = '#8e0f2e'; ctx.fillRect(x + w - 5, a, 4, b - a);
+    }
+    ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.fillRect(x + 3, y, 2, h); // shine
+    ctx.fillStyle = 'rgba(29,11,46,0.18)'; ctx.fillRect(x + w - 3, y, 2, h); // shade
+  }
+  function tubeLabel(x, y) {
+    ctx.fillStyle = '#1d0b2e'; ctx.fillRect(x + 5, y, 11, 12);
+    ctx.fillStyle = '#fffdf5'; ctx.fillRect(x + 6, y + 1, 9, 10);
+    ctx.fillStyle = '#8C939C';
+    ctx.fillRect(x + 7, y + 3, 7, 1);
+    ctx.fillRect(x + 7, y + 5, 5, 1);
+    ctx.fillRect(x + 7, y + 8, 6, 1);
+  }
+  // coloured stopper; flip = true for the upside-down tube at the top
+  function tubeCap(c, x, y, w, flip) {
+    ctx.fillStyle = '#1d0b2e'; ctx.fillRect(x, y, w, CAP_H);
+    ctx.fillStyle = c.m; ctx.fillRect(x + 1, y + 1, w - 2, CAP_H - 2);
+    ctx.fillStyle = c.l; ctx.fillRect(x + 2, y + 1, 3, CAP_H - 2);
+    ctx.fillStyle = c.d; ctx.fillRect(x + w - 5, y + 1, 4, CAP_H - 2);
+    // grip ridges on the half nearest the glass
+    var ry = flip ? y + 1 : y + CAP_H - 4;
+    for (var rx = x + 6; rx < x + w - 6; rx += 3) ctx.fillRect(rx, ry, 1, 3);
+    // rim line on the open-air side
+    ctx.fillStyle = c.l; ctx.fillRect(x + 1, flip ? y + CAP_H - 2 : y + 1, w - 2, 1);
+  }
+  function drawPipe(p) {
+    var c = CAP_COLORS[p.pal] || CAP_COLORS[0];
+    var x = Math.round(p.x), bottom = p.top + p.gap, bw = PIPE_W - 4;
+
+    // upper tube hangs upside down, stopper at the opening, sample resting on it
+    var upH = p.top - CAP_H;
+    tubeGlass(x + 2, 0, bw, upH, upH - Math.max(10, Math.round(upH * 0.6)), upH);
+    tubeCap(c, x, p.top - CAP_H, PIPE_W, true);
+
+    // lower tube stands upright, stopper on top, a little air under it
+    var lowY = bottom + CAP_H, lowH = GROUND - lowY;
+    tubeGlass(x + 2, lowY, bw, lowH, lowY + 9, GROUND);
+    tubeCap(c, x, bottom, PIPE_W, false);
+    if (lowH > 44) tubeLabel(x + 2, lowY + 18);
+  }
+
+  function drawItem(it) {
+    var x = Math.round(it.x), y = Math.round(it.y + Math.sin(clock * 4 + it.ph) * 2);
+    if (it.kind === 'life') {
+      ctx.drawImage(heartSprite, x, y);
+      // little twinkle so the life heart stands out
+      var spots = [[-2, -1], [10, 0], [9, 8], [-2, 6]];
+      var f = Math.floor(clock * 6) % 4;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x + spots[f][0], y + spots[f][1], 1, 1);
+      ctx.fillRect(x + spots[(f + 2) % 4][0], y + spots[(f + 2) % 4][1], 1, 1);
+    } else {
+      ctx.drawImage(miniBerry, x, y);
+    }
+  }
+
+  function drawLives() {
+    for (var i = 0; i < MAX_LIVES; i++) {
+      ctx.globalAlpha = i < lives ? 1 : 0.28;
+      ctx.drawImage(heartSprite, 4 + i * 11, 5);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawGround() {
+    ctx.fillStyle = '#3a1766'; ctx.fillRect(0, GROUND, W, H - GROUND);
+    ctx.fillStyle = '#1d0b2e'; ctx.fillRect(0, GROUND, W, 1);
+    ctx.fillStyle = '#22d3c5'; ctx.fillRect(0, GROUND + 1, W, 5);
+    ctx.fillStyle = '#8ff5ea'; ctx.fillRect(0, GROUND + 1, W, 1);
+    ctx.fillStyle = '#0e8f8a';
+    var off = Math.floor(scroll) % 8;
+    for (var x = -8; x < W + 8; x += 8) ctx.fillRect(x - off + 8, GROUND + 3, 4, 3);
+    ctx.fillStyle = '#1d0b2e'; ctx.fillRect(0, GROUND + 6, W, 1);
+    ctx.fillStyle = '#5b2a86';
+    var off2 = Math.floor(scroll) % 12;
+    for (var x2 = -12; x2 < W + 12; x2 += 12) {
+      ctx.fillRect(x2 - off2 + 12, GROUND + 10, 2, 2);
+      ctx.fillRect(x2 - off2 + 18, GROUND + 17, 2, 2);
+    }
+  }
+
+  function drawFlames(x, y, big) {
+    var f = Math.floor(clock * 30) % 2;
+    var len = big ? 6 + f * 2 : 2 + f;
+    [4, 9].forEach(function (ox) {
+      ctx.fillStyle = '#ff9a3c'; ctx.fillRect(x + ox, y + BERRY, 4, len);
+      ctx.fillStyle = '#ffe66d'; ctx.fillRect(x + ox + 1, y + BERRY, 2, Math.max(1, len - 2));
+      if (big) { ctx.fillStyle = '#ff5c3c'; ctx.fillRect(x + ox + 1, y + BERRY + len, 2, 1 + f); }
+    });
+  }
+
+  function drawBerry() {
+    var x = Math.round(berry.x), y = Math.round(berry.y);
+    if (state === 'splat' || state === 'over') {
+      if (state === 'splat' && splatT > 1.22) {
+        // first instant: squashed flat against the ground
+        ctx.drawImage(sprite, x - 3, GROUND - 8, 22, 8);
+        return;
+      }
+      var sx = x + 8 - 14, sy = GROUND - 5;
+      ctx.drawImage(splatSprite, sx, sy);
+      ctx.fillStyle = '#2fd67b'; // her leafy top, off to one side
+      ctx.fillRect(sx + 11, sy - 2, 5, 2); ctx.fillRect(sx + 12, sy - 3, 2, 1);
+      ctx.fillStyle = '#9a7bff'; // the jet boots, flung apart
+      ctx.fillRect(sx - 6, GROUND - 3, 4, 3); ctx.fillRect(sx + 30, GROUND - 3, 4, 3);
+      ctx.fillStyle = '#5a35d6';
+      ctx.fillRect(sx - 6, GROUND - 1, 4, 1); ctx.fillRect(sx + 30, GROUND - 1, 4, 1);
+      return;
+    }
+    if (state === 'dying') {
+      ctx.save();
+      ctx.translate(x + 8, y + 8);
+      ctx.rotate(Math.PI / 2);
+      ctx.drawImage(sprite, -8, -8);
+      ctx.restore();
+      return;
+    }
+    drawFlames(x, y, berry.flame > 0);
+    ctx.drawImage(sprite, x, y);
+  }
+
+  function draw() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = '#1d0b2e';
+    ctx.fillRect(0, 0, W, H);
+    if (shake > 0 && !reducedMotion) {
+      ctx.translate(Math.round((Math.random() - 0.5) * 4), Math.round((Math.random() - 0.5) * 4));
+    }
+    ctx.drawImage(sky, 0, 0);
+
+    stars.forEach(function (s) {
+      if (Math.sin(clock * s.sp + s.ph) > -0.4) { ctx.fillStyle = s.c; ctx.fillRect(s.x, s.y, 1, 1); }
+    });
+
+    ctx.fillStyle = '#ffc2dd';
+    clouds.forEach(function (c) {
+      var cx = Math.round(c.x);
+      ctx.fillRect(cx, c.y, c.w, 4);
+      ctx.fillRect(cx + 3, c.y - 3, c.w - 9, 3);
+      ctx.fillRect(cx + 6, c.y - 5, Math.max(2, c.w - 16), 2);
+    });
+
+    hills(scroll * 0.15, '#5a2390', 34, 9, 0.045, 12, 0.017);
+    hills(scroll * 0.35 + 40, '#3f1870', 18, 6, 0.07, 8, 0.027);
+
+    pipes.forEach(drawPipe);
+    items.forEach(drawItem);
+    drawGround();
+
+    particles.forEach(function (p) {
+      ctx.fillStyle = p.c;
+      ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 2);
+    });
+
+    drawBerry();
+
+    if (state === 'play' || state === 'dying' || state === 'intro' || state === 'splat') {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      drawLives();
+    }
+
+    if (flash > 0 && !reducedMotion) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = 'rgba(255,255,255,0.75)';
+      ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  /* ===============================================================
+     MAIN LOOP  (fixed time step so it plays the same on any screen)
+  ================================================================ */
+  var STEP = 1 / 120, acc = 0, last = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    acc += dt;
+    while (acc >= STEP) { update(STEP); acc -= STEP; }
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  Scores.load().then(function (list) { renderBoard(titleBoard, list, 3, 0); });
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
