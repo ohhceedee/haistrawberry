@@ -15,11 +15,11 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <script>
+<script>
 (function () {
-  var logo = document.querySelector('.logo'); // your strawberry logo
-  if (!logo) return;
-  logo.addEventListener('click', function (e) {
+  var LOGO = '.logo'; // change to your strawberry logo's selector
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest || !e.target.closest(LOGO)) return;
     var now = Date.now(), d = {};
     try { d = JSON.parse(sessionStorage.getItem('strawbzTaps')) || {}; } catch (_) {}
     var n = (now - (d.t || 0) < 2500) ? (d.n || 0) + 1 : 1;
@@ -27,9 +27,9 @@
     if (n >= 5) {
       e.preventDefault();
       try { sessionStorage.removeItem('strawbzTaps'); sessionStorage.setItem('strawbzUnlocked', '1'); } catch (_) {}
-      location.href = '/jetty-strawbz.html';
+      location.href = 'jetty-strawbz.html';
     }
-  });
+  }, true);
 })();
 </script>
   <!-- I Love Ocavil -->
