@@ -294,8 +294,8 @@
       if (phase === 'fall') {
         rect(29, 20, 23, 19, '#1d0b2e');
         rect(30, 21, 21, 17, '#fff3d6');
-        text('High', 33, 23, '#C93F80');
-        text('five!', 35, 30, '#C93F80');
+        text('HIGH', 33, 23, '#C93F80');
+        text('FIVE!', 35, 30, '#C93F80');
       } else {
         rect(29, 27 - bob, 23, 12, '#1d0b2e');
         rect(30, 28 - bob, 21, 10, '#fff3d6');
