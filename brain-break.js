@@ -289,7 +289,7 @@
       rect(dir > 0 ? 1 : 40, 56 + bob, 2, 2, 'rgba(120,120,130,.4)');
     }
     if (phase !== 'caught' || sparkle < 0.35) {
-      // sign and its stick: "PICK ME!" while floating down, "YAY!" once he is running
+      // sign and its stick: "High five!" while floating down, "YAY!" once he is running
       line(32, 39 - bob, 28, 51 - bob, '#8a5326');
       if (phase === 'fall') {
         rect(29, 20, 23, 19, '#1d0b2e');
