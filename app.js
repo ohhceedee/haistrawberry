@@ -35,7 +35,8 @@
   function cap(k) { return (CAPS[k] || CAPS.lavender)[1]; }
   var OKTAG = /&lt;(\/?)(i|b|em|strong|sub|sup|u|br)\s*\/?&gt;/g;
   function rich(c, str) { var t = esc(str); return c && c.html ? t.replace(OKTAG, '<$1$2>') : t; }
-  function imgSrc(v) { if (!v) return ''; if (/^data:|^https?:/.test(v)) return v; var m = window.CARD_IMAGES || {}; return m[v] || ''; }
+  // a path with a slash (e.g. cards/p1/x.jpg) is a real image file next to the site
+  function imgSrc(v) { if (!v) return ''; if (/^data:|^https?:|\//.test(v)) return v; var m = window.CARD_IMAGES || {}; return m[v] || ''; }
   function cardImg(c, cls) { var src = imgSrc(c.img); return src ? '<img class="' + cls + '" src="' + esc(src) + '" alt="Study image" loading="lazy">' : ''; }
   function capName(k) { return (CAPS[k] || CAPS.lavender)[0]; }
   function isSpotify(u) { return /^https:\/\/open\.spotify\.com\//.test(String(u || '').trim()); }
@@ -188,6 +189,8 @@
       if (!byName[g]) { byName[g] = { name: g, decks: [] }; groups.push(byName[g]); }
       byName[g].decks.push(d);
     });
+    // newest study material first: the group added last in data.js shows at the top; ungrouped decks go to the bottom
+    groups = groups.filter(function (g) { return g.name; }).reverse().concat(groups.filter(function (g) { return !g.name; }));
     return groups.map(function (g) {
       var cards = g.decks.reduce(function (t, d) { return t + d.cards.length; }, 0);
       return '<section class="wrap deck-group">' +
