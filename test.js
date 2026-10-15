@@ -58,16 +58,16 @@
   if (T && !T.qs.every(function (q) { return byId[q.d]; })) T = null;
   var REC = null;                     // the results being shown (just finished, or a past test)
   var screen = T && !T.done ? 'question' : 'setup';
-  if (T && T.done) { REC = T.hid && findRecord(T.hid); if (REC) screen = 'results'; else T = null; }
+  if (T && T.done) { T = null; ssave('testRun', null); }   // finished tests live in Recent tests; Create a Test always starts fresh
   // links from the Test Lab: test.html#r=<id> (see results) and #retry=<id> (retest the misses)
   var route = location.hash.match(/^#(r|retry)=(.+)$/), pendingRetry = null;
   if (route) {
     var rec = findRecord(decodeURIComponent(route[2]));
-    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
-    if (rec && route[1] === 'r') { REC = rec; screen = 'results'; }
-    else if (rec) pendingRetry = rec;
+    if (rec && route[1] === 'r') { REC = rec; screen = 'results'; }   // keep #r= so a refresh stays on these results
+    else { if (rec) pendingRetry = rec; clearHash(); }
   }
 
+  function clearHash() { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
   function card(q) { var d = byId[q.d]; if (!d) return null; for (var i = 0; i < d.cards.length; i++) if (d.cards[i].id === q.c) return d.cards[i]; return null; }
   function poolSize() { return picked.reduce(function (t, id) { return t + byId[id].cards.length; }, 0); }
 
@@ -176,13 +176,16 @@
     var R = REC, n = R.n, pct = Math.round(R.right / n * 100), missed = R.qs.filter(function (q) { return !q.ok; }), per = {};
     R.qs.forEach(function (q) { per[q.d] = per[q.d] || { r: 0, n: 0 }; per[q.d].n++; if (q.ok) per[q.d].r++; });
     var msg = pct === 100 ? 'Perfect score. Every single one!' : pct >= 90 ? 'Amazing. You really know this.' : pct >= 80 ? 'Strong work. Just a few to review.' : pct >= 70 ? 'Solid. Review the misses and go again.' : pct >= 50 ? 'Getting there. The review below is where the points are.' : 'Good practice run. Review, then try the missed ones again.';
-    var past = !T || T.hid !== R.id;
+    var past = R.id !== justFinished;
     var h = '<div class="t-top"><a class="t-link" href="index.html#tests">← Test Lab</a></div>' +
       '<div class="t-head"><p class="eyebrow">Test Lab' + (past ? ' · ' + esc(new Date(R.at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : '') + '</p><h1>' + (past ? 'Test results' : 'Your results') + '</h1></div>' +
       '<div class="t-score"><div class="big">' + R.right + ' <small>/ ' + n + '</small></div><div class="pct">' + pct + '%</div><p class="msg">' + msg + '</p></div>' +
       '<div class="t-acts">' + (missed.length ? '<button class="btn" data-act="review">Review missed (' + missed.length + ')</button><button class="btn alt" data-act="retry-missed">Retest the missed ones</button>' : '') +
       '<button class="btn alt" data-act="new">New test</button></div>' +
-      '<label class="t-notes"><span class="t-lbl" style="margin:0">Notes for this test</span><textarea rows="3" data-note placeholder="What tripped you up? What to remember next time…">' + esc(R.note || '') + '</textarea><em class="t-saved" aria-live="polite">Saved in the Test Lab</em></label>';
+      (noteOpen
+        ? '<div class="t-notes"><span class="t-lbl" style="margin:0">Note for this test</span><textarea rows="3" data-note placeholder="What tripped you up? What to remember next time…">' + esc(R.note || '') + '</textarea><div class="t-nrow"><em class="t-saved" aria-live="polite">Saves as you type</em><button class="t-link" data-act="note-done">Done</button></div></div>'
+        : R.note ? '<button class="t-notecard" data-act="note-open"><span class="t-lbl" style="margin:0">Note</span><span class="t-notetext">' + esc(R.note) + '</span><span class="t-edit">Edit</span></button>'
+        : '<div class="t-acts" style="margin-top:4px"><button class="t-link" data-act="note-open">+ Add a note</button></div>');
     var ids = Object.keys(per);
     if (ids.length > 1) {
       h += '<h2 class="t-h2">By deck</h2><table class="t-break">' + ids.map(function (id) {
@@ -214,9 +217,11 @@
   }
 
   function finish() {
-    REC = recordFromRun(); T.done = true; T.hid = REC.id;
+    REC = recordFromRun(); T.done = true; T.hid = REC.id; justFinished = REC.id;
     var h = getHistory(); h.push(REC); setHistory(h);
-    ssave('testRun', T); screen = 'results'; closeModal(); render(); window.scrollTo(0, 0);
+    T = null; ssave('testRun', null);   // done: it's saved in Recent tests now
+    try { history.replaceState(null, '', location.pathname + location.search + '#r=' + encodeURIComponent(REC.id)); } catch (e) {}
+    screen = 'results'; noteOpen = false; closeModal(); render(); window.scrollTo(0, 0);
   }
   var busy = false;
   function go(delta) {
@@ -249,14 +254,14 @@
   function closeModal() { var m = root.querySelector('#t-modal'); if (m) m.hidden = true; }
   function exitTest() { T = null; ssave('testRun', null); screen = 'setup'; render(); window.scrollTo(0, 0); }
 
-  var noteT;
+  var noteT, noteOpen = false, justFinished = null;
   root.addEventListener('input', function (e) {
     if (!e.target.hasAttribute || !e.target.hasAttribute('data-note') || !REC) return;
     var v = e.target.value, tag = root.querySelector('.t-saved'); clearTimeout(noteT);
     noteT = setTimeout(function () {
       var h = getHistory(); for (var i = 0; i < h.length; i++) if (h[i].id === REC.id) h[i].note = v;
       REC.note = v; var ok = setHistory(h);
-      if (tag) { tag.textContent = ok ? 'Saved ✓' : 'Couldn’t save on this device'; tag.classList.add('on'); setTimeout(function () { tag.classList.remove('on'); tag.textContent = 'Saved in the Test Lab'; }, 1600); }
+      if (tag) { tag.textContent = ok ? 'Saved ✓' : 'Couldn’t save on this device'; tag.classList.add('on'); setTimeout(function () { tag.classList.remove('on'); tag.textContent = 'Saves as you type'; }, 1600); }
     }, 400);
   });
   root.addEventListener('change', function (e) {
@@ -286,7 +291,9 @@
       case 'exit-yes': exitTest(); break;
       case 'review': var el = document.getElementById('review'); if (el) el.scrollIntoView({ behavior: 'smooth' }); break;
       case 'retry-missed': retryFrom(REC); break;
-      case 'new': if (T && T.done) { T = null; ssave('testRun', null); } REC = null; screen = 'setup'; render(); window.scrollTo(0, 0); break;
+      case 'new': REC = null; clearHash(); screen = T && !T.done ? 'question' : 'setup'; render(); window.scrollTo(0, 0); break;
+      case 'note-open': noteOpen = true; render(); var ta = root.querySelector('[data-note]'); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } break;
+      case 'note-done': noteOpen = false; render(); break;
     }
   });
 

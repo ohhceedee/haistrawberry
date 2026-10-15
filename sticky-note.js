@@ -2,7 +2,7 @@
    Sticky note pop-up
    ---------------------------------------------------------------------
    Each visit shows one random post-it from NOTES (never the same one
-   twice in a row on the same device), until SHOW_UNTIL passes. After
+   twice in a row on the same device), once per visit, until SHOW_UNTIL passes. After
    that it does nothing, so it can stay in the site harmlessly.
 
    Add a note:   { text: "Your message" },
@@ -32,6 +32,10 @@
   ];
 
   if (Date.now() >= new Date(SHOW_UNTIL).getTime()) return;
+
+  // once per visit: coming back from a test, the Test Lab, or a refresh won't pop it up again.
+  // (A "visit" lasts until the browser tab is closed.)
+  try { if (sessionStorage.getItem('snShown')) return; sessionStorage.setItem('snShown', '1'); } catch (_) {}
 
   var font = document.createElement('link');
   font.rel = 'stylesheet';

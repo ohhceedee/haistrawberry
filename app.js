@@ -244,7 +244,7 @@
 
   window.addEventListener('hashchange', function () {
     var v = hashView();
-    if (v !== view) { view = v; deckId = null; removing = null; window.scrollTo(0, 0); render(); }
+    if (v !== view) { view = v; deckId = null; removing = null; editingNote = null; window.scrollTo(0, 0); render(); }
   });
 
   /* ---------- Test Lab: create a test, recent tests, notes ----------
@@ -254,7 +254,7 @@
   function setHistory(h) { try { localStorage.setItem('testHistory', JSON.stringify(h)); return true; } catch (e) { return false; } }
   function runInProgress() { try { var t = JSON.parse(sessionStorage.getItem('testRun')); return t && !t.done && t.qs && t.qs.length ? t : null; } catch (e) { return null; } }
   var deckById = {}; DECKS.forEach(function (d) { deckById[d.id] = d; });
-  var showAllTests = false, removing = null;
+  var showAllTests = false, removing = null, editingNote = null;
   function when(ms) {
     var d = new Date(ms), now = new Date(), y = new Date(now); y.setDate(now.getDate() - 1);
     var t = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -286,7 +286,10 @@
         (miss ? '<a class="tl-btn" href="test.html#retry=' + encodeURIComponent(t.id) + '">Retest missed</a>' : '') +
         (removing === t.id ? '<span class="tl-confirm">Remove this test? <button data-act="tl-rm-yes" data-id="' + esc(t.id) + '">Remove</button><button data-act="tl-rm-no">Cancel</button></span>'
           : '<button class="tl-btn tl-rm" data-act="tl-rm" data-id="' + esc(t.id) + '">Remove</button>') + '</div>' +
-        '<label class="tl-note"><span>Notes</span><textarea rows="2" data-note="' + esc(t.id) + '" placeholder="What tripped you up? What to remember next time…">' + esc(t.note || '') + '</textarea><em class="tl-saved" aria-live="polite"></em></label>' +
+        (editingNote === t.id
+          ? '<div class="tl-note"><span>Note</span><textarea rows="3" data-note="' + esc(t.id) + '" placeholder="What tripped you up? What to remember next time…">' + esc(t.note || '') + '</textarea><div class="tl-nrow"><em class="tl-saved" aria-live="polite"></em><button class="tl-done" data-act="tl-note-done">Done</button></div></div>'
+          : t.note ? '<button class="tl-notecard" data-act="tl-note" data-id="' + esc(t.id) + '"><span class="tl-notetext">' + esc(t.note) + '</span><span class="tl-edit">Edit</span></button>'
+          : '<button class="tl-addnote" data-act="tl-note" data-id="' + esc(t.id) + '">+ Add a note</button>') +
         '</article>';
     }).join('');
     if (hist.length > shown.length) h += '<button class="tl-more" data-act="tl-more">Show all ' + hist.length + ' tests</button>';
@@ -307,6 +310,8 @@
     if (view === 'tests') {
       var a = t.dataset.act;
       if (a === 'tl-more') { showAllTests = true; render(); }
+      else if (a === 'tl-note') { editingNote = t.dataset.id; render(); var ta = app.querySelector('[data-note]'); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } }
+      else if (a === 'tl-note-done') { editingNote = null; render(); }
       else if (a === 'tl-rm') { removing = t.dataset.id; render(); }
       else if (a === 'tl-rm-no') { removing = null; render(); }
       else if (a === 'tl-rm-yes') { setHistory(getHistory().filter(function (x) { return x.id !== t.dataset.id; })); removing = null; render(); }
