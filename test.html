@@ -56,7 +56,9 @@
     .t-stage{padding:20px 0 130px;transition:opacity .16s ease,transform .16s ease}
     .t-stage.out{opacity:0;transform:translateY(6px)}
     .t-pic{height:min(32vh,280px);display:grid;place-items:center;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);margin-bottom:16px;overflow:hidden}
-    .t-pic img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+    .t-pic{position:relative}
+    /* the picture always fits inside its box, whatever its shape (never cropped) */
+    .t-pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
     .t-qtext{font-size:1.22rem;line-height:1.4;overflow-wrap:anywhere;margin-bottom:18px;min-height:1.4em}
     .t-stage .choice{transition:border-color .12s,background-color .12s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
     .t-stage .choice:focus{outline:none}
@@ -81,6 +83,32 @@
     @keyframes t-fade{from{opacity:0}}
     @keyframes t-pop{from{opacity:0;transform:scale(.96)}}
     @media (prefers-reduced-motion:reduce){.t-stage,.t-modal,.t-dialog{transition:none;animation:none}}
+    /* results notes */
+    .t-notes{display:grid;gap:8px;margin:22px 0 4px}
+    .t-notes textarea{width:100%;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface);font-size:16px;line-height:1.45;min-height:70px}
+    .t-saved{font-style:normal;font-size:.8rem;color:var(--muted);transition:color .2s}
+    .t-saved.on{color:var(--teal)}
+
+    /* phones turned sideways: picture + question left (stays put), answers right (scrolls) */
+    @media (orientation:landscape) and (max-height:520px){
+      body{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+      .t-wrap{max-width:none}
+      .t-qtop{padding:6px 16px;margin-inline:-16px}
+      .t-exit{width:32px;height:32px;font-size:18px}
+      .t-stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;align-items:start;padding:12px 0 76px}
+      .t-left{position:sticky;top:58px;display:flex;flex-direction:column;gap:10px;height:calc(100vh - 150px);height:calc(100dvh - 150px)}
+      .t-left.no-pic{height:auto;justify-content:flex-start}
+      .t-pic{flex:1 1 auto;height:auto;min-height:0;margin:0}
+      .t-qtext{flex:none;font-size:1.02rem;margin:0;max-height:40%;overflow:auto}
+      .t-left.no-pic .t-qtext{max-height:none;font-size:1.15rem}
+      .t-right .choices{gap:8px}
+      .t-right .choice{padding:9px 12px;font-size:.95rem;gap:10px}
+      .t-right .choice .key{width:24px;height:24px;font-size:.72rem}
+      .t-qbar{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+      .t-qbar .t-bar-in{max-width:none}
+      .t-qbar .btn{padding:7px 16px}
+    }
+
 
     /* results */
     .t-score{text-align:center;border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:28px 20px}

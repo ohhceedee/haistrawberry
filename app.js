@@ -19,7 +19,7 @@
   });
 
   var CAPS = { lavender: ['Lavender · EDTA', '#8E7CC3'], pink: ['Pink · EDTA (blood bank)', '#E48DB0'], gold: ['Gold · SST', '#D6A21E'], lightblue: ['Light blue · citrate', '#7EB8DA'], green: ['Green · heparin', '#4C9A6A'], gray: ['Gray · fluoride', '#8C939C'], red: ['Red · clot', '#C8412F'] };
-  var view = location.hash === '#study' ? 'study' : 'about';
+  var view = location.hash === '#study' ? 'study' : location.hash === '#tests' ? 'tests' : 'about';
   var deckId = null, idx = 0, flipped = false, order = [];
   var mode = 'flip', quiz = null;
   var app = document.getElementById('app');
@@ -95,7 +95,8 @@
   function header() {
     return '<header class="top"><div class="wrap top-in"><a class="brand" href="#about">Hai<i>Strawberry</i></a>' +
       '<nav aria-label="Pages"><a class="navlink" href="#about"' + (view === 'about' ? ' aria-current="page"' : '') + '>About</a>' +
-      '<a class="navlink" href="#study"' + (view === 'study' ? ' aria-current="page"' : '') + '>Study Lab</a></nav></div></header>';
+      '<a class="navlink" href="#study"' + (view === 'study' ? ' aria-current="page"' : '') + '>Study Lab</a>' +
+      '<a class="navlink" href="#tests"' + (view === 'tests' ? ' aria-current="page"' : '') + '>Test Lab</a></nav></div></header>';
   }
 
   var BALLOON = '<svg class="balloon" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 2C6.8 2 4 6.2 4 11.2c0 3.8 2.4 7 5 9.3h6c2.6-2.3 5-5.5 5-9.3C20 6.2 17.2 2 12 2Z" fill="var(--accent)"/><path d="M12 2c-2.4 0-4.3 1.6-5.5 4.2-1 4 .1 8.6 2.7 14.3h5.6c2.6-5.7 3.7-10.3 2.7-14.3C16.3 3.6 14.4 2 12 2Z" fill="var(--violet)" opacity=".55"/><path d="M12 2c-1.1 0-2 .6-2.7 1.7C7.9 6.7 8.4 12 10 20.5h4C15.6 12 16.1 6.7 14.7 3.7 14 2.6 13.1 2 12 2Z" fill="var(--teal)"/><path d="M10 20.4l1 3.2h2l1-3.2z" fill="none" stroke="var(--muted)" stroke-width=".5"/><rect x="10.4" y="23.2" width="3.2" height="2.4" rx=".5" fill="#9a6b45"/></svg>';
@@ -179,8 +180,7 @@
 
   function gridView() {
     return '<section class="wrap study-head"><p class="eyebrow">Study Lab</p><h1>Flashcards for CLS</h1>' +
-      '<p>Pick a deck, flip the cards, and mark what you know. Your progress is saved on your own device only.</p>' +
-      '<a class="btn test-btn" href="test.html" style="margin-top:16px;width:auto;justify-self:start;align-self:start">📝 Create a Test <span aria-hidden="true">→</span></a></section>' +
+      '<p>Pick a deck, flip the cards, and mark what you know. Your progress is saved on your own device only. Ready to check yourself? Head to the <a href="#tests">Test Lab</a>.</p></section>' +
       groupedDecks();
   }
   function deckCard(d) {
@@ -236,18 +236,82 @@
   function render() {
     var body;
     if (view === 'study') { var d = deckId && deck(); if (deckId && !d) deckId = null; body = d ? deckView(d) : gridView(); }
+    else if (view === 'tests') body = testsView();
     else body = aboutView();
     app.innerHTML = header() + '<main>' + body + '</main><footer class="wrap">© ' + new Date().getFullYear() + ' HaiStrawberry<span class="egg"> I Love Ocavil</span></footer>';
     if (view === 'about') refreshCovers();
   }
 
   window.addEventListener('hashchange', function () {
-    var v = location.hash === '#study' ? 'study' : 'about';
-    if (v !== view) { view = v; deckId = null; window.scrollTo(0, 0); render(); }
+    var v = hashView();
+    if (v !== view) { view = v; deckId = null; removing = null; window.scrollTo(0, 0); render(); }
+  });
+
+  /* ---------- Test Lab: create a test, recent tests, notes ----------
+     Test history is written by test.js to this device's storage ("testHistory"). */
+  function hashView() { return location.hash === '#study' ? 'study' : location.hash === '#tests' ? 'tests' : 'about'; }
+  function getHistory() { try { var h = JSON.parse(localStorage.getItem('testHistory') || '[]'); return Array.isArray(h) ? h : []; } catch (e) { return []; } }
+  function setHistory(h) { try { localStorage.setItem('testHistory', JSON.stringify(h)); return true; } catch (e) { return false; } }
+  function runInProgress() { try { var t = JSON.parse(sessionStorage.getItem('testRun')); return t && !t.done && t.qs && t.qs.length ? t : null; } catch (e) { return null; } }
+  var deckById = {}; DECKS.forEach(function (d) { deckById[d.id] = d; });
+  var showAllTests = false, removing = null;
+  function when(ms) {
+    var d = new Date(ms), now = new Date(), y = new Date(now); y.setDate(now.getDate() - 1);
+    var t = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    if (d.toDateString() === now.toDateString()) return 'Today · ' + t;
+    if (d.toDateString() === y.toDateString()) return 'Yesterday · ' + t;
+    return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + t;
+  }
+  function deckList(ids) {
+    var names = ids.map(function (id) { var d = deckById[id]; return d ? d.title : null; }).filter(Boolean);
+    if (!names.length) return 'Decks that have since changed';
+    return names.slice(0, 2).join(' · ') + (names.length > 2 ? ' · +' + (names.length - 2) + ' more' : '');
+  }
+  function testsView() {
+    var hist = getHistory().slice().sort(function (a, b) { return b.at - a.at; }), run = runInProgress();
+    var shown = showAllTests ? hist : hist.slice(0, 8);
+    var h = '<section class="wrap study-head"><p class="eyebrow">Test Lab</p><h1>Test yourself</h1>' +
+      '<p>Build a practice test from any decks, then come back here to see how you did and jot down what to remember. Your tests and notes stay on this device only.</p></section>' +
+      '<section class="wrap tl-actions">' +
+      '<a class="tl-card tl-create" href="test.html"><span class="tl-ico" aria-hidden="true">📝</span><span><b>Create a Test</b><span>Pick decks and a length. Score and review at the end.</span></span><span class="tl-go" aria-hidden="true">→</span></a>' +
+      (run ? '<a class="tl-card" href="test.html"><span class="tl-ico" aria-hidden="true">⏸️</span><span><b>Resume your test</b><span>' + run.qs.filter(function (q) { return q.pick !== null; }).length + ' of ' + run.qs.length + ' answered</span></span><span class="tl-go" aria-hidden="true">→</span></a>' : '') +
+      '</section><section class="wrap tl-recent"><div class="group-head"><h2>Recent tests</h2>' + (hist.length ? '<span class="group-meta">' + hist.length + ' saved</span>' : '') + '</div>';
+    if (!hist.length) h += '<p class="tl-empty">No tests yet. When you finish one, it shows up here with your score, the ones you missed, and room for notes.</p>';
+    h += shown.map(function (t) {
+      var pct = Math.round(t.right / t.n * 100), miss = t.n - t.right;
+      return '<article class="tl-test" data-id="' + esc(t.id) + '">' +
+        '<div class="tl-row"><div class="tl-score' + (pct >= 80 ? ' good' : pct < 60 ? ' low' : '') + '"><b>' + pct + '%</b><span>' + t.right + ' / ' + t.n + '</span></div>' +
+        '<div class="tl-meta"><span class="tl-when">' + esc(when(t.at)) + '</span><span class="tl-decks">' + esc(deckList(t.decks || [])) + '</span></div></div>' +
+        '<div class="tl-btns"><a class="tl-btn" href="test.html#r=' + encodeURIComponent(t.id) + '">' + (miss ? 'Review ' + miss + ' missed' : 'See results') + '</a>' +
+        (miss ? '<a class="tl-btn" href="test.html#retry=' + encodeURIComponent(t.id) + '">Retest missed</a>' : '') +
+        (removing === t.id ? '<span class="tl-confirm">Remove this test? <button data-act="tl-rm-yes" data-id="' + esc(t.id) + '">Remove</button><button data-act="tl-rm-no">Cancel</button></span>'
+          : '<button class="tl-btn tl-rm" data-act="tl-rm" data-id="' + esc(t.id) + '">Remove</button>') + '</div>' +
+        '<label class="tl-note"><span>Notes</span><textarea rows="2" data-note="' + esc(t.id) + '" placeholder="What tripped you up? What to remember next time…">' + esc(t.note || '') + '</textarea><em class="tl-saved" aria-live="polite"></em></label>' +
+        '</article>';
+    }).join('');
+    if (hist.length > shown.length) h += '<button class="tl-more" data-act="tl-more">Show all ' + hist.length + ' tests</button>';
+    return h + '</section>';
+  }
+  var noteTimer = {};
+  app.addEventListener('input', function (e) {
+    var id = e.target.dataset && e.target.dataset.note; if (!id) return;
+    var ta = e.target, tag = ta.parentNode.querySelector('.tl-saved'); clearTimeout(noteTimer[id]);
+    noteTimer[id] = setTimeout(function () {
+      var h = getHistory(); for (var i = 0; i < h.length; i++) if (h[i].id === id) h[i].note = ta.value;
+      if (tag) { tag.textContent = setHistory(h) ? 'Saved' : 'Couldn’t save on this device'; setTimeout(function () { tag.textContent = ''; }, 1500); }
+    }, 400);
   });
 
   app.addEventListener('click', function (e) {
     var t = e.target.closest('[data-act],[data-open],[data-pick]'); if (!t) return;
+    if (view === 'tests') {
+      var a = t.dataset.act;
+      if (a === 'tl-more') { showAllTests = true; render(); }
+      else if (a === 'tl-rm') { removing = t.dataset.id; render(); }
+      else if (a === 'tl-rm-no') { removing = null; render(); }
+      else if (a === 'tl-rm-yes') { setHistory(getHistory().filter(function (x) { return x.id !== t.dataset.id; })); removing = null; render(); }
+      return;
+    }
     if (t.dataset.pick !== undefined) { pick(+t.dataset.pick); return; }
     if (t.dataset.open) { deckId = t.dataset.open; idx = 0; flipped = false; order = []; mode = 'flip'; quiz = null; lap = 0; render(); window.scrollTo(0, 0); return; }
     var d = deck(), n = d ? d.cards.length : 0, k;
@@ -299,6 +363,9 @@
     else if (e.key === 'ArrowRight') { idx = (idx + 1) % d.cards.length; flipped = false; render(); stepped(d); }
     else if (e.key === 'ArrowLeft') { idx = (idx - 1 + d.cards.length) % d.cards.length; flipped = false; render(); }
   });
+
+  // coming back from a test with the browser's Back button: show the newest history
+  window.addEventListener('pageshow', function (e) { if (e.persisted && view === 'tests') render(); });
 
   render();
 })();

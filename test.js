@@ -56,9 +56,19 @@
   var length = load('testLength', 25);
   var T = sload('testRun');           // a test in progress survives a refresh
   if (T && !T.qs.every(function (q) { return byId[q.d]; })) T = null;
-  var screen = T ? (T.done ? 'results' : 'question') : 'setup';
+  var REC = null;                     // the results being shown (just finished, or a past test)
+  var screen = T && !T.done ? 'question' : 'setup';
+  if (T && T.done) { REC = T.hid && findRecord(T.hid); if (REC) screen = 'results'; else T = null; }
+  // links from the Test Lab: test.html#r=<id> (see results) and #retry=<id> (retest the misses)
+  var route = location.hash.match(/^#(r|retry)=(.+)$/), pendingRetry = null;
+  if (route) {
+    var rec = findRecord(decodeURIComponent(route[2]));
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    if (rec && route[1] === 'r') { REC = rec; screen = 'results'; }
+    else if (rec) pendingRetry = rec;
+  }
 
-  function card(q) { var d = byId[q.d]; for (var i = 0; i < d.cards.length; i++) if (d.cards[i].id === q.c) return d.cards[i]; return null; }
+  function card(q) { var d = byId[q.d]; if (!d) return null; for (var i = 0; i < d.cards.length; i++) if (d.cards[i].id === q.c) return d.cards[i]; return null; }
   function poolSize() { return picked.reduce(function (t, id) { return t + byId[id].cards.length; }, 0); }
 
   function build(list) {
@@ -81,8 +91,8 @@
   }
   function setupView() {
     var n = poolSize(), q = length === 'all' ? n : Math.min(length, n);
-    var h = '<div class="t-top"><a class="t-link" href="./#study">← Study Lab</a></div>' +
-      '<div class="t-head"><p class="eyebrow">Study Lab</p><h1>Create a Test</h1><p>Choose how long, then pick the decks to pull from. Answers stay hidden until the end, then you get your score and the ones to review.</p></div>' +
+    var h = '<div class="t-top"><a class="t-link" href="index.html#tests">← Test Lab</a></div>' +
+      '<div class="t-head"><p class="eyebrow">Test Lab</p><h1>Create a Test</h1><p>Choose how long, then pick the decks to pull from. Answers stay hidden until the end, then you get your score and the ones to review.</p></div>' +
       lengthPicker(n) +
       '<div class="t-bulk" style="margin:10px 0 14px"><button class="t-link" data-act="all">Select all</button><button class="t-link" data-act="none">Clear</button></div>';
     GROUPS.forEach(function (g, gi) {
@@ -112,12 +122,12 @@
   }
   function stageHTML() {
     var q = T.qs[T.i], c = card(q), src = imgSrc(c.img);
-    return (src ? '<div class="t-pic"><img src="' + esc(src) + '" alt="Question image"></div>' : '') +
-      '<p class="t-qtext">' + rich(c, c.q) + '</p>' +
-      '<div class="choices" role="radiogroup" aria-label="Answer choices">' + q.ch.map(function (a, i) {
+    return '<div class="t-left' + (src ? '' : ' no-pic') + '">' + (src ? '<div class="t-pic"><img src="' + esc(src) + '" alt="Question image"></div>' : '') +
+      '<p class="t-qtext">' + rich(c, c.q) + '</p></div>' +
+      '<div class="t-right"><div class="choices" role="radiogroup" aria-label="Answer choices">' + q.ch.map(function (a, i) {
         return '<button class="choice' + (q.pick === i ? ' sel' : '') + '" role="radio" aria-checked="' + (q.pick === i) + '" data-pick="' + i + '"><span class="key">' + 'ABCD'[i] + '</span><span>' + rich(c, a) + '</span></button>';
       }).join('') + '</div>' +
-      '<p class="t-hint">1–4 or A–D to choose · Enter for next · Esc to exit</p>';
+      '<p class="t-hint">1–4 or A–D to choose · Enter for next · Esc to exit</p></div>';
   }
   function updateChrome() {
     var n = T.qs.length, q = T.qs[T.i], answered = T.qs.filter(function (x) { return x.pick !== null; }).length;
@@ -142,40 +152,58 @@
     setTimeout(swap, 160);
   }
 
-  function results() {
-    var right = 0, per = {}, missed = [];
-    T.qs.forEach(function (q) {
-      var c = card(q), ok = q.pick !== null && q.ch[q.pick] === c.a;
-      per[q.d] = per[q.d] || { r: 0, n: 0 }; per[q.d].n++;
-      if (ok) { right++; per[q.d].r++; } else missed.push(q);
-    });
-    return { right: right, per: per, missed: missed };
+  // ---------- saved tests (shared with the Test Lab tab in app.js) ----------
+  function getHistory() { var h = load('testHistory', []); return Array.isArray(h) ? h : []; }
+  function setHistory(h) {
+    // keep the newest 60; if the device is out of room, drop the oldest until it fits
+    h = h.slice().sort(function (a, b) { return b.at - a.at; }).slice(0, 60);
+    while (h.length) { try { localStorage.setItem('testHistory', JSON.stringify(h)); return true; } catch (e) { h.pop(); } }
+    return false;
   }
+  function findRecord(id) { var h = getHistory(); for (var i = 0; i < h.length; i++) if (h[i].id === id) return h[i]; return null; }
+  // a finished test, stored small: which card, right or not, and the wrong answer she picked
+  function recordFromRun() {
+    var right = 0, qs = T.qs.map(function (q) {
+      var c = card(q), ok = !!c && q.pick !== null && q.ch[q.pick] === c.a; if (ok) right++;
+      var r = { d: q.d, c: q.c, ok: ok }; if (!ok) r.your = q.pick === null ? null : q.ch[q.pick]; return r;
+    });
+    var decks = []; qs.forEach(function (q) { if (decks.indexOf(q.d) < 0) decks.push(q.d); });
+    return { id: 't' + Date.now().toString(36), at: Date.now(), n: qs.length, right: right, decks: decks, qs: qs, note: '' };
+  }
+  function cardOf(q) { var d = byId[q.d]; if (!d) return null; for (var i = 0; i < d.cards.length; i++) if (d.cards[i].id === q.c) return d.cards[i]; return null; }
 
   function resultsView() {
-    var r = results(), n = T.qs.length, pct = Math.round(r.right / n * 100);
+    var R = REC, n = R.n, pct = Math.round(R.right / n * 100), missed = R.qs.filter(function (q) { return !q.ok; }), per = {};
+    R.qs.forEach(function (q) { per[q.d] = per[q.d] || { r: 0, n: 0 }; per[q.d].n++; if (q.ok) per[q.d].r++; });
     var msg = pct === 100 ? 'Perfect score. Every single one!' : pct >= 90 ? 'Amazing. You really know this.' : pct >= 80 ? 'Strong work. Just a few to review.' : pct >= 70 ? 'Solid. Review the misses and go again.' : pct >= 50 ? 'Getting there. The review below is where the points are.' : 'Good practice run. Review, then try the missed ones again.';
-    var h = '<div class="t-top"><a class="t-link" href="./#study">← Study Lab</a></div>' +
-      '<div class="t-head"><p class="eyebrow">Create a Test</p><h1>Your results</h1></div>' +
-      '<div class="t-score"><div class="big">' + r.right + ' <small>/ ' + n + '</small></div><div class="pct">' + pct + '%</div><p class="msg">' + msg + '</p></div>' +
-      '<div class="t-acts">' + (r.missed.length ? '<button class="btn" data-act="review">Review missed (' + r.missed.length + ')</button><button class="btn alt" data-act="retry-missed">Retest the missed ones</button>' : '') +
-      '<button class="btn alt" data-act="new">New test</button></div>';
-    var ids = Object.keys(r.per);
+    var past = !T || T.hid !== R.id;
+    var h = '<div class="t-top"><a class="t-link" href="index.html#tests">← Test Lab</a></div>' +
+      '<div class="t-head"><p class="eyebrow">Test Lab' + (past ? ' · ' + esc(new Date(R.at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : '') + '</p><h1>' + (past ? 'Test results' : 'Your results') + '</h1></div>' +
+      '<div class="t-score"><div class="big">' + R.right + ' <small>/ ' + n + '</small></div><div class="pct">' + pct + '%</div><p class="msg">' + msg + '</p></div>' +
+      '<div class="t-acts">' + (missed.length ? '<button class="btn" data-act="review">Review missed (' + missed.length + ')</button><button class="btn alt" data-act="retry-missed">Retest the missed ones</button>' : '') +
+      '<button class="btn alt" data-act="new">New test</button></div>' +
+      '<label class="t-notes"><span class="t-lbl" style="margin:0">Notes for this test</span><textarea rows="3" data-note placeholder="What tripped you up? What to remember next time…">' + esc(R.note || '') + '</textarea><em class="t-saved" aria-live="polite">Saved in the Test Lab</em></label>';
+    var ids = Object.keys(per);
     if (ids.length > 1) {
       h += '<h2 class="t-h2">By deck</h2><table class="t-break">' + ids.map(function (id) {
-        var d = byId[id], p = r.per[id];
-        return '<tr><td><span class="cd">' + esc(d.code) + '</span>' + esc(d.title) + '</td><td>' + p.r + ' / ' + p.n + '</td></tr>';
+        var d = byId[id], p = per[id];
+        return '<tr><td>' + (d ? '<span class="cd">' + esc(d.code) + '</span>' + esc(d.title) : '<i>A deck that has since changed</i>') + '</td><td>' + p.r + ' / ' + p.n + '</td></tr>';
       }).join('') + '</table>';
     }
-    if (r.missed.length) {
-      h += '<h2 class="t-h2" id="review">Review missed</h2><ol class="t-miss">' + r.missed.map(function (q) {
-        var c = card(q), d = byId[q.d];
+    if (missed.length) {
+      h += '<h2 class="t-h2" id="review">Review missed</h2><ol class="t-miss">' + missed.map(function (q) {
+        var c = cardOf(q), d = byId[q.d];
+        if (!c) return '<li><div class="t-from">' + (d ? esc(d.code) + ' · ' + esc(d.title) : 'Removed deck') + '</div><p class="q"><i>This card has been edited or removed since this test.</i></p>' + (q.your ? '<div class="yours"><span class="tag">Your answer</span>' + rich({ html: true }, q.your) + '</div>' : '') + '</li>';
         return '<li><div class="t-from">' + esc(d.code) + ' · ' + esc(d.title) + '</div>' + img(c.img, 'Question image') + '<div class="q">' + rich(c, c.q) + '</div>' +
-          '<div class="yours"><span class="tag">Your answer</span>' + (q.pick === null ? '<i>Skipped</i>' : rich(c, q.ch[q.pick])) + '</div>' +
+          '<div class="yours"><span class="tag">Your answer</span>' + (q.your == null ? '<i>Skipped</i>' : rich(c, q.your)) + '</div>' +
           '<div class="right"><span class="tag">Correct answer</span>' + rich(c, c.a) + (c.why ? '<p style="margin-top:6px">' + rich(c, c.why) + '</p>' : '') + img(c.aimg, 'Answer image') + '</div></li>';
       }).join('') + '</ol>';
     }
     return h;
+  }
+  function retryFrom(R) {
+    var list = R.qs.filter(function (q) { return !q.ok && cardOf(q); }).map(function (q) { return { d: q.d, c: q.c }; });
+    if (list.length) build(list);
   }
 
   function render() {
@@ -185,7 +213,11 @@
     var mixed = root.querySelectorAll('[data-mixed]'); for (var i = 0; i < mixed.length; i++) mixed[i].indeterminate = true;
   }
 
-  function finish() { T.done = true; ssave('testRun', T); screen = 'results'; closeModal(); render(); window.scrollTo(0, 0); }
+  function finish() {
+    REC = recordFromRun(); T.done = true; T.hid = REC.id;
+    var h = getHistory(); h.push(REC); setHistory(h);
+    ssave('testRun', T); screen = 'results'; closeModal(); render(); window.scrollTo(0, 0);
+  }
   var busy = false;
   function go(delta) {
     if (busy || modalOpen()) return;
@@ -217,6 +249,16 @@
   function closeModal() { var m = root.querySelector('#t-modal'); if (m) m.hidden = true; }
   function exitTest() { T = null; ssave('testRun', null); screen = 'setup'; render(); window.scrollTo(0, 0); }
 
+  var noteT;
+  root.addEventListener('input', function (e) {
+    if (!e.target.hasAttribute || !e.target.hasAttribute('data-note') || !REC) return;
+    var v = e.target.value, tag = root.querySelector('.t-saved'); clearTimeout(noteT);
+    noteT = setTimeout(function () {
+      var h = getHistory(); for (var i = 0; i < h.length; i++) if (h[i].id === REC.id) h[i].note = v;
+      REC.note = v; var ok = setHistory(h);
+      if (tag) { tag.textContent = ok ? 'Saved ✓' : 'Couldn’t save on this device'; tag.classList.add('on'); setTimeout(function () { tag.classList.remove('on'); tag.textContent = 'Saved in the Test Lab'; }, 1600); }
+    }, 400);
+  });
   root.addEventListener('change', function (e) {
     var t = e.target;
     if (t.dataset.deck) { var id = t.dataset.deck; picked = picked.filter(function (x) { return x !== id; }); if (t.checked) picked.push(id); }
@@ -243,8 +285,8 @@
       case 'exit-score': finish(); break;
       case 'exit-yes': exitTest(); break;
       case 'review': var el = document.getElementById('review'); if (el) el.scrollIntoView({ behavior: 'smooth' }); break;
-      case 'retry-missed': build(results().missed.map(function (q) { return { d: q.d, c: q.c }; })); break;
-      case 'new': T = null; ssave('testRun', null); screen = 'setup'; render(); window.scrollTo(0, 0); break;
+      case 'retry-missed': retryFrom(REC); break;
+      case 'new': if (T && T.done) { T = null; ssave('testRun', null); } REC = null; screen = 'setup'; render(); window.scrollTo(0, 0); break;
     }
   });
 
@@ -260,4 +302,5 @@
   });
 
   render();
+  if (pendingRetry) retryFrom(pendingRetry);
 })();

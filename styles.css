@@ -247,3 +247,71 @@ nav .navlink[aria-current="page"]{background:var(--violet);color:var(--surface)}
 .pl-name{font-weight:600;font-size:.95rem;line-height:1.25;overflow-wrap:anywhere}
 .pl-all-art{display:grid;place-items:center}
 .pl-all-art svg{width:46px;height:46px}
+
+/* ===== Test Lab tab ===== */
+@media (max-width:430px){nav .navlink{padding:6px 10px;font-size:.84rem}}
+.study-head a{color:var(--accent);font-weight:600}
+.tl-actions{display:grid;gap:12px;margin-block:4px 30px}
+.tl-card{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;text-decoration:none;color:var(--ink);box-shadow:0 8px 24px rgba(28,34,48,.06)}
+.tl-card b{display:block;font-family:var(--display);font-weight:400;font-size:1.35rem;line-height:1.2}
+.tl-card span span{display:block;font-size:.92rem;opacity:.85;margin-top:2px}
+.tl-create{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tl-ico{font-size:1.6rem;line-height:1}
+.tl-go{font-size:1.3rem}
+.tl-recent{padding-bottom:64px}
+.tl-empty{color:var(--muted);padding:14px 0}
+.tl-test{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-top:12px;display:grid;gap:12px}
+.tl-row{display:flex;gap:14px;align-items:center}
+.tl-score{flex:none;width:76px;height:72px;border-radius:14px;background:var(--violet-soft);display:grid;place-content:center;text-align:center;gap:2px}
+.tl-score b{font-family:var(--display);font-weight:400;font-size:1.5rem;line-height:1}
+.tl-score span{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.tl-score.good{background:var(--teal-soft)}
+.tl-score.low{background:var(--accent-soft)}
+.tl-meta{display:grid;gap:2px;min-width:0}
+.tl-when{font-weight:600}
+.tl-decks{color:var(--muted);font-size:.92rem;overflow-wrap:anywhere}
+.tl-btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tl-btn{border:1.5px solid var(--line);background:var(--surface-2);border-radius:999px;padding:6px 14px;font-weight:600;font-size:.88rem;color:var(--ink);text-decoration:none}
+.tl-rm{margin-left:auto;background:none;border-color:transparent;color:var(--muted)}
+.tl-confirm{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.88rem;color:var(--muted)}
+.tl-confirm button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-weight:600;font-size:.85rem}
+.tl-confirm button:first-of-type{border-color:var(--accent);color:var(--accent)}
+.tl-note{display:grid;gap:4px;position:relative}
+.tl-note span{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tl-note textarea{width:100%;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface-2);font-size:16px;line-height:1.4;min-height:44px}
+.tl-saved{position:absolute;right:2px;top:0;font-size:.75rem;color:var(--teal);font-style:normal}
+.tl-more{margin-top:14px;background:none;border:0;color:var(--violet);font-weight:600;padding:6px 0}
+
+/* ===== Phones turned sideways: picture/question on the left, answers on the right ===== */
+@media (orientation:landscape) and (max-height:520px){
+  body{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  .top{position:static}
+  .top-in{padding-block:6px}
+  /* deck heading squeezed into one row so the card is on screen */
+  .deck-view{padding-block:8px 40px;gap:10px 16px;grid-template-columns:auto minmax(0,1fr) auto;align-items:center}
+  .deck-view > :not(.back):not(.dv-head):not(.modes){grid-column:1 / -1}
+  .dv-head{flex-wrap:nowrap;gap:10px}
+  .dv-head .tube,.dv-head .group-line,.dv-head .code{display:none}
+  .dv-head h1{font-size:1.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .modes button{padding:5px 12px;font-size:.85rem}
+  .viewer{max-width:none}
+  .face{min-height:0;padding:12px 16px;gap:10px}
+  .face p{font-size:1.08rem}
+  .fc .face:has(.card-img){grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"side side" "img txt" "img foot";column-gap:18px;align-content:stretch}
+  .fc .face:has(.card-img) .side{grid-area:side}
+  body:has(.deck-view) .top{display:none} /* inside a deck, the All decks row is enough */
+  .fc .face:has(.card-img) .card-img{grid-area:img;max-height:calc(100vh - 130px);max-height:calc(100dvh - 130px);height:100%}
+  .fc .face:has(.card-img) > p{grid-area:txt;align-self:center}
+  .fc .face:has(.card-img) .foot{grid-area:foot;align-self:end}
+  /* multiple choice: question card on the left stays put, answers on the right */
+  .viewer:has(.qcard){grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:start;justify-items:stretch;column-gap:18px}
+  .viewer:has(.qcard) > .qcard{grid-column:1;grid-row:1 / span 6;position:sticky;top:10px}
+  .viewer:has(.qcard) > :not(.qcard){grid-column:2}
+  .qcard{padding:12px 16px;gap:8px}
+  .qcard .card-img{max-height:calc(100vh - 210px);max-height:calc(100dvh - 210px)}
+  .qcard p{font-size:1.02rem}
+  .choice{padding:9px 12px}
+}
+/* three tabs on a narrow phone: keep the header on one row */
+@media (max-width:430px){.top-in{gap:8px;flex-wrap:nowrap}.brand{font-size:1.08rem;white-space:nowrap}nav{gap:2px;flex:none}nav .navlink{padding:6px 9px;font-size:.8rem;white-space:nowrap}}
+@media (max-width:350px){.brand{font-size:.95rem}nav .navlink{padding:5px 7px;font-size:.74rem}}
