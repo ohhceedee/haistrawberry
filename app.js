@@ -12,9 +12,9 @@
   var DECKS = (DATA.decks || []).map(function (d, i) {
     return {
       id: slug(d.code || d.title) + '-' + i,
-      code: d.code || '', title: d.title || 'Untitled deck', cap: d.cap || 'lavender', group: d.group || '', html: !!d.html,
+      code: d.code || '', title: d.title || 'Untitled deck', cap: d.cap || 'lavender', group: d.group || '', date: d.date || '', html: !!d.html,
       cards: (d.cards || []).filter(function (c) { return c && c.q && c.a; })
-        .map(function (c) { return { id: hash(c.q), q: c.q, a: c.a, wrong: Array.isArray(c.wrong) ? c.wrong.filter(Boolean) : [], why: c.why || '', img: c.img || '', html: !!(c.html || d.html) }; })
+        .map(function (c) { return { id: hash(c.q), q: c.q, a: c.a, wrong: Array.isArray(c.wrong) ? c.wrong.filter(Boolean) : [], why: c.why || '', img: c.img || '', aimg: c.aimg || '', html: !!(c.html || d.html) }; })
     };
   });
 
@@ -38,6 +38,8 @@
   // a path with a slash (e.g. cards/p1/x.jpg) is a real image file next to the site
   function imgSrc(v) { if (!v) return ''; if (/^data:|^https?:|\//.test(v)) return v; var m = window.CARD_IMAGES || {}; return m[v] || ''; }
   function cardImg(c, cls) { var src = imgSrc(c.img); return src ? '<img class="' + cls + '" src="' + esc(src) + '" alt="Study image" loading="lazy">' : ''; }
+  // a picture that belongs to the answer side (a chart or table), shown only once the answer is revealed
+  function ansImg(c, cls) { var src = imgSrc(c.aimg); return src ? '<img class="' + cls + '" src="' + esc(src) + '" alt="Answer image" loading="lazy">' : ''; }
   function capName(k) { return (CAPS[k] || CAPS.lavender)[0]; }
   function isSpotify(u) { return /^https:\/\/open\.spotify\.com\//.test(String(u || '').trim()); }
   function getKnown(id) { try { return new Set(JSON.parse(localStorage.getItem('known:' + id) || '[]')); } catch (e) { return new Set(); } }
@@ -47,13 +49,16 @@
   function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 2500); }
 
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+  // the first line of an answer, without formatting: "Loa loa<br>Sheathed…" -> "loa loa"
+  function answerKey(a) { return String(a).split(/<br\s*\/?>/i)[0].replace(/<[^>]*>/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
   function choicesFor(d, c) {
-    var seen = {}; seen[c.a] = 1;
+    var seen = {}, keys = {}; seen[c.a] = 1; keys[answerKey(c.a)] = 1;
     var pool = c.wrong.slice();
     shuffle(d.cards).forEach(function (o) { if (o.id !== c.id) pool.push(o.a); });
     DECKS.forEach(function (dd) { if (dd.id !== d.id) shuffle(dd.cards).forEach(function (o) { pool.push(o.a); }); });
     var wrong = [];
-    pool.forEach(function (a) { if (wrong.length < 3 && !seen[a]) { seen[a] = 1; wrong.push(a); } });
+    // skip decoys that are really the same answer worded differently (two "Loa loa" cards, say)
+    pool.forEach(function (a) { var k = answerKey(a); if (wrong.length < 3 && !seen[a] && !keys[k]) { seen[a] = 1; keys[k] = 1; wrong.push(a); } });
     return shuffle([c.a].concat(wrong));
   }
   function startQuiz(d) {
@@ -68,7 +73,7 @@
       return '<div class="viewer"><div class="face qdone"><span class="side">Results</span><p class="score">' + quiz.score + ' <span>of</span> ' + n + '</p>' +
         '<p class="qmsg">' + (pct === 100 ? 'Perfect run. Every answer right.' : pct >= 80 ? 'Strong work. Just a few to review.' : pct >= 50 ? 'Getting there. Review the ones below and go again.' : 'Good practice. Flip through the cards, then try again.') + '</p></div>' +
         '<div class="ctrl"><button class="got" data-act="quiz-restart">Try again</button><button class="ghost" data-act="mode-flip">Back to flip cards</button></div></div>' +
-        (quiz.missed.length ? '<h2>Review these</h2><ol class="list">' + quiz.missed.map(function (c) { return '<li class="row"><div class="rq">' + cardImg(c, 'row-img') + rich(c, c.q) + '</div><div class="ra">' + rich(c, c.a) + '</div><div class="acts"></div></li>'; }).join('') + '</ol>' : '');
+        (quiz.missed.length ? '<h2>Review these</h2><ol class="list">' + quiz.missed.map(function (c) { return '<li class="row"><div class="rq">' + cardImg(c, 'row-img') + rich(c, c.q) + '</div><div class="ra">' + rich(c, c.a) + ansImg(c, 'row-img') + '</div><div class="acts"></div></li>'; }).join('') + '</ol>' : '');
     }
     var c = d.cards[quiz.order[quiz.i]], answered = quiz.picked !== null;
     var h = '<div class="viewer"><div class="face qcard"><div class="qtop"><span class="side">Question ' + (quiz.i + 1) + ' of ' + n + '</span><span class="count">Score ' + quiz.score + '</span></div>' +
@@ -81,7 +86,7 @@
     if (answered) {
       var ok = quiz.choices[quiz.picked] === c.a;
       h += '<div class="verdict ' + (ok ? 'ok' : 'no') + '" role="status"><b>' + (ok ? 'Correct!' : 'Not quite.') + '</b>' +
-        (c.why ? '<p>' + rich(c, c.why) + '</p>' : (ok ? '' : '<p>The answer: ' + rich(c, c.a) + '</p>')) + '</div>' +
+        (c.why ? '<p>' + rich(c, c.why) + '</p>' : (ok ? '' : '<p>The answer: ' + rich(c, c.a) + '</p>')) + ansImg(c, 'card-img') + '</div>' +
         '<div class="ctrl"><button class="got" data-act="quiz-next">' + (quiz.i + 1 < n ? 'Next question →' : 'See results') + '</button></div>';
     }
     return h + '<p class="hint">Press 1–4 or A–D to answer, Enter for the next question.</p></div>';
@@ -174,7 +179,8 @@
 
   function gridView() {
     return '<section class="wrap study-head"><p class="eyebrow">Study Lab</p><h1>Flashcards for CLS</h1>' +
-      '<p>Pick a deck, flip the cards, and mark what you know. Your progress is saved on your own device only.</p></section>' +
+      '<p>Pick a deck, flip the cards, and mark what you know. Your progress is saved on your own device only.</p>' +
+      '<a class="btn test-btn" href="test.html" style="margin-top:16px;width:auto;justify-self:start;align-self:start">📝 Test mode <span aria-hidden="true">→</span></a></section>' +
       groupedDecks();
   }
   function deckCard(d) {
@@ -189,8 +195,12 @@
       if (!byName[g]) { byName[g] = { name: g, decks: [] }; groups.push(byName[g]); }
       byName[g].decks.push(d);
     });
-    // newest study material first: the group added last in data.js shows at the top; ungrouped decks go to the bottom
-    groups = groups.filter(function (g) { return g.name; }).reverse().concat(groups.filter(function (g) { return !g.name; }));
+    // newest study material first: groups sort by their newest deck `date` (YYYY-MM-DD in data.js);
+    // groups without a date fall back to "added last shows first"; ungrouped decks go to the bottom
+    var named = groups.filter(function (g) { return g.name; });
+    named.forEach(function (g, i) { g.pos = i; g.date = g.decks.reduce(function (m, d) { return d.date > m ? d.date : m; }, ''); });
+    named.sort(function (a, b) { return a.date !== b.date ? (a.date < b.date ? 1 : -1) : b.pos - a.pos; });
+    groups = named.concat(groups.filter(function (g) { return !g.name; }));
     return groups.map(function (g) {
       var cards = g.decks.reduce(function (t, d) { return t + d.cards.length; }, 0);
       return '<section class="wrap deck-group">' +
@@ -211,13 +221,13 @@
     if (c) {
       h += '<div class="viewer"><button class="fc' + (flipped ? ' is-flipped' : '') + '" data-act="flip" aria-label="Flip card"><div class="fc-in">' +
         '<div class="face front"><span class="side">Question</span>' + cardImg(c, 'card-img') + '<p>' + rich(c, c.q) + '</p><div class="foot"><span class="count">' + (idx + 1) + ' / ' + n + '</span>' + (k.has(c.id) ? '<span class="known-tag">Known</span>' : '') + '</div></div>' +
-        '<div class="face back"><span class="side">Answer</span><p>' + rich(c, c.a) + '</p><div class="foot"><span class="count">' + (idx + 1) + ' / ' + n + '</span></div></div>' +
+        '<div class="face back"><span class="side">Answer</span><p>' + rich(c, c.a) + '</p>' + ansImg(c, 'card-img') + '<div class="foot"><span class="count">' + (idx + 1) + ' / ' + n + '</span></div></div>' +
         '</div></button>' +
         '<div class="ctrl"><button class="ghost" data-act="prev">← Prev</button><span class="count">' + k.size + ' of ' + n + ' known</span><button class="ghost" data-act="next">Next →</button></div>' +
         '<div class="ctrl"><button class="ghost" data-act="again">Study again</button><button class="got" data-act="got">Got it</button><button class="ghost" data-act="shuffle">Shuffle</button></div>' +
         '<p class="hint">Tap the card or press Space to flip. Arrow keys move between cards.</p></div>';
       h += '<h2>All cards</h2><ol class="list">' + d.cards.map(function (c) {
-        return '<li class="row' + (k.has(c.id) ? ' known' : '') + '"><div class="rq">' + cardImg(c, 'row-img') + rich(c, c.q) + '</div><div class="ra">' + rich(c, c.a) + '</div><div class="acts"></div></li>';
+        return '<li class="row' + (k.has(c.id) ? ' known' : '') + '"><div class="rq">' + cardImg(c, 'row-img') + rich(c, c.q) + '</div><div class="ra">' + rich(c, c.a) + ansImg(c, 'row-img') + '</div><div class="acts"></div></li>';
       }).join('') + '</ol>';
     } else h += '<p class="empty">No cards in this deck yet.</p>';
     return h + '</section>';
