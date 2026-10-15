@@ -57,7 +57,6 @@
   var T = sload('testRun');           // a test in progress survives a refresh
   if (T && !T.qs.every(function (q) { return byId[q.d]; })) T = null;
   var screen = T ? (T.done ? 'results' : 'question') : 'setup';
-  var confirmQuit = false;
 
   function card(q) { var d = byId[q.d]; for (var i = 0; i < d.cards.length; i++) if (d.cards[i].id === q.c) return d.cards[i]; return null; }
   function poolSize() { return picked.reduce(function (t, id) { return t + byId[id].cards.length; }, 0); }
@@ -70,15 +69,22 @@
     if (!list && length !== 'all') all = all.slice(0, length);
     var chosen = list ? Array.from(new Set(list.map(function (q) { return q.d; }))) : picked.slice();
     T = { qs: all.map(function (q) { var c = card(q); return { d: q.d, c: q.c, ch: choicesFor(byId[q.d], c, chosen), pick: null }; }), i: 0, done: false };
-    ssave('testRun', T); screen = 'question'; confirmQuit = false; render(); window.scrollTo(0, 0);
+    ssave('testRun', T); screen = 'question'; render(); window.scrollTo(0, 0);
   }
 
   // ---------- screens ----------
+  function lengthPicker(n) {
+    var q = length === 'all' ? n : Math.min(length, n);
+    return '<p class="t-lbl" style="margin-top:0">How many questions</p><div class="t-len" role="group" aria-label="Number of questions" style="margin-top:10px">' +
+      [10, 25, 50, 'all'].map(function (v) { return '<button data-len="' + v + '" aria-pressed="' + (length === v) + '">' + (v === 'all' ? 'All' : v) + '</button>'; }).join('') + '</div>' +
+      '<p class="t-lbl" style="margin-top:26px">Decks to include</p>';
+  }
   function setupView() {
     var n = poolSize(), q = length === 'all' ? n : Math.min(length, n);
     var h = '<div class="t-top"><a class="t-link" href="./#study">← Study Lab</a></div>' +
-      '<div class="t-head"><p class="eyebrow">Test mode</p><h1>Build a test</h1><p>Pick the decks to pull from. Answers stay hidden until the end, then you get your score and the ones to review.</p></div>' +
-      '<div class="t-bulk"><button class="t-link" data-act="all">Select all</button><button class="t-link" data-act="none">Clear</button></div>';
+      '<div class="t-head"><p class="eyebrow">Study Lab</p><h1>Create a Test</h1><p>Choose how long, then pick the decks to pull from. Answers stay hidden until the end, then you get your score and the ones to review.</p></div>' +
+      lengthPicker(n) +
+      '<div class="t-bulk" style="margin:10px 0 14px"><button class="t-link" data-act="all">Select all</button><button class="t-link" data-act="none">Clear</button></div>';
     GROUPS.forEach(function (g, gi) {
       var ids = g.decks.map(function (d) { return d.id; }), on = ids.filter(function (id) { return picked.indexOf(id) > -1; }).length;
       var cards = g.decks.reduce(function (t, d) { return t + d.cards.length; }, 0);
@@ -87,29 +93,53 @@
           return '<li class="t-deck"><label><input type="checkbox" data-deck="' + esc(d.id) + '"' + (picked.indexOf(d.id) > -1 ? ' checked' : '') + '><span class="nm"><span class="cd">' + esc(d.code) + '</span>' + esc(d.title) + '</span><span class="ct">' + d.cards.length + '</span></label></li>';
         }).join('') + '</ul></section>';
     });
-    h += '<p class="t-lbl">How many questions</p><div class="t-len" role="group" aria-label="Number of questions">' +
-      [10, 25, 50, 'all'].map(function (v) { return '<button data-len="' + v + '" aria-pressed="' + (length === v) + '">' + (v === 'all' ? 'All' : v) + '</button>'; }).join('') + '</div>';
     h += '<div class="t-bar"><div class="t-bar-in"><span>' + (n ? n + ' cards picked · ' + q + ' question' + (q === 1 ? '' : 's') : 'Pick at least one deck') + '</span>' +
       '<button class="btn" data-act="start"' + (n < 2 ? ' disabled' : '') + '>Start test →</button></div></div>';
     return h;
   }
 
-  function questionView() {
-    var q = T.qs[T.i], c = card(q), n = T.qs.length, answered = T.qs.filter(function (x) { return x.pick !== null; }).length;
-    var h = '<div class="t-top"><div class="t-prog" style="flex:1"><span>' + (T.i + 1) + ' / ' + n + '</span><span class="t-track"><span style="width:' + Math.round(answered / n * 100) + '%"></span></span></div>' +
-      '<button class="t-link" data-act="quit">End test</button></div>';
-    if (confirmQuit) {
-      h += '<div class="t-quit"><p>End now? ' + (n - answered) + ' unanswered question' + (n - answered === 1 ? '' : 's') + ' will count as missed.</p>' +
-        '<button class="btn" data-act="quit-yes">End test</button><button class="btn alt" data-act="quit-no">Keep going</button></div>';
-    }
-    h += '<div class="t-q">' + img(c.img, 'Question image') + '<p>' + rich(c, c.q) + '</p></div>' +
+  // the question screen is a fixed frame: sticky top bar, a stage that fades, a pinned bottom bar
+  function questionShell() {
+    return '<div class="t-qtop"><button class="t-exit" data-act="exit" aria-label="Exit test">×</button>' +
+      '<div class="t-prog"><b id="t-count"></b><span class="t-track"><span id="t-fill"></span></span></div></div>' +
+      '<div class="t-stage" id="t-stage" aria-live="polite"></div>' +
+      '<div class="t-bar t-qbar"><div class="t-bar-in"><button class="btn alt" data-act="prev">← Back</button><button class="btn" data-act="next">Next →</button></div></div>' +
+      '<div class="t-modal" id="t-modal" hidden><div class="t-dialog" role="alertdialog" aria-modal="true" aria-labelledby="t-mh" aria-describedby="t-mp">' +
+      '<h2 id="t-mh">Exit this test?</h2><p id="t-mp"></p><div class="t-dacts">' +
+      '<button class="btn" data-act="exit-no">Keep going</button>' +
+      '<button class="btn alt" data-act="exit-score">Finish now and see my score</button>' +
+      '<button class="t-link" data-act="exit-yes">Exit without a score</button></div></div></div>';
+  }
+  function stageHTML() {
+    var q = T.qs[T.i], c = card(q), src = imgSrc(c.img);
+    return (src ? '<div class="t-pic"><img src="' + esc(src) + '" alt="Question image"></div>' : '') +
+      '<p class="t-qtext">' + rich(c, c.q) + '</p>' +
       '<div class="choices" role="radiogroup" aria-label="Answer choices">' + q.ch.map(function (a, i) {
         return '<button class="choice' + (q.pick === i ? ' sel' : '') + '" role="radio" aria-checked="' + (q.pick === i) + '" data-pick="' + i + '"><span class="key">' + 'ABCD'[i] + '</span><span>' + rich(c, a) + '</span></button>';
       }).join('') + '</div>' +
-      '<div class="t-nav"><button class="btn alt" data-act="prev"' + (T.i === 0 ? ' disabled' : '') + '>← Back</button>' +
-      '<button class="btn" data-act="next"' + (q.pick === null ? ' disabled' : '') + '>' + (T.i + 1 < n ? 'Next →' : 'Finish test') + '</button></div>' +
-      '<p class="t-hint">1–4 or A–D to choose · Enter for next</p>';
-    return h;
+      '<p class="t-hint">1–4 or A–D to choose · Enter for next · Esc to exit</p>';
+  }
+  function updateChrome() {
+    var n = T.qs.length, q = T.qs[T.i], answered = T.qs.filter(function (x) { return x.pick !== null; }).length;
+    root.querySelector('#t-count').textContent = (T.i + 1) + ' / ' + n;
+    root.querySelector('#t-fill').style.width = Math.round(answered / n * 100) + '%';
+    var prev = root.querySelector('[data-act="prev"]'), next = root.querySelector('[data-act="next"]');
+    prev.disabled = T.i === 0; next.disabled = q.pick === null;
+    next.textContent = T.i + 1 < n ? 'Next →' : 'Finish test';
+  }
+  function preload() {
+    for (var k = 1; k <= 2; k++) { var q = T.qs[T.i + k]; if (!q) break; var s = imgSrc(card(q).img); if (s) { var im = new Image(); im.src = s; } }
+  }
+  function showQuestion(animate) {
+    var stage = root.querySelector('#t-stage');
+    function swap() {
+      stage.innerHTML = stageHTML(); updateChrome(); preload();
+      window.scrollTo(0, 0);
+      if (animate) requestAnimationFrame(function () { requestAnimationFrame(function () { stage.classList.remove('out'); }); });
+    }
+    if (!animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { stage.classList.remove('out'); swap(); return; }
+    stage.classList.add('out');
+    setTimeout(swap, 160);
   }
 
   function results() {
@@ -126,7 +156,7 @@
     var r = results(), n = T.qs.length, pct = Math.round(r.right / n * 100);
     var msg = pct === 100 ? 'Perfect score. Every single one!' : pct >= 90 ? 'Amazing. You really know this.' : pct >= 80 ? 'Strong work. Just a few to review.' : pct >= 70 ? 'Solid. Review the misses and go again.' : pct >= 50 ? 'Getting there. The review below is where the points are.' : 'Good practice run. Review, then try the missed ones again.';
     var h = '<div class="t-top"><a class="t-link" href="./#study">← Study Lab</a></div>' +
-      '<div class="t-head"><p class="eyebrow">Test mode</p><h1>Your results</h1></div>' +
+      '<div class="t-head"><p class="eyebrow">Create a Test</p><h1>Your results</h1></div>' +
       '<div class="t-score"><div class="big">' + r.right + ' <small>/ ' + n + '</small></div><div class="pct">' + pct + '%</div><p class="msg">' + msg + '</p></div>' +
       '<div class="t-acts">' + (r.missed.length ? '<button class="btn" data-act="review">Review missed (' + r.missed.length + ')</button><button class="btn alt" data-act="retry-missed">Retest the missed ones</button>' : '') +
       '<button class="btn alt" data-act="new">New test</button></div>';
@@ -149,18 +179,43 @@
   }
 
   function render() {
-    root.innerHTML = screen === 'setup' ? setupView() : screen === 'question' ? questionView() : resultsView();
+    document.body.classList.toggle('t-taking', screen === 'question');
+    if (screen === 'question') { root.innerHTML = questionShell(); showQuestion(false); return; }
+    root.innerHTML = screen === 'setup' ? setupView() : resultsView();
     var mixed = root.querySelectorAll('[data-mixed]'); for (var i = 0; i < mixed.length; i++) mixed[i].indeterminate = true;
   }
 
-  function finish() { T.done = true; ssave('testRun', T); screen = 'results'; confirmQuit = false; render(); window.scrollTo(0, 0); }
+  function finish() { T.done = true; ssave('testRun', T); screen = 'results'; closeModal(); render(); window.scrollTo(0, 0); }
+  var busy = false;
   function go(delta) {
+    if (busy || modalOpen()) return;
     var q = T.qs[T.i];
     if (delta > 0 && q.pick === null) return;
     if (delta > 0 && T.i + 1 >= T.qs.length) { finish(); return; }
-    T.i = Math.max(0, Math.min(T.qs.length - 1, T.i + delta)); ssave('testRun', T); render(); window.scrollTo(0, 0);
+    var to = Math.max(0, Math.min(T.qs.length - 1, T.i + delta)); if (to === T.i) return;
+    T.i = to; ssave('testRun', T);
+    busy = true; showQuestion(true); setTimeout(function () { busy = false; }, 200);
   }
-  function choose(i) { var q = T.qs[T.i]; if (i >= q.ch.length) return; q.pick = i; ssave('testRun', T); render(); var nx = root.querySelector('[data-act="next"]'); if (nx) nx.focus({ preventScroll: true }); }
+  // picking an answer only changes classes: nothing redraws, so nothing jumps
+  function choose(i) {
+    if (modalOpen()) return;
+    var q = T.qs[T.i]; if (i >= q.ch.length) return;
+    q.pick = i; ssave('testRun', T);
+    var bs = root.querySelectorAll('#t-stage [data-pick]');
+    for (var k = 0; k < bs.length; k++) { var on = +bs[k].dataset.pick === i; bs[k].classList.toggle('sel', on); bs[k].setAttribute('aria-checked', on); }
+    updateChrome();
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  }
+
+  function modalOpen() { var m = root.querySelector('#t-modal'); return m && !m.hidden; }
+  function openModal() {
+    var m = root.querySelector('#t-modal'); if (!m) return;
+    var answered = T.qs.filter(function (x) { return x.pick !== null; }).length, n = T.qs.length;
+    root.querySelector('#t-mp').textContent = 'You’ve answered ' + answered + ' of ' + n + '. You can finish now and get a score (unanswered ones count as missed), or leave without one.';
+    m.hidden = false; root.querySelector('[data-act="exit-no"]').focus();
+  }
+  function closeModal() { var m = root.querySelector('#t-modal'); if (m) m.hidden = true; }
+  function exitTest() { T = null; ssave('testRun', null); screen = 'setup'; render(); window.scrollTo(0, 0); }
 
   root.addEventListener('change', function (e) {
     var t = e.target;
@@ -173,6 +228,7 @@
   });
 
   root.addEventListener('click', function (e) {
+    if (e.target.id === 't-modal') { closeModal(); return; }   // tap outside the box = keep going
     var t = e.target.closest('[data-act],[data-len],[data-pick]'); if (!t) return;
     if (t.dataset.pick !== undefined) { choose(+t.dataset.pick); return; }
     if (t.dataset.len) { length = t.dataset.len === 'all' ? 'all' : +t.dataset.len; save('testLength', length); var y = window.scrollY; render(); window.scrollTo(0, y); return; }
@@ -182,9 +238,10 @@
       case 'start': if (poolSize() > 1) build(null); break;
       case 'next': go(1); break;
       case 'prev': go(-1); break;
-      case 'quit': confirmQuit = true; render(); break;
-      case 'quit-no': confirmQuit = false; render(); break;
-      case 'quit-yes': finish(); break;
+      case 'exit': openModal(); break;
+      case 'exit-no': closeModal(); break;
+      case 'exit-score': finish(); break;
+      case 'exit-yes': exitTest(); break;
       case 'review': var el = document.getElementById('review'); if (el) el.scrollIntoView({ behavior: 'smooth' }); break;
       case 'retry-missed': build(results().missed.map(function (q) { return { d: q.d, c: q.c }; })); break;
       case 'new': T = null; ssave('testRun', null); screen = 'setup'; render(); window.scrollTo(0, 0); break;
@@ -193,9 +250,11 @@
 
   document.addEventListener('keydown', function (e) {
     if (screen !== 'question' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (modalOpen()) { if (e.key === 'Escape') { e.preventDefault(); closeModal(); } return; }
+    if (e.key === 'Escape') { e.preventDefault(); openModal(); return; }
     var m = { '1': 0, '2': 1, '3': 2, '4': 3, a: 0, b: 1, c: 2, d: 3 }[e.key.toLowerCase()];
     if (m !== undefined) { e.preventDefault(); choose(m); }
-    else if (e.key === 'Enter' && !(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.act && document.activeElement.dataset.act !== 'next')) { e.preventDefault(); go(1); }
+    else if (e.key === 'Enter') { var a = document.activeElement; if (a && a.dataset && a.dataset.act && a.dataset.act !== 'next') return; e.preventDefault(); go(1); }
     else if (e.key === 'ArrowLeft') go(-1);
     else if (e.key === 'ArrowRight') go(1);
   });

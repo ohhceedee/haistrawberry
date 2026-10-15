@@ -180,7 +180,7 @@
   function gridView() {
     return '<section class="wrap study-head"><p class="eyebrow">Study Lab</p><h1>Flashcards for CLS</h1>' +
       '<p>Pick a deck, flip the cards, and mark what you know. Your progress is saved on your own device only.</p>' +
-      '<a class="btn test-btn" href="test.html" style="margin-top:16px;width:auto;justify-self:start;align-self:start">📝 Test mode <span aria-hidden="true">→</span></a></section>' +
+      '<a class="btn test-btn" href="test.html" style="margin-top:16px;width:auto;justify-self:start;align-self:start">📝 Create a Test <span aria-hidden="true">→</span></a></section>' +
       groupedDecks();
   }
   function deckCard(d) {
