@@ -9,7 +9,7 @@
    Optional:     kicker: "small line on top",  kisses: true  (emoji flood)
    ===================================================================== */
 (function () {
-  var SHOW_UNTIL = "2026-10-16T00:00:00-06:00"; // end of Thu Oct 15, Mountain time
+  var SHOW_UNTIL = "2026-10-23T00:00:00-06:00"; // end of Thu Oct 22, Mountain time (micro Wed, blood bank Thu)
 
   var NOTES = [
     { kicker: "Remember:", text: "You’re a bad ass bitch!" },
@@ -18,7 +18,9 @@
     { text: "I’m so proud of you!" },
     { text: "You deserve a thousand kisses for all your hard work", kisses: true },
     { text: "You know a blood banana when you see one 🍌" },
-    { text: "Every egg, cyst & troph is already in that brain." },
+    { text: "Every bug on that slide is already in that brain." },
+    { only: "2026-10-21", kicker: "Micro day!", text: "Go show those microbes who’s boss 🦠" },
+    { only: "2026-10-22", kicker: "Blood bank day!", text: "Type, screen & crossmatch your way to an A+ 🩸" },
     { kicker: "Deep breath.", text: "You already did the hard part." },
     { text: "Water, snack, then go crush it." },
     { text: "Strawbz believes in you! 🍓" }
@@ -77,10 +79,14 @@
   document.head.appendChild(css);
 
   function pick() {
+    // notes with only: "YYYY-MM-DD" show just on that day (Mountain time)
+    var today = new Date(Date.now() - 6 * 3600 * 1000).toISOString().slice(0, 10);
+    var pool = [];
+    for (var j = 0; j < NOTES.length; j++) if (!NOTES[j].only || NOTES[j].only === today) pool.push(j);
     var last = -1;
     try { last = parseInt(localStorage.getItem('snLast'), 10); } catch (_) {}
     var i;
-    do { i = Math.floor(Math.random() * NOTES.length); } while (NOTES.length > 1 && i === last);
+    do { i = pool[Math.floor(Math.random() * pool.length)]; } while (pool.length > 1 && i === last);
     try { localStorage.setItem('snLast', String(i)); } catch (_) {}
     return NOTES[i];
   }
