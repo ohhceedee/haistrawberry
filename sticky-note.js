@@ -9,7 +9,7 @@
    Optional:     kicker: "small line on top",  kisses: true  (emoji flood)
    ===================================================================== */
 (function () {
-  var SHOW_UNTIL = "2026-10-23T00:00:00-06:00"; // end of Thu Oct 22, Mountain time (micro Wed, blood bank Thu)
+  var SHOW_UNTIL = "2026-10-23T00:00:00-06:00"; // end of Thu Oct 22, Mountain time (micro Wed, blood bank Thu)- go C!
 
   var NOTES = [
     { kicker: "Remember:", text: "You’re a bad ass bitch!" },
