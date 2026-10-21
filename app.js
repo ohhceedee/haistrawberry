@@ -21,7 +21,7 @@
   var CAPS = { lavender: ['Lavender · EDTA', '#8E7CC3'], pink: ['Pink · EDTA (blood bank)', '#E48DB0'], gold: ['Gold · SST', '#D6A21E'], lightblue: ['Light blue · citrate', '#7EB8DA'], green: ['Green · heparin', '#4C9A6A'], gray: ['Gray · fluoride', '#8C939C'], red: ['Red · clot', '#C8412F'] };
   var view = location.hash === '#study' ? 'study' : location.hash === '#tests' ? 'tests' : 'about';
   var deckId = null, idx = 0, flipped = false, order = [];
-  var mode = 'flip', quiz = null;
+  var mode = 'choose', quiz = null, flipDone = false;
   var app = document.getElementById('app');
 
   // Brain breaks: let brain-break.js know when a deck has been finished.
@@ -40,11 +40,20 @@
   function cardImg(c, cls) { var src = imgSrc(c.img); return src ? '<img class="' + cls + '" src="' + esc(src) + '" alt="Study image" loading="lazy">' : ''; }
   // a picture that belongs to the answer side (a chart or table), shown only once the answer is revealed
   function ansImg(c, cls) { var src = imgSrc(c.aimg); return src ? '<img class="' + cls + '" src="' + esc(src) + '" alt="Answer image" loading="lazy">' : ''; }
+  // a fixed-size frame for a card picture: the space is held even before the photo arrives
+  function picBox(v) { var src = imgSrc(v); return src ? '<div class="ci-box"><img class="card-img" src="' + esc(src) + '" alt="Study image" decoding="async"></div>' : ''; }
+  // load the next couple of pictures ahead of time
+  function preloadCards(cards) { cards.forEach(function (c) { [c && c.img, c && c.aimg].forEach(function (v) { var s = imgSrc(v); if (s) { var im = new Image(); im.src = s; } }); }); }
   function capName(k) { return (CAPS[k] || CAPS.lavender)[0]; }
   function isSpotify(u) { return /^https:\/\/open\.spotify\.com\//.test(String(u || '').trim()); }
   function getKnown(id) { try { return new Set(JSON.parse(localStorage.getItem('known:' + id) || '[]')); } catch (e) { return new Set(); } }
   function setKnown(id, set) { try { localStorage.setItem('known:' + id, JSON.stringify(Array.from(set))); } catch (e) {} }
-  function deck() { for (var i = 0; i < DECKS.length; i++) if (DECKS[i].id === deckId) return DECKS[i]; return null; }
+  DECKS.forEach(function (d) { d.cards.forEach(function (c) { c.did = d.id; }); });
+  function isKnown(c) { return getKnown(c.did).has(c.id); }
+  function markKnown(c, on) { var k = getKnown(c.did); if (on) k.add(c.id); else k.delete(c.id); setKnown(c.did, k); }
+  var mixDeck = null;   // "Study several decks": a session built from the decks she picked
+  function deck() { if (deckId === 'mix') return mixDeck; for (var i = 0; i < DECKS.length; i++) if (DECKS[i].id === deckId) return DECKS[i]; return null; }
+  var chooser = null, selecting = false, selected = [], selMode = null, selCue = false;
   var toastT;
   function toast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 2500); }
 
@@ -61,37 +70,6 @@
     pool.forEach(function (a) { var k = answerKey(a); if (wrong.length < 3 && !seen[a] && !keys[k]) { seen[a] = 1; keys[k] = 1; wrong.push(a); } });
     return shuffle([c.a].concat(wrong));
   }
-  function startQuiz(d) {
-    var ord = shuffle(d.cards.map(function (_, i) { return i; }));
-    quiz = { order: ord, i: 0, picked: null, score: 0, done: false, missed: [] };
-    quiz.choices = choicesFor(d, d.cards[ord[0]]);
-  }
-  function quizView(d) {
-    var n = d.cards.length;
-    if (quiz.done) {
-      var pct = Math.round(quiz.score / n * 100);
-      return '<div class="viewer"><div class="face qdone"><span class="side">Results</span><p class="score">' + quiz.score + ' <span>of</span> ' + n + '</p>' +
-        '<p class="qmsg">' + (pct === 100 ? 'Perfect run. Every answer right.' : pct >= 80 ? 'Strong work. Just a few to review.' : pct >= 50 ? 'Getting there. Review the ones below and go again.' : 'Good practice. Flip through the cards, then try again.') + '</p></div>' +
-        '<div class="ctrl"><button class="got" data-act="quiz-restart">Try again</button><button class="ghost" data-act="mode-flip">Back to flip cards</button></div></div>' +
-        (quiz.missed.length ? '<h2>Review these</h2><ol class="list">' + quiz.missed.map(function (c) { return '<li class="row"><div class="rq">' + cardImg(c, 'row-img') + rich(c, c.q) + '</div><div class="ra">' + rich(c, c.a) + ansImg(c, 'row-img') + '</div><div class="acts"></div></li>'; }).join('') + '</ol>' : '');
-    }
-    var c = d.cards[quiz.order[quiz.i]], answered = quiz.picked !== null;
-    var h = '<div class="viewer"><div class="face qcard"><div class="qtop"><span class="side">Question ' + (quiz.i + 1) + ' of ' + n + '</span><span class="count">Score ' + quiz.score + '</span></div>' +
-      '<div class="qbar"><span style="width:' + Math.round(quiz.i / n * 100) + '%"></span></div>' + cardImg(c, 'card-img') + '<p>' + rich(c, c.q) + '</p></div>' +
-      '<div class="choices" role="group" aria-label="Answer choices">' + quiz.choices.map(function (a, i) {
-        var cls = 'choice';
-        if (answered) { if (a === c.a) cls += ' right'; else if (i === quiz.picked) cls += ' wrong'; else cls += ' dim'; }
-        return '<button class="' + cls + '" data-pick="' + i + '"' + (answered ? ' disabled' : '') + '><span class="key">' + 'ABCD'[i] + '</span><span>' + rich(c, a) + '</span></button>';
-      }).join('') + '</div>';
-    if (answered) {
-      var ok = quiz.choices[quiz.picked] === c.a;
-      h += '<div class="verdict ' + (ok ? 'ok' : 'no') + '" role="status"><b>' + (ok ? 'Correct!' : 'Not quite.') + '</b>' +
-        (c.why ? '<p>' + rich(c, c.why) + '</p>' : (ok ? '' : '<p>The answer: ' + rich(c, c.a) + '</p>')) + ansImg(c, 'card-img') + '</div>' +
-        '<div class="ctrl"><button class="got" data-act="quiz-next">' + (quiz.i + 1 < n ? 'Next question →' : 'See results') + '</button></div>';
-    }
-    return h + '<p class="hint">Press 1–4 or A–D to answer, Enter for the next question.</p></div>';
-  }
-
   function header() {
     return '<header class="top"><div class="wrap top-in"><a class="brand" href="#about">Hai<i>Strawberry</i></a>' +
       '<nav aria-label="Pages"><a class="navlink" href="#about"' + (view === 'about' ? ' aria-current="page"' : '') + '>About</a>' +
@@ -102,12 +80,34 @@
   var BALLOON = '<svg class="balloon" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 2C6.8 2 4 6.2 4 11.2c0 3.8 2.4 7 5 9.3h6c2.6-2.3 5-5.5 5-9.3C20 6.2 17.2 2 12 2Z" fill="var(--accent)"/><path d="M12 2c-2.4 0-4.3 1.6-5.5 4.2-1 4 .1 8.6 2.7 14.3h5.6c2.6-5.7 3.7-10.3 2.7-14.3C16.3 3.6 14.4 2 12 2Z" fill="var(--violet)" opacity=".55"/><path d="M12 2c-1.1 0-2 .6-2.7 1.7C7.9 6.7 8.4 12 10 20.5h4C15.6 12 16.1 6.7 14.7 3.7 14 2.6 13.1 2 12 2Z" fill="var(--teal)"/><path d="M10 20.4l1 3.2h2l1-3.2z" fill="none" stroke="var(--muted)" stroke-width=".5"/><rect x="10.4" y="23.2" width="3.2" height="2.4" rx=".5" fill="#9a6b45"/></svg>';
   var LEAVES = '<svg class="leaves" viewBox="0 0 400 400" fill="none"><g stroke="var(--teal)" stroke-width="3" stroke-linecap="round"><path d="M40 360C110 300 150 250 170 170"/><path d="M360 60C310 90 270 130 250 200"/></g><g fill="var(--teal)" opacity=".8"><ellipse cx="70" cy="320" rx="26" ry="11" transform="rotate(-40 70 320)"/><ellipse cx="118" cy="286" rx="26" ry="11" transform="rotate(-70 118 286)"/><ellipse cx="96" cy="262" rx="22" ry="9" transform="rotate(-10 96 262)"/><ellipse cx="150" cy="220" rx="24" ry="10" transform="rotate(-60 150 220)"/></g><g fill="var(--violet)" opacity=".75"><ellipse cx="330" cy="86" rx="24" ry="10" transform="rotate(-30 330 86)"/><ellipse cx="290" cy="120" rx="24" ry="10" transform="rotate(-80 290 120)"/><ellipse cx="300" cy="150" rx="20" ry="8" transform="rotate(10 300 150)"/></g><g fill="var(--accent)"><circle cx="176" cy="160" r="9"/><circle cx="244" cy="206" r="8"/><circle cx="58" cy="350" r="6"/></g><path d="M300 330c10-14 30-14 40 0-10 6-30 6-40 0Zm20-6l6-8m-6 8l-6-8" stroke="var(--violet)" stroke-width="2" fill="var(--violet-soft)"/></svg>';
 
+  /* ---------- front page: a rotating poem / funny line / picture (data.js "frontPage") ---------- */
+  var FRONT = (DATA.frontPage || []).filter(function (x) { return x && (x.poem || x.text || x.img); });
+  if (!FRONT.length && P.about) FRONT = [{ poem: P.about }];
+  // a fresh random pick on every visit or refresh (never the same one twice in a row); no button to cycle
+  var frontIdx = (function () {
+    if (!FRONT.length) return -1;
+    var last = -1; try { last = +localStorage.getItem('fpLast'); } catch (e) {}
+    var i = Math.floor(Math.random() * FRONT.length); if (FRONT.length > 1 && i === last) i = (i + 1) % FRONT.length;
+    try { localStorage.setItem('fpLast', i); } catch (e) {}
+    return i;
+  })();
+  function frontPiece() {
+    if (frontIdx < 0) return '';
+    // poems and lines share one note card; a picture can have a line above it ({ text, img }) and a caption under it
+    var f = FRONT[frontIdx], h = '';
+    var kind = f.img ? 'pic' : f.poem ? 'poem' : 'line';
+    var deco = f.emoji || (kind === 'poem' ? '🌻' : kind === 'pic' ? '📸' : '✨');
+    if (f.poem) h += '<p class="about haiku">' + esc(f.poem).replace(/\n/g, '<br>') + '</p>';
+    if (f.text) h += '<p class="about fp-text">' + esc(f.text).replace(/\n/g, '<br>') + '</p>';
+    if (f.img) h += '<figure class="fp-img"><img src="' + esc(f.img) + '" alt="' + esc(f.alt || f.caption || f.text || '') + '">' + (f.caption ? '<figcaption>' + esc(f.caption) + '</figcaption>' : '') + '</figure>';
+    return '<div class="fp fp-' + kind + '"><span class="fp-deco" aria-hidden="true">' + esc(deco) + '</span>' + h + '</div>';
+  }
   function aboutView() {
     var initials = (P.name || '').trim().split(/\s+/).filter(Boolean).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase() || 'CLS';
     var h = '<section class="hero wrap"><div class="hero-txt"><p class="eyebrow">🍓 welcome to my corner</p>' +
       '<h1>' + esc(P.name || 'Future lab scientist') + '</h1>' +
       (P.tagline ? '<p class="tag">' + esc(P.tagline) + BALLOON + '</p>' : '') +
-      (P.about ? '<p class="about' + (P.about.indexOf('\n') > -1 ? ' haiku' : '') + '">' + esc(P.about).replace(/\n/g, '<br>') + '</p>' : '') +
+      frontPiece() +
       (Array.isArray(P.links) && P.links.length ? '<div class="chips">' + P.links.map(function (l) { var ext = /^https?:/.test(l.href || ''); return '<a class="chip chip-link" href="' + esc(l.href || '#') + '"' + (ext ? ' target="_blank" rel="noopener noreferrer"' : '') + '>' + esc(l.label || '') + '</a>'; }).join('') + '</div>' : '') +
       '<a class="btn" href="#study">Open the Study Lab →</a></div>' +
       '<div class="record-wrap" aria-hidden="true">' + LEAVES + '<div class="record"><div class="label"><span class="label-top">SIDE A</span><b>🍓</b><svg class="label-curve" viewBox="0 0 100 100" aria-hidden="true"><defs><path id="labelArc" d="M 10 50 A 40 40 0 0 1 90 50" fill="none"/></defs><text><textPath href="#labelArc" startOffset="50%" text-anchor="middle">haistrawberry</textPath></text></svg></div></div></div></section>';
@@ -180,12 +180,31 @@
 
   function gridView() {
     return '<section class="wrap study-head"><p class="eyebrow">Study Lab</p><h1>Flashcards for CLS</h1>' +
-      '<p>Pick a deck, flip the cards, and mark what you know. Your progress is saved on your own device only. Ready to check yourself? Head to the <a href="#tests">Test Lab</a>.</p></section>' +
-      groupedDecks();
+      '<p>' + (selecting ? 'Tap the decks you want to mix together, then pick how to study them.' : 'Tap a deck to start. Your progress is saved on your own device only. Ready to check yourself? Head to the <a href="#tests">Test Lab</a>.') + '</p>' +
+      (selecting ? '' : '<button class="sel-toggle sel-start" data-act="sel-toggle">📚 Study several decks</button>') + '</section>' +
+      (selecting ? selBar() : '') + groupedDecks();
+  }
+  function selBar() {
+    var n = selected.reduce(function (t, id) { var d = DECKS.filter(function (x) { return x.id === id; })[0]; return t + (d ? d.cards.length : 0); }, 0);
+    return '<div class="sel-bar"><div class="sel-bar-in">' +
+      '<div class="sel-left"><button class="sel-cancel" data-act="sel-cancel">Cancel</button><span class="sel-count">' + (selected.length ? '<b>' + selected.length + '</b> deck' + (selected.length === 1 ? '' : 's') + ' · ' + n + ' cards' : 'Tap decks to add them') + '</span></div>' +
+      '<div class="sel-right"><div class="sel-modes' + (selCue ? ' cue' : '') + '" role="radiogroup" aria-label="How to study">' +
+        '<button role="radio" data-act="sel-mode" data-m="flip" aria-checked="' + (selMode === 'flip') + '"><span class="em" aria-hidden="true">🃏 </span>Flip</button>' +
+        '<button role="radio" data-act="sel-mode" data-m="quiz" aria-checked="' + (selMode === 'quiz') + '"><span class="em" aria-hidden="true">✅ </span>Multiple choice</button></div>' +
+      '<button class="sel-toggle on" data-act="sel-done">Done<span class="sel-long"> selecting</span></button></div></div>' +
+      (selCue ? '<p class="sel-cue-msg" role="alert">' + (selCue === 'quiz2' ? 'Multiple choice needs at least 2 cards. Add a deck or pick Flip.' : 'Pick <b>Flip</b> or <b>Multiple choice</b> first') + '</p>' : '') + '</div>';
   }
   function deckCard(d) {
     var k = getKnown(d.id), n = d.cards.filter(function (c) { return k.has(c.id); }).length;
-    return '<button class="deck" data-open="' + esc(d.id) + '"><span class="tube" style="--cap:' + cap(d.cap) + '"></span><span class="code">' + esc(d.code) + '</span><span class="dt">' + esc(d.title) + '</span><span class="meta">' + d.cards.length + ' cards · ' + n + ' known</span></button>';
+    var on = selecting && selected.indexOf(d.id) > -1, open = !selecting && chooser === d.id;
+    var tile = '<button class="deck' + (on ? ' picked' : '') + (open ? ' open' : '') + '" data-tile="' + esc(d.id) + '" aria-' + (selecting ? 'pressed="' + on + '"' : 'expanded="' + open + '"') + '>' +
+      (selecting ? '<span class="pick-dot" aria-hidden="true">' + (on ? '✓' : '') + '</span>' : '') +
+      '<span class="tube" style="--cap:' + cap(d.cap) + '"></span><span class="code">' + esc(d.code) + '</span><span class="dt">' + esc(d.title) + '</span><span class="meta">' + d.cards.length + ' cards · ' + n + ' known</span></button>';
+    if (!open) return '<div class="deck-wrap">' + tile + '</div>';
+    return '<div class="deck-wrap is-open">' + tile + '<div class="deck-choose">' +
+      '<button class="dc-btn" data-act="go-flip" data-id="' + esc(d.id) + '"><span aria-hidden="true">🃏</span> Flip cards</button>' +
+      '<button class="dc-btn" data-act="go-quiz" data-id="' + esc(d.id) + '"' + (d.cards.length < 2 ? ' disabled' : '') + '><span aria-hidden="true">✅</span> Multiple choice</button>' +
+      '<button class="dc-link" data-act="go-cards" data-id="' + esc(d.id) + '">See all cards</button></div></div>';
   }
   function groupedDecks() {
     if (!DECKS.length) return '<section class="wrap"><p class="empty">No decks yet.</p></section>';
@@ -204,33 +223,95 @@
     return groups.map(function (g) {
       var cards = g.decks.reduce(function (t, d) { return t + d.cards.length; }, 0);
       return '<section class="wrap deck-group">' +
-        (g.name ? '<div class="group-head"><h2>' + esc(g.name) + '</h2><span class="group-meta">' + g.decks.length + ' decks · ' + cards + ' cards</span></div>' : '') +
+        (g.name || selecting ? '<div class="group-head"><h2>' + esc(g.name || 'Other decks') + '</h2><span class="group-meta">' + g.decks.length + ' decks · ' + cards + ' cards</span>' +
+          (selecting ? (function () { var all = g.decks.every(function (d) { return selected.indexOf(d.id) > -1; });
+            return '<button class="sel-group" data-act="sel-group" data-ids="' + esc(g.decks.map(function (d) { return d.id; }).join(',')) + '" data-all="' + all + '">' + (all ? 'Clear group' : 'Select group') + '</button>'; })() : '') + '</div>' : '') +
         '<div class="decks">' + g.decks.map(deckCard).join('') + '</div></section>';
     }).join('');
   }
 
-  function deckView(d) {
-    var k = getKnown(d.id), n = d.cards.length;
-    if (order.length !== n) order = d.cards.map(function (_, i) { return i; });
-    if (idx >= n) idx = 0;
-    var c = n ? d.cards[order[idx]] : null;
-    var h = '<section class="wrap deck-view"><button class="back" data-act="back">← All decks</button>' +
-      '<div class="dv-head"><span class="tube" style="--cap:' + cap(d.cap) + '"></span><div class="grow">' + (d.group ? '<p class="group-line">' + esc(d.group) + '</p>' : '') + '<p class="code">' + esc(d.code) + ' · ' + esc(capName(d.cap)) + '</p><h1>' + esc(d.title) + '</h1></div></div>';
-    if (n) h += '<div class="modes" role="tablist" aria-label="Study mode"><button role="tab" data-act="mode-flip" aria-selected="' + (mode === 'flip') + '">Flip cards</button><button role="tab" data-act="mode-quiz" aria-selected="' + (mode === 'quiz') + '"' + (n < 2 ? ' disabled title="Add at least 2 cards"' : '') + '>Multiple choice</button></div>';
-    if (c && mode === 'quiz' && quiz) return h + quizView(d) + '</section>';
-    if (c) {
-      h += '<div class="viewer"><button class="fc' + (flipped ? ' is-flipped' : '') + '" data-act="flip" aria-label="Flip card"><div class="fc-in">' +
-        '<div class="face front"><span class="side">Question</span>' + cardImg(c, 'card-img') + '<p>' + rich(c, c.q) + '</p><div class="foot"><span class="count">' + (idx + 1) + ' / ' + n + '</span>' + (k.has(c.id) ? '<span class="known-tag">Known</span>' : '') + '</div></div>' +
-        '<div class="face back"><span class="side">Answer</span><p>' + rich(c, c.a) + '</p>' + ansImg(c, 'card-img') + '<div class="foot"><span class="count">' + (idx + 1) + ' / ' + n + '</span></div></div>' +
-        '</div></button>' +
-        '<div class="ctrl"><button class="ghost" data-act="prev">← Prev</button><span class="count">' + k.size + ' of ' + n + ' known</span><button class="ghost" data-act="next">Next →</button></div>' +
-        '<div class="ctrl"><button class="ghost" data-act="again">Study again</button><button class="got" data-act="got">Got it</button><button class="ghost" data-act="shuffle">Shuffle</button></div>' +
-        '<p class="hint">Tap the card or press Space to flip. Arrow keys move between cards.</p></div>';
-      h += '<h2>All cards</h2><ol class="list">' + d.cards.map(function (c) {
+  function startQuiz(d, onlyIdx) {
+    var ord = shuffle(onlyIdx || d.cards.map(function (_, i) { return i; }));
+    quiz = { order: ord, i: 0, picked: null, score: 0, done: false, missed: [] };
+    quiz.choices = choicesFor(d, d.cards[ord[0]]);
+  }
+  /* ---------- a deck: start screen (pick a mode), then a focused session ---------- */
+  // slim bar shown during a session instead of the site header and deck title
+  function deckBar(d, label, count, extra) {
+    return '<div class="dk-bar"><button class="dk-back" data-act="back" aria-label="Back to all decks">←</button>' +
+      '<span class="dk-mid"><span class="dk-code">' + esc(d.id === 'mix' ? d.title : d.code) + '</span> · ' + label + '</span>' +
+      '<span class="dk-count">' + count + '</span>' + (extra || '') + '</div>';
+  }
+  function startView(d) {
+    var k = getKnown(d.id), n = d.cards.length, known = d.cards.filter(function (c) { return k.has(c.id); }).length;
+    var h = '<section class="wrap deck-start"><button class="back" data-act="back">← All decks</button>' +
+      '<div class="dv-head"><span class="tube" style="--cap:' + cap(d.cap) + '"></span><div class="grow">' + (d.group ? '<p class="group-line">' + esc(d.group) + '</p>' : '') +
+      '<p class="code">' + esc(d.code) + ' · ' + n + ' cards · ' + known + ' known</p><h1>' + esc(d.title) + '</h1></div></div>';
+    if (!n) return h + '<p class="empty">No cards in this deck yet.</p></section>';
+    h += '<p class="eyebrow">How do you want to study?</p><div class="mode-pick">' +
+      '<button class="mode-card" data-act="mode-flip"><span class="mc-ico" aria-hidden="true">🃏</span><b>Flip cards</b><span>Tap to reveal the answer, mark what you know.</span></button>' +
+      '<button class="mode-card" data-act="mode-quiz"' + (n < 2 ? ' disabled' : '') + '><span class="mc-ico" aria-hidden="true">✅</span><b>Multiple choice</b><span>Pick from four answers, score at the end.</span></button></div>' +
+      '<details class="all-cards"><summary>See all ' + n + ' cards</summary><ol class="list">' + d.cards.map(function (c) {
         return '<li class="row' + (k.has(c.id) ? ' known' : '') + '"><div class="rq">' + cardImg(c, 'row-img') + rich(c, c.q) + '</div><div class="ra">' + rich(c, c.a) + ansImg(c, 'row-img') + '</div><div class="acts"></div></li>';
-      }).join('') + '</ol>';
-    } else h += '<p class="empty">No cards in this deck yet.</p>';
+      }).join('') + '</ol></details>';
     return h + '</section>';
+  }
+  function flipView(d) {
+    var n = order.length;
+    if (flipDone) {
+      var known = d.cards.filter(isKnown).length, left = n ? d.cards.length - known : 0;
+      return deckBar(d, 'Flip cards', 'Done') + '<section class="wrap dk-session"><div class="dk-done"><p class="eyebrow">Deck complete</p><h2>🎉 Nice work!</h2>' +
+        '<p>You know <b>' + known + '</b> of ' + d.cards.length + ' cards.</p><div class="dk-done-acts">' +
+        (left ? '<button class="btn" data-act="flip-unknown">Study the ' + left + ' I don’t know yet</button>' : '') +
+        '<button class="btn ' + (left ? 'alt' : '') + '" data-act="flip-again">Go through all again</button>' +
+        (d.cards.length > 1 ? '<button class="btn alt" data-act="mode-quiz">Try multiple choice</button>' : '') +
+        '<button class="t-plain" data-act="back">Back to all decks</button></div></div></section>';
+    }
+    var c = d.cards[order[idx]];
+    return deckBar(d, 'Flip cards', (idx + 1) + ' / ' + n, '<button class="dk-icon" data-act="shuffle" aria-label="Shuffle">⤮</button>') +
+      '<section class="wrap dk-session"><div class="viewer"><button class="fc' + (flipped ? ' is-flipped' : '') + '" data-act="flip" aria-label="Flip card"><div class="fc-in">' +
+      '<div class="face front"><span class="side">Question</span>' + picBox(c.img) + '<p>' + rich(c, c.q) + '</p><div class="foot">' + (isKnown(c) ? '<span class="known-tag">Known</span>' : '<span></span>') + '<span class="count">Tap to flip</span></div></div>' +
+      '<div class="face back"><span class="side">Answer</span><p>' + rich(c, c.a) + '</p>' + picBox(c.aimg) + '<div class="foot"><span></span><span class="count">' + (idx + 1) + ' / ' + n + '</span></div></div>' +
+      '</div></button>' +
+      '<p class="hint">Space flips · arrow keys move</p></div></section>' +
+      '<div class="dk-ctrlbar"><div class="dk-ctrl"><button class="dk-arrow" data-act="prev" aria-label="Previous card"' + (idx === 0 ? ' disabled' : '') + '>←</button>' +
+      '<button class="ghost" data-act="again">Not yet</button><button class="got" data-act="got">Got it ✓</button>' +
+      '<button class="dk-arrow" data-act="next" aria-label="Next card">→</button></div></div>';
+  }
+  function quizView(d) {
+    var n = quiz.order.length;
+    if (quiz.done) {
+      var pct = Math.round(quiz.score / n * 100);
+      return deckBar(d, 'Multiple choice', 'Done') + '<section class="wrap dk-session"><div class="dk-done"><p class="eyebrow">Results</p><h2>' + quiz.score + ' <small>of</small> ' + n + '</h2>' +
+        '<p>' + (pct === 100 ? 'Perfect run. Every answer right.' : pct >= 80 ? 'Strong work. Just a few to review.' : pct >= 50 ? 'Getting there. Review the ones below and go again.' : 'Good practice. Review below, then try again.') + '</p>' +
+        '<div class="dk-done-acts">' + (quiz.missed.length ? '<button class="btn" data-act="quiz-missed">Retry the ' + quiz.missed.length + ' I missed</button>' : '') +
+        '<button class="btn ' + (quiz.missed.length ? 'alt' : '') + '" data-act="quiz-restart">Try the whole deck again</button>' +
+        '<button class="btn alt" data-act="mode-flip">Switch to flip cards</button><button class="t-plain" data-act="back">Back to all decks</button></div></div>' +
+        (quiz.missed.length ? '<h2 class="dk-h2">Review these</h2><ol class="list">' + quiz.missed.map(function (c) { return '<li class="row"><div class="rq">' + cardImg(c, 'row-img') + rich(c, c.q) + '</div><div class="ra">' + rich(c, c.a) + ansImg(c, 'row-img') + '</div><div class="acts"></div></li>'; }).join('') + '</ol>' : '') +
+        '</section>';
+    }
+    var c = d.cards[quiz.order[quiz.i]], answered = quiz.picked !== null, ok = answered && quiz.choices[quiz.picked] === c.a;
+    var h = deckBar(d, 'Multiple choice', (quiz.i + 1) + ' / ' + n, '<span class="dk-score">✓ ' + quiz.score + '</span>') +
+      '<section class="wrap dk-session"><div class="viewer"><div class="face qcard"><div class="qbar"><span style="width:' + Math.round(quiz.i / n * 100) + '%"></span></div>' + picBox(c.img) + '<p>' + rich(c, c.q) + '</p></div>' +
+      '<div class="choices" role="group" aria-label="Answer choices">' + quiz.choices.map(function (a, i) {
+        var cls = 'choice';
+        if (answered) { if (a === c.a) cls += ' right'; else if (i === quiz.picked) cls += ' wrong'; else cls += ' dim'; }
+        return '<button class="' + cls + '" data-pick="' + i + '"' + (answered ? ' disabled' : '') + '><span class="key">' + 'ABCD'[i] + '</span><span>' + rich(c, a) + '</span></button>';
+      }).join('') + '</div><p class="hint">1–4 or A–D to answer · Enter for next</p></div></section>';
+    if (answered) {
+      // the feedback pops up over the page; Next lives inside it
+      h += '<div class="mc-pop-veil"></div><div class="mc-pop ' + (ok ? 'ok' : 'no') + '" role="dialog" aria-modal="false" aria-labelledby="mc-pop-h">' +
+        '<p class="mc-pop-h" id="mc-pop-h">' + (ok ? '✓ Correct!' : '✗ Not quite') + '</p>' +
+        (ok ? '' : '<p class="mc-pop-lbl">The answer</p><div class="mc-pop-ans">' + rich(c, c.a) + '</div>') +
+        (c.why ? '<p class="mc-pop-why">' + rich(c, c.why) + '</p>' : '') + ansImg(c, 'mc-pop-img') +
+        '<button class="btn mc-next" data-act="quiz-next">' + (quiz.i + 1 < n ? 'Next question →' : 'See results') + '</button></div>';
+    }
+    return h;
+  }
+  function deckView(d) {
+    if (mode === 'flip') return flipView(d);
+    if (mode === 'quiz' && quiz) return quizView(d);
+    return startView(d);
   }
 
   function render() {
@@ -238,13 +319,15 @@
     if (view === 'study') { var d = deckId && deck(); if (deckId && !d) deckId = null; body = d ? deckView(d) : gridView(); }
     else if (view === 'tests') body = testsView();
     else body = aboutView();
+    var inSession = view === 'study' && !!deckId && mode !== 'choose';
+    document.body.classList.toggle('in-deck', inSession);
     app.innerHTML = header() + '<main>' + body + '</main><footer class="wrap">© ' + new Date().getFullYear() + ' HaiStrawberry<span class="egg"> I Love Ocavil</span></footer>';
     if (view === 'about') refreshCovers();
   }
 
   window.addEventListener('hashchange', function () {
     var v = hashView();
-    if (v !== view) { view = v; deckId = null; removing = null; editingNote = null; window.scrollTo(0, 0); render(); }
+    if (v !== view) { view = v; deckId = null; removing = null; editingNote = null; chooser = null; selecting = false; selected = []; selMode = null; selCue = false; window.scrollTo(0, 0); render(); }
   });
 
   /* ---------- Test Lab: create a test, recent tests, notes ----------
@@ -306,7 +389,7 @@
   });
 
   app.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-act],[data-open],[data-pick]'); if (!t) return;
+    var t = e.target.closest('[data-act],[data-tile],[data-pick]'); if (!t) return;
     if (view === 'tests') {
       var a = t.dataset.act;
       if (a === 'tl-more') { showAllTests = true; render(); }
@@ -318,55 +401,94 @@
       return;
     }
     if (t.dataset.pick !== undefined) { pick(+t.dataset.pick); return; }
-    if (t.dataset.open) { deckId = t.dataset.open; idx = 0; flipped = false; order = []; mode = 'flip'; quiz = null; lap = 0; render(); window.scrollTo(0, 0); return; }
+    if (t.dataset.tile) {
+      var tid = t.dataset.tile, y = window.scrollY;
+      if (selecting) { var at = selected.indexOf(tid); if (at > -1) selected.splice(at, 1); else selected.push(tid); }
+      else chooser = chooser === tid ? null : tid;
+      render(); window.scrollTo(0, y); return;
+    }
+    if (t.dataset.act === 'go-flip' || t.dataset.act === 'go-quiz' || t.dataset.act === 'go-cards') {
+      deckId = t.dataset.id; chooser = null; quiz = null; flipDone = false; mode = 'choose';
+      if (t.dataset.act === 'go-cards') { render(); window.scrollTo(0, 0); return; }
+      t = { dataset: { act: t.dataset.act === 'go-flip' ? 'mode-flip' : 'mode-quiz' } };
+    }
+    if (t.dataset.act === 'sel-toggle' || t.dataset.act === 'sel-cancel') { selecting = t.dataset.act === 'sel-toggle'; chooser = null; selected = []; selMode = null; selCue = false; var y2 = window.scrollY; render(); window.scrollTo(0, y2); return; }
+    if (t.dataset.act === 'sel-mode') { selMode = t.dataset.m; selCue = false; var y4 = window.scrollY; render(); window.scrollTo(0, y4); return; }
+    if (t.dataset.act === 'sel-done') {
+      var cnt = DECKS.filter(function (x) { return selected.indexOf(x.id) > -1; }).reduce(function (a, x) { return a + x.cards.length; }, 0), y5 = window.scrollY;
+      if (!selected.length) { selecting = false; selMode = null; selCue = false; render(); window.scrollTo(0, y5); return; }
+      if (!selMode || (selMode === 'quiz' && cnt < 2)) { selCue = selMode ? 'quiz2' : true; render(); window.scrollTo(0, y5); return; }
+      t = { dataset: { act: selMode === 'flip' ? 'sel-flip' : 'sel-quiz' } };
+    }
+    if (t.dataset.act === 'sel-group') {
+      var ids = t.dataset.ids.split(','), y3 = window.scrollY;
+      selected = selected.filter(function (x) { return ids.indexOf(x) < 0; }); if (t.dataset.all !== 'true') selected = selected.concat(ids);
+      render(); window.scrollTo(0, y3); return;
+    }
+    if (t.dataset.act === 'sel-flip' || t.dataset.act === 'sel-quiz') {
+      var ds = DECKS.filter(function (x) { return selected.indexOf(x.id) > -1; });
+      mixDeck = { id: 'mix', code: 'MIX', title: ds.length + ' decks', cap: 'lavender', group: '', cards: [].concat.apply([], ds.map(function (x) { return x.cards; })) };
+      deckId = 'mix'; selecting = false; selected = []; selMode = null; selCue = false; quiz = null; flipDone = false; mode = 'choose';
+      t = { dataset: { act: t.dataset.act === 'sel-flip' ? 'mode-flip' : 'mode-quiz' } };
+    }
     var d = deck(), n = d ? d.cards.length : 0, k;
+    function startFlip(idxs) { mode = 'flip'; quiz = null; order = idxs || d.cards.map(function (_, i) { return i; }); if (d.id === 'mix') order = shuffle(order); idx = 0; flipped = false; flipDone = false; render(); window.scrollTo(0, 0); preloadCards(order.slice(1, 3).map(function (i) { return d.cards[i]; })); }
     switch (t.dataset.act) {
-      case 'back': deckId = null; mode = 'flip'; quiz = null; lap = 0; render(); break;
-      case 'mode-flip': mode = 'flip'; quiz = null; lap = 0; render(); break;
-      case 'mode-quiz': if (n > 1) { mode = 'quiz'; startQuiz(d); render(); } break;
+      case 'back': deckId = null; mixDeck = null; chooser = null; mode = 'choose'; quiz = null; flipDone = false; render(); window.scrollTo(0, 0); break;
+      case 'mode-flip': startFlip(); break;
+      case 'mode-quiz': if (n > 1) { mode = 'quiz'; flipDone = false; startQuiz(d); render(); window.scrollTo(0, 0); } break;
       case 'quiz-next': quizNext(); break;
-      case 'quiz-restart': startQuiz(d); render(); break;
+      case 'quiz-restart': startQuiz(d); render(); window.scrollTo(0, 0); break;
+      case 'quiz-missed': var miss = quiz.missed.map(function (c) { return d.cards.indexOf(c); }).filter(function (i) { return i > -1; });
+        if (miss.length > 1) { startQuiz(d, miss); render(); window.scrollTo(0, 0); } else { startQuiz(d); render(); } break;
       case 'flip': flipped = !flipped; var fc = app.querySelector('.fc'); if (fc) fc.classList.toggle('is-flipped', flipped); break;
-      case 'next': if (n) { idx = (idx + 1) % n; flipped = false; render(); stepped(d); } break;
-      case 'prev': if (n) { idx = (idx - 1 + n) % n; flipped = false; render(); } break;
+      case 'next': flipStep(d, 1); break;
+      case 'prev': flipStep(d, -1); break;
       case 'got': case 'again':
-        k = getKnown(d.id); var cid = d.cards[order[idx]].id;
-        if (t.dataset.act === 'got') k.add(cid); else k.delete(cid);
-        setKnown(d.id, k); idx = (idx + 1) % n; flipped = false; render(); stepped(d); break;
-      case 'shuffle':
-        for (var i = order.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = order[i]; order[i] = order[j]; order[j] = x; }
-        idx = 0; flipped = false; lap = 0; render(); toast('Shuffled'); break;
+        markKnown(d.cards[order[idx]], t.dataset.act === 'got'); flipStep(d, 1); break;
+      case 'flip-again': startFlip(); break;
+      case 'flip-unknown': startFlip(d.cards.map(function (c, i) { return isKnown(c) ? -1 : i; }).filter(function (i) { return i > -1; })); break;
+      case 'shuffle': order = shuffle(order); idx = 0; flipped = false; render(); toast('Shuffled'); break;
     }
   });
 
+  // move through a flip session; stepping past the last card finishes the deck
+  function flipStep(d, delta) {
+    if (flipDone) return;
+    if (delta > 0 && idx + 1 >= order.length) { flipDone = true; flipped = false; render(); window.scrollTo(0, 0); deckDone(d); return; }
+    idx = Math.max(0, idx + delta); flipped = false; render();
+    preloadCards(order.slice(idx + 1, idx + 3).map(function (i) { return d.cards[i]; }));
+  }
   function pick(i) {
     var d = deck(); if (!quiz || quiz.done || quiz.picked !== null || i >= quiz.choices.length) return;
     var c = d.cards[quiz.order[quiz.i]];
     quiz.picked = i;
-    var k = getKnown(d.id);
-    if (quiz.choices[i] === c.a) { quiz.score++; k.add(c.id); } else { quiz.missed.push(c); k.delete(c.id); }
-    setKnown(d.id, k); render();
-    var nx = app.querySelector('[data-act="quiz-next"]'); if (nx) nx.focus({ preventScroll: true });
+    if (quiz.choices[i] === c.a) { quiz.score++; markKnown(c, true); } else { quiz.missed.push(c); markKnown(c, false); }
+    render();
+    var nx = app.querySelector('.mc-next'); if (nx) nx.focus({ preventScroll: true });
   }
   function quizNext() {
     var d = deck(); if (!quiz || quiz.picked === null) return;
     quiz.i++; quiz.picked = null;
-    if (quiz.i >= d.cards.length) { quiz.done = true; deckDone(d); } else quiz.choices = choicesFor(d, d.cards[quiz.order[quiz.i]]);
-    render();
+    if (quiz.i >= quiz.order.length) { quiz.done = true; deckDone(d); } else quiz.choices = choicesFor(d, d.cards[quiz.order[quiz.i]]);
+    render(); window.scrollTo(0, 0);
+    if (quiz && !quiz.done) preloadCards(quiz.order.slice(quiz.i + 1, quiz.i + 3).map(function (i) { return d.cards[i]; }));
   }
 
   document.addEventListener('keydown', function (e) {
-    if (view !== 'study' || !deckId) return;
+    if (view === 'study' && !deckId && chooser && e.key === 'Escape') { chooser = null; var yy = window.scrollY; render(); window.scrollTo(0, yy); return; }
+    if (view !== 'study' || !deckId || e.metaKey || e.ctrlKey || e.altKey) return;
     var d = deck(); if (!d || !d.cards.length) return;
-    if (mode === 'quiz' && quiz) {
+    if (mode === 'quiz' && quiz && !quiz.done) {
       var m = { '1': 0, '2': 1, '3': 2, '4': 3, a: 0, b: 1, c: 2, d: 3 }[e.key.toLowerCase()];
       if (m !== undefined && quiz.picked === null) { e.preventDefault(); pick(m); }
-      else if (e.key === 'Enter' && quiz.picked !== null && !quiz.done && document.activeElement && !document.activeElement.dataset.act) { e.preventDefault(); quizNext(); }
+      else if (e.key === 'Enter' && quiz.picked !== null) { e.preventDefault(); quizNext(); }
       return;
     }
+    if (mode !== 'flip' || flipDone) return;
     if (e.key === ' ') { e.preventDefault(); flipped = !flipped; var fc = app.querySelector('.fc'); if (fc) fc.classList.toggle('is-flipped', flipped); }
-    else if (e.key === 'ArrowRight') { idx = (idx + 1) % d.cards.length; flipped = false; render(); stepped(d); }
-    else if (e.key === 'ArrowLeft') { idx = (idx - 1 + d.cards.length) % d.cards.length; flipped = false; render(); }
+    else if (e.key === 'ArrowRight') flipStep(d, 1);
+    else if (e.key === 'ArrowLeft') flipStep(d, -1);
   });
 
   // coming back from a test with the browser's Back button: show the newest history

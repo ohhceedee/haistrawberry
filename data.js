@@ -16,7 +16,7 @@ window.SITE_DATA = {
   /* ---------- About page ---------- */
   profile: {
     name: "oh hai",   // the greeting shown at the top
-    tagline: "we’ll float on, mostly",
+    tagline: "slow songs, sunflowers & a little lab coat 🔬",
     about: "sunflowers, then dusk\na slow song, the dog asleep\nwe’ll float on, i think",   // shown as a haiku; \n starts a new line
     likes: ["Sunflowers", "Live music", "Nature", "Animals"],
     spotify: "https://open.spotify.com/user/ohhaistrawberry/playlists",
@@ -26,6 +26,45 @@ window.SITE_DATA = {
     links: [
       { label: "🔬 Study Lab", href: "#study" },
       { label: "🎵 My playlists", href: "https://open.spotify.com/user/ohhaistrawberry/playlists" }
+    ]
+  },
+
+  /* ---------- Front page rotation ----------
+     One of these shows under her name, a different one each visit (and ↻ shows another).
+     Mix and match:
+       { poem: "line one\nline two\nline three" }      shown in the italic haiku style
+       { text: "something funny" }                      plain text
+       { img: "fun/meme1.jpg", caption: "optional" }    a picture (put the file in a fun/ folder)
+     If this list is empty, the "about" poem above is shown instead. */
+  /* Optional on any entry: emoji: "🐶" sets the little sticker on the card's corner
+     (defaults: 🌻 poem, ✨ line, 📸 picture). A picture can also have a line above it:
+       { text: "Look!", img: "fun/grumpy-cat.png", emoji: "😼" }  */
+  frontPage: [
+    { poem: "sunflowers, then dusk\na slow song, the dog asleep\nwe’ll float on, i think", emoji: "🌻" },
+    { text: "That’s such a big stretch for a tiny dog!", emoji: "🐶" },
+    { text: "For her beauty, her wit and elegance he fell from the heavens and kept on falling until he was not able to ever climb out of love.", emoji: "💫" },
+    { text: "Look!", img: "fun/grumpy-cat.png", alt: "A grumpy yellow cat face, side view", emoji: "😼" }
+
+    /* ↓ Paste the song lines here, one per entry, each ending with a comma
+         (and add a comma after the "Look!" line above). Suggested stickers:
+         Darker than the ocean…   emoji: "🌊⚡"
+         Hair poof, band tee…     emoji: "💖"
+         And if I could swim…     emoji: "🌊"
+         Your heart felt good…    emoji: "🪵"
+         And the audience…        emoji: "🎤"
+       Example: { text: "the line goes here", emoji: "🌊" },  */
+  ],
+
+  /* ---------- Vinyl scratch easter egg ----------
+     Drag the record back and forth on the front page; when she lets go, one of these plays
+     (a different one each time). Put the audio files in an audio/ folder, e.g. "audio/hi.mp3".
+     Leave it empty for just the scratch sound. */
+  vinyl: {
+    clips: [
+      "audio/miss.mp3",
+      "audio/fine.mp3",
+      "audio/bodys-bangin.mp3",
+      "audio/i-love-you.mp3"
     ]
   },
 
@@ -1578,6 +1617,384 @@ window.SITE_DATA = {
         { q: "Picture 5. Identify.", a: "<i>Trichuris trichiura</i> eggs<br>54 x 22<br>Distinctive <b>barrel shape</b><br>Retractile, convex, hyaline polar plugs at both ends. Unembryonated internal mass", img: "cards/hel/hel_199.jpg" },
         { q: "Primary difference between Capillaria philippinensis and Trichuris trichiura", a: "C. philippinensis has an autoinfective stage" },
         { q: "Picture 6. Identify.", a: "Capillaria philippinensis<br>Must not confuse with <i>Trichuris</i> eggs. <br>35 - 45 x 20 - 25 um<br>More square<br>Less conspicuous polar plugs (flatter and less prominent). These have an innie belly button; Trichuris has an outie.<br>Thick, striated shell", img: "cards/hel/hel_201.jpg" }
+      ]
+    },
+    /* ---------- Mycobacteria · Exam 5 (Oct 20 2026) ----------
+       From her Exam 5 Mycobacterium study guide and Lecture 7 (AFB Lab Procedures) notes. */
+    {
+      code: "AFB-1",
+      title: "Non-culture tests: PPD, IGRA, NAAT",
+      cap: "lightblue",
+      group: "AFB Lab Procedures · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "Non-culture diagnostic procedures for mycobacteria are mainly used for what?", a: "<b>TB testing.</b> The TB skin test (PPD), interferon-gamma release assays (IGRAs), and NAATs." },
+        { q: "Other names for the TB skin test?", a: "<b>PPD</b> (Purified Protein Derivative tuberculin) and the <b>Mantoux test</b>." },
+        { q: "How is the PPD given, and when is it read?", a: "<b>Subcutaneous injection</b>, read after <b>48 hours</b>. It measures the immune response to the antigen." },
+        { q: "Reading a PPD: what do you measure?", a: "The <b>induration</b> (the hard nodule), <b>not the redness</b>. What counts as positive depends on the size and the patient’s risk group: HIV positive, known TB risk factors, or no known risk factors." },
+        { q: "Limitations of the TB skin test?", a: "Can’t tell <b>latent vs active vs cured</b>. Patient must <b>come back</b> to have it read. Measurement is <b>subjective</b>. <b>BCG-vaccinated</b> people give <b>false positives</b>. <b>HIV / immunosuppressed</b> people may give <b>false negatives</b> (they don’t react to the antigen)." },
+        { q: "Who must get the skin test instead of an IGRA?", a: "<b>Kids under 5.</b> IGRAs can’t be used for them; they give too many indeterminate results." },
+        { q: "What does an IGRA measure?", a: "A <b>blood test</b> that measures the release of <b>interferon-gamma</b> (a signaling protein from activated lymphocytes) in response to <i>M. tuberculosis</i> antigens." },
+        { q: "Primary purpose of IGRAs?", a: "Diagnosing <b>latent TB infection</b>, and identifying who will benefit from latent TB infection therapy (<b>LTBI</b>)." },
+        { q: "QuantiFERON-TB Gold Plus vs T-Spot TB: how do they differ?", a: "<b>QuantiFERON-TB Gold Plus</b>: <b>ELISA</b> that measures the <b>concentration of interferon-gamma</b> itself. Reported positive, negative, or indeterminate.<br><b>T-Spot TB</b>: <b>ELISPOT</b> that <b>counts the T cells</b> making interferon-gamma. Not an immunoassay." },
+        { q: "Advantages of IGRAs over the skin test?", a: "<b>Not subjective</b>, no return visit, higher sensitivity and specificity, fewer false positives and negatives, <b>not affected by BCG</b>, more sensitive in HIV-positive patients, and only <b>one lithium heparin tube</b> is needed." },
+        { q: "Disadvantages of IGRAs?", a: "<b>Cost</b> (more than PPD). Must be <b>started within 16 hours</b> of collection. Some cross-reactivity with NTMs. Need more data on kids under 2, the immunocompromised and pregnant women. Some false positives right after a flu vaccine." },
+        { q: "IGRAs can cross-react with which NTMs?", a: "<i>M. kansasii</i>, <i>M. szulgai</i>, and <i>M. marinum</i>.", wrong: ["<i>M. avium</i> complex, <i>M. xenopi</i>, <i>M. gordonae</i>", "<i>M. fortuitum</i>, <i>M. chelonae</i>, <i>M. abscessus</i>", "<i>M. leprae</i>, <i>M. ulcerans</i>, <i>M. haemophilum</i>"] },
+        { q: "IGRA specimen and time limit?", a: "<b>One lithium heparin tube.</b> The test must be started within <b>16 hours</b> of collection." },
+        { q: "Cepheid Xpert MTB/RIF: method, specimen, and what makes it special?", a: "<b>Real-time PCR</b> on raw sputum or digested / concentrated specimens. The <b>only NAAT approved to detect rifampin resistance</b>." },
+        { q: "Hologic Amplified MTD: method and specimen?", a: "<b>Transcription-mediated amplification</b> (TMA), performed on <b>digested and concentrated</b> samples." },
+        { q: "AFB smear is positive but the MTB NAAT is negative. What does that tell you?", a: "There’s a <i>Mycobacterium</i> there, but it’s <b>not the TB complex</b>: likely an <b>NTM</b>, which may need different treatment." },
+        { q: "Advantages of MTB NAATs?", a: "Run on sputum, fluids or tissues. Quickly <b>isolate</b> patients, or <b>remove them from isolation</b> if negative. Faster TAT (<b>9 h vs 23 h</b> for AFB smears). Lower costs. Guides treatment." },
+        { q: "Limitations of MTB NAATs?", a: "Can’t tell <b>living from dead</b> organisms. Can’t be used if treatment has gone <b>more than 7 days</b>. Some specimens have <b>inhibitory substances</b>. Can’t tell species <b>within the M. tb complex</b> apart." }
+      ]
+    },
+    {
+      code: "AFB-2",
+      title: "Specimen collection & rejection",
+      cap: "pink",
+      group: "AFB Lab Procedures · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "Biosafety level for an AFB lab, and what it requires?", a: "<b>BSL-3.</b> Inward airflow and negative pressure, controlled access, work in a biosafety cabinet. PPE: <b>N95 respirator</b>, full lab gown, gloves. Ideally nothing exposed." },
+        { q: "Three things AFB processing must do that routine bacteriology doesn’t?", a: "1) <b>Eliminate or reduce</b> the other bacterial flora.<br>2) <b>Release</b> mycobacteria trapped in <b>mucin</b>.<br>3) <b>Concentrate</b> the organisms so small numbers can be detected." },
+        { q: "Container and handling rules for AFB specimens?", a: "<b>Sterile, leak-proof, disposable</b> containers. <b>No formalin.</b> Bypass normal flora when possible. <b>Refrigerate</b> if processing is delayed <b>more than 1 hour</b>." },
+        { q: "Specimen collection don’ts?", a: "No <b>waxed containers</b>. No <b>fixative or preservative</b>, including transport media (OK for NAATs, not culture). No <b>tap water</b>. No <b>swabs</b> unless there’s absolutely no other way." },
+        { q: "Why no tap water?", a: "Tap water is full of <b>NTMs</b>, so it can contaminate the specimen and give a false positive." },
+        { q: "Why no waxed containers?", a: "Mycobacteria have waxy outer coatings of their own, so waxed containers are a no-no." },
+        { q: "Reject a sputum if…", a: "There’s <b>less than 3 mL</b>, or it’s <b>entirely saliva</b> (unless it’s an induced specimen). Gram-stain rejection criteria (squamous cells) do <b>not</b> apply to AFB cultures." },
+        { q: "Other reasons to reject an AFB specimen?", a: "<b>Dried swabs</b>. <b>Pooled</b> sputum or urine. More than <b>7 days</b> between collection and processing." },
+        { q: "Sputum collection: how many, and when?", a: "<b>3 successive samples</b>: one first thing in the morning, one 8 hours later, and one 8 hours after that. Induced if the patient can’t produce one. <b>Never pooled.</b>" },
+        { q: "Acceptable substitutes for sputum?", a: "Bronchial aspirates, bronchoalveolar lavage (BAL), fine needle aspirates, and lung biopsies." },
+        { q: "Urine for AFB: what kind and how much?", a: "<b>First-morning midstream</b> specimen, minimum <b>40 mL</b>, centrifuge as much as you can get. <b>No 24-hour or pooled</b> urine. May not need decontamination." },
+        { q: "Other body fluids (peritoneal, pleural, synovial, pericardial): how to process?", a: "Usually <b>no decontamination</b>. Centrifuge as much as possible and <b>pool the sediments</b>; spin <b>15 min at 3000 × g</b>. May need anticoagulant to prevent clots. If volume is low and irreplaceable, inoculate directly onto media." },
+        { q: "CSF for AFB: how much, and when should it be done?", a: "<b>5–10 mL.</b> Only when CSF chemistry and cell counts suggest mycobacteria: <b>high protein, low glucose, lymphocytes</b>." },
+        { q: "Fecal mycobacteria: who, and how?", a: "<b>Only HIV-positive patients.</b> Emulsify 1 g formed stool in saline, vortex, let settle, use the top liquid. <b>NaOH</b> digestion, standing <b>25 minutes</b>." },
+        { q: "Abscess or cutaneous lesion: how to collect, and how to set up?", a: "Aspirate from <b>beneath the edge of the margin</b>. Set up in <b>duplicate</b>: one set at <b>30 °C</b>, one at <b>37 °C</b>.",
+          why: "Mycobacteria that cause skin lesions prefer cooler temperatures, closer to room temp." },
+        { q: "Gastric aspirate / lavage: who, and how is it handled?", a: "<b>Infants, children, obtunded patients</b>, or anyone who can’t produce sputum (they swallow it overnight). Collect <b>10 mL first thing in the morning</b>; neutralize with <b>100 mg sodium carbonate within 4 hours</b>. No decontamination, but liquefy." },
+        { q: "Tissue specimens: how to prepare?", a: "Mince or grind <b>1 g</b> in sterile saline or bovine albumin. Biopsy skin lesions at the <b>peripheral edge</b>. <b>No formalin.</b>" },
+        { q: "Blood cultures for mycobacteria?", a: "Standard bacterial blood culture doesn’t work. Use <b>SPS, heparin or citrate</b>; concentrate with the <b>Wampole Isolator</b>; inoculate the pellet to solid and broth media (<b>MGIT</b>)." },
+        { q: "Patient can’t produce sputum on their own. What now?", a: "Collect an <b>induced sputum</b> (call respiratory therapy), or use an alternative: bronchial aspirate, BAL, or a gastric aspirate in kids." }
+      ]
+    },
+    {
+      code: "AFB-3",
+      title: "Processing: liquefy, decontaminate, spin",
+      cap: "gold",
+      group: "AFB Lab Procedures · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "Liquefaction vs decontamination?", a: "<b>Liquefaction</b> releases organisms trapped in mucus. <b>Decontamination</b> kills the contaminating non-mycobacterial flora." },
+        { q: "Two liquefying agents?", a: "<b>N-acetyl-L-cysteine (NALC)</b> and <b>dithiothreitol</b> (brand name <b>Sputolysin</b>). They only liquefy; no decontamination." },
+        { q: "What is ideal decontamination, and how well do mycobacteria survive it?", a: "Kill all contaminants without hurting the mycobacteria. The waxy coat isn’t fully protective: only <b>10–20% survive</b> even when done right, so use the <b>mildest</b> decontaminant that holds down normal flora." },
+        { q: "NaOH: what does it do?", a: "<b>Decontaminates and digests mucin</b> (2–5%)." },
+        { q: "Which decontaminant for <i>Pseudomonas aeruginosa</i> contamination?", a: "<b>5% oxalic acid</b>.", wrong: ["2–5% NaOH", "Household bleach", "Trisodium phosphate"] },
+        { q: "Household bleach: smears or cultures?", a: "<b>Smears only, not cultures.</b> It kills the mycobacteria." },
+        { q: "Trisodium phosphate: the catch?", a: "<b>Timing is critical</b> if it’s used alone." },
+        { q: "Most common processing method, and what each part does?", a: "<b>NALC–NaOH.</b> NALC liquefies; NaOH decontaminates. Vortex, stand <b>15 min</b> at room temp, neutralize with <b>phosphate buffer</b>, centrifuge ≥15 min at 2,200 RCF, decant, make smears from the sediment." },
+        { q: "Oxalic acid method: details?", a: "<b>5% oxalic acid + Sputolysin.</b> Oxalic acid decontaminates; Sputolysin liquefies. Vortex, stand 30 min, add saline to neutralize, centrifuge, adjust to pH 7, inoculate." },
+        { q: "Processing methods for cystic fibrosis specimens?", a: "<b>NALC–2% NaOH followed by oxalic acid</b> (2-step decontamination), or <b>chlorhexidine</b>.",
+          why: "CF sputum is extra thick and often carries <i>Pseudomonas</i>." },
+        { q: "Urine that is consistently contaminated: which method?", a: "<b>Sulfuric acid.</b>" },
+        { q: "Recommended centrifugation settings?", a: "<b>3000 × g for 15 minutes</b> OR <b>2074 × g for 20 minutes</b>, in <b>sealed tube holders</b>.", wrong: ["1500 × g for 10 minutes", "500 × g for 5 minutes", "5000 × g for 30 minutes"] },
+        { q: "Why is centrifugation such a critical step?", a: "Mycobacteria have a <b>low specific gravity</b>, so the suspending fluid must be lower still. Spin fast enough to pellet them, but in <b>sealed holders</b> to avoid aerosols." }
+      ]
+    },
+    {
+      code: "AFB-4",
+      title: "AFB stains & reading smears",
+      cap: "red",
+      group: "AFB Lab Procedures · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "Why don’t mycobacteria Gram stain, and how do they look on an AFB stain?", a: "Their cell walls are <b>rich in lipids</b>, so aniline dyes don’t get in, and once stained they’re hard to decolorize, <b>even with acid alcohol</b>. They stain irregularly and look <b>beaded or granular</b>." },
+        { q: "Carbol fuchsin AFB stain: what color is what?", a: "Mycobacteria stain <b>pink / red</b>; everything else stains <b>blue</b>." },
+        { q: "Strengths of the acid-fast smear?", a: "Simple, rapid, sensitive. If <b>3 specimens</b> are processed, <b>96%</b> of infected people are detected." },
+        { q: "The AFB smear is of limited value in which patients?", a: "<b>Paucibacillary</b> disease in <b>kids</b>, <b>HIV-positive</b> patients, and <b>extrapulmonary</b> infections." },
+        { q: "What affects AFB smear sensitivity?", a: "Specimen type, prevalence and severity of disease, collection quality, number of organisms, processing and staining, sticking to protocol, staff training, and <b>intermittent shedding</b>." },
+        { q: "AFB smear safety: drying and fixing?", a: "Air dry in the hood; <b>fix before removing</b> it: <b>2 h on a slide warmer at 65–75 °C</b>, or <b>5 min in 5% phenol in ethanol</b>." },
+        { q: "Which AFB stain needs heat (“needs fire”)?", a: "<b>Ziehl-Neelsen</b> (hot stain). Heat drives the stain through the lipid wall. <b>More sensitive than Kinyoun.</b>", wrong: ["Kinyoun", "Auramine-rhodamine", "Gram stain"] },
+        { q: "Kinyoun stain: how does it skip the heat?", a: "<b>Cold stain.</b> Higher concentrations of <b>basic fuchsin and phenol</b> remove the need to heat. <b>Less sensitive</b> than Ziehl-Neelsen." },
+        { q: "Fluorescent AFB stain: name and advantages?", a: "<b>Auramine-rhodamine.</b> About <b>10% more sensitive</b> than carbol fuchsin; screen at <b>high dry (450×)</b>; organisms glow against a dark background." },
+        { q: "Auramine with vs without rhodamine: colors?", a: "<b>Without rhodamine</b>: yellow-green. <b>With rhodamine</b>: yellow-orange." },
+        { q: "How many fields before calling a smear negative?", a: "<b>Carbol fuchsin (1000×): 300 fields.</b> <b>Fluorescent: at least 30 fields.</b>", wrong: ["Carbol fuchsin: 100 fields. Fluorescent: 10 fields.", "Carbol fuchsin: 30 fields. Fluorescent: 300 fields.", "Carbol fuchsin: 50 fields. Fluorescent: 50 fields."] },
+        { q: "CDC reporting, carbol fuchsin (1000×): what count gives ±, 1+, 2+, 3+, 4+?", a: "1–2 / 300 fields = <b>±</b><br>1–9 / 100 fields = <b>1+</b><br>1–9 / 10 fields = <b>2+</b><br>1–9 / field = <b>3+</b><br>&gt;9 / field = <b>4+</b>" },
+        { q: "CDC reporting, fluorescent (450×): what count gives ±, 1+, 2+, 3+, 4+?", a: "1–2 / 70 fields = <b>±</b><br>2–18 / 50 fields = <b>1+</b><br>4–36 / 10 fields = <b>2+</b><br>4–36 / field = <b>3+</b><br>&gt;36 / field = <b>4+</b>" },
+        { q: "Growth on an AFB culture: how do you confirm it’s a mycobacterium?", a: "Always do an <b>AF stain</b> first, using a <b>carbol fuchsin</b> stain (not fluorescent)." }
+      ]
+    },
+    {
+      code: "AFB-5",
+      title: "Media, incubation & automation",
+      cap: "green",
+      group: "AFB Lab Procedures · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "Four types of mycobacteria media?", a: "<b>Broth</b>, <b>inspissated egg</b>, <b>semi-synthetic agar</b>, and <b>selective</b> media (egg- or agar-based)." },
+        { q: "Most sensitive broth, and where are broths used?", a: "<b>Middlebrook 7H9.</b> Broths run on automated systems and are <b>much faster</b> than solid media." },
+        { q: "Major ingredients of egg-based media (“think eggs”)?", a: "<b>Whole eggs or egg yolk</b>, <b>potato flour</b>, <b>salts</b>, and <b>glycerol</b>." },
+        { q: "Egg-based media: pros and cons?", a: "Long shelf life, cheap, neutralizes toxic materials. <b>Can’t be used for susceptibility testing</b> because drugs bind the albumin. Growth takes <b>18–24 days</b>." },
+        { q: "Lowenstein-Jensen (LJ) media: key facts?", a: "Opaque egg medium. Good for the <b>MTB complex</b>, not so good for NTMs. Best in CO₂. <b>Malachite green</b> is the inhibitory agent." },
+        { q: "Middlebrook 7H10 / 7H11 agar: key facts?", a: "<b>Clear</b> (easy to see colonies), used for <b>susceptibility testing</b>. Short shelf life (1 month), expensive. 7H10 shows growth in 8–10 days; needs CO₂." },
+        { q: "What’s special about Middlebrook 7H11?", a: "<b>Casein</b> improves recovery of <b>INH-resistant</b> <i>M. tuberculosis</i>; <b>2% glycerol</b> boosts growth of <b>MAC</b>." },
+        { q: "Selective egg medium and its additives?", a: "<b>Gruft modification of LJ</b>: penicillin and nalidixic acid." },
+        { q: "Selective agar medium and its additives?", a: "<b>Mitchison selective 7H10 / 7H11</b>: carbenicillin, polymyxin B, trimethoprim, amphotericin B." },
+        { q: "AFB culture incubation conditions?", a: "<b>35–37 °C in 5–10% CO₂</b> (no candle jars). Keep at least <b>8 weeks</b>; <b>4 more</b> if the smear or NAAT was positive. Slants at an angle, caps loose, until the inoculum absorbs." },
+        { q: "Culture reading schedule?", a: "At <b>3–5 days</b> (rapid growers, contamination), then <b>twice a week for 4 weeks</b>, then <b>weekly for 4 more</b>. Note growth rate, colony morphology and texture, growth at different temps, and pigment." },
+        { q: "Benefits of automated AFB systems?", a: "Plastic, non-sharp bottles; faster detection; less tech time; NAATs can run off positive bottles; negatives discarded after <b>6 weeks</b>." },
+        { q: "VersaTREK / ESP Culture II detects growth how?", a: "Continuously monitors <b>gas pressure changes</b> from O₂ consumption and CO₂ production." },
+        { q: "BD Bactec MGIT detects growth how?", a: "A <b>fluorescent sensor</b> in silicone at the tube bottom is <b>quenched by oxygen</b> and <b>fluoresces when O₂ is used up</b>." },
+        { q: "Typical <i>M. tuberculosis</i> colonies?", a: "<b>White / tan, rough</b> (wrinkly). Creamy or pigmented colonies are most likely <b>not</b> Mtb." }
+      ]
+    },
+    {
+      code: "AFB-6",
+      title: "Identification & biochemical tests",
+      cap: "lavender",
+      group: "AFB Lab Procedures · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "Ways to identify mycobacteria from culture?", a: "Molecular methods, MALDI-TOF, gas-liquid chromatography of cell wall lipids, lateral flow assays, physical characteristics, and biochemicals. Best to <b>combine genotypic and phenotypic</b> methods." },
+        { q: "Best way to judge growth rate?", a: "Time for a <b>subculture</b> to produce visible colonies. The first growth may have been slowed by decontamination." },
+        { q: "Direct probe hybridization: probes are available for which organisms?", a: "<b>MTB complex</b>, <b>MAC</b>, <i>M. gordonae</i>, <i>M. kansasii</i>, <i>M. leprae</i>." },
+        { q: "Accuprobe (Gen-Probe) uses what method?", a: "<b>Transcription-mediated amplification (TMA) / hybridization protection assay (HPA)</b>. Can detect several species." },
+        { q: "MALDI-TOF for mycobacteria: key points?", a: "Needs <b>pre-extraction</b>; accuracy depends on the database. <b>Vitek MS</b> (bioMérieux) is FDA approved; <b>Bruker Biotyper</b> is not (in-house validation)." },
+        { q: "Lateral flow assay for the MTB complex detects what?", a: "<b>Monoclonal antibodies against the MPB64 protein</b> secreted by the MTB complex. Rapid ID from broth or solid growth." },
+        { q: "Drawbacks of phenotypic ID?", a: "Poorly reproducible, takes weeks, lots of species variability, and new species aren’t characterized biochemically." },
+        { q: "3-day arylsulfatase: principle and positives?", a: "Splits phenolphthalein from tripotassium phenolphthalein sulfate within 3 days. <b><i>M. fortuitum</i> and <i>M. chelonae</i> are positive</b>; most others negative." },
+        { q: "Heat-stable catalase (68 °C, 20 min): who’s negative?", a: "<b><i>M. tuberculosis</i> and <i>M. marinum</i></b> are negative; most others positive. Uses <b>30% H₂O₂</b>, in a biosafety cabinet." },
+        { q: "How does the heat-stable catalase test flag INH resistance in <i>M. tuberculosis</i>?", a: "Mtb is normally negative. Per the lecture, an <b>INH-resistant</b> strain will test <b>positive</b>." },
+        { q: "Niacin test: principle and result for Mtb?", a: "All mycobacteria make niacin, but some lack the enzyme to turn it into niacin ribonucleotide. <b><i>M. tuberculosis</i> is positive</b> (yellow = niacin builds up); most others negative." },
+        { q: "Nitrate reduction: positives and the key negative?", a: "<b>Positive</b>: <i>M. tuberculosis</i>, <i>M. kansasii</i>, <i>M. fortuitum</i>, <i>M. szulgai</i>. <b>Negative</b>: <i>M. chelonae</i>." },
+        { q: "Which test separates the two common rapid growers, <i>M. fortuitum</i> and <i>M. chelonae</i>?", a: "<b>Nitrate reduction</b>: <i>fortuitum</i> positive, <i>chelonae</i> negative.", wrong: ["3-day arylsulfatase", "Niacin accumulation", "Heat-stable catalase"],
+          why: "Arylsulfatase is positive for both, so it can’t split them." },
+        { q: "Biochemical profile of <i>M. tuberculosis</i>?", a: "<b>Niacin positive</b>, <b>nitrate positive</b>, <b>heat-stable catalase negative</b>." }
+      ]
+    },
+    {
+      code: "AFB-7",
+      title: "Drug susceptibility testing",
+      cap: "gray",
+      group: "AFB Lab Procedures · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "Point #1: is drug resistance caused by exposure to the drug?", a: "<b>No.</b> Random resistance arises independent of exposure: about <b>1 in 10⁵</b> tubercle bacilli for <b>INH</b> and <b>1 in 10⁶</b> for <b>streptomycin</b>." },
+        { q: "Point #2: what level of in vitro resistance means a drug won’t work?", a: "<b>More than 1%</b> of the patient’s organisms resistant. The inoculum must be standardized, using two dilutions." },
+        { q: "Point #3: which isolates get susceptibility testing, and when to repeat?", a: "<b>All first isolates</b> (or at least high-risk patients: immigrants from high-prevalence areas, contacts of resistant cases, immunocompromised, severely ill). <b>Repeat</b> if the patient isn’t culture negative after <b>3 months</b> or is clinically failing." },
+        { q: "Point #4: why doesn’t disk diffusion work?", a: "Mycobacteria grow <b>too slowly</b>. Use direct or indirect methods instead." },
+        { q: "Direct susceptibility method: what, and when?", a: "Uses the original or processed sample (decontamination sediment). Only when the smear shows <b>&gt;50 AFB / oil field (4+)</b>, and only if resistance is known or suspected." },
+        { q: "Indirect susceptibility methods?", a: "Use <b>culture growth</b>: <b>solid media</b>, <b>broth</b>, and <b>disk elution</b>." },
+        { q: "Gold standard for AFB susceptibility on solid media?", a: "Growth subbed to <b>7H9 broth</b>, grown to the right density, then inoculated onto <b>7H11 agar</b> containing a set concentration of a single drug." },
+        { q: "Agar dilution: how is it read?", a: "Serial drug dilutions in agar; find where growth stops. The <b>quadrant with growth is the control</b>." },
+        { q: "Disk elution: how is it done, and what is it not for?", a: "Drug disks are embedded in <b>molten agar</b> and diffuse as it cools, <b>then</b> it’s inoculated (the reverse of Kirby-Bauer). <b>Not for rapid growers.</b>" },
+        { q: "Broth susceptibility methods and the gold standard for most mycobacteria?", a: "Macrodilution in MGIT, VersaTREK or BacT/Alert broths. <b>Broth microdilution</b> (TREK Sensititre) is the <b>gold standard for most mycobacteria</b>." },
+        { q: "Molecular resistance testing for rapid growers: what gene?", a: "<b>Sanger sequencing</b> for the <b><i>erm</i> gene</b>. If it’s <b>absent</b>, the organism is <b>susceptible to clarithromycin</b>." },
+        { q: "Molecular tests for MTB resistance?", a: "<b>Xpert MTB/RIF</b> (real-time PCR): MTB ID plus <b>rifampin</b> resistance. GenoType MTBDRplus and MTBDRsl are in development (not FDA approved)." },
+        { q: "MDR-TB definition?", a: "<b>Multi-drug resistant</b>: resistant to at least <b>INH and RIF</b>. This is why TB is treated with a combination of drugs." },
+        { q: "XDR-TB definition (per lecture)?", a: "<b>Extensively drug resistant</b>: resistant to at least one <b>first-line</b> drug and one <b>second-line</b> drug (amikacin, kanamycin, capreomycin)." }
+      ]
+    },
+    {
+      code: "AFB-8",
+      title: "Quality assurance",
+      cap: "lightblue",
+      group: "AFB Lab Procedures · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "Acceptable contamination rates for AFB cultures?", a: "<b>2–5%</b> for solid media; <b>7–8%</b> for liquid media with antimicrobials.", wrong: ["Under 1% for all media", "10–15% for solid media; 20% for liquid", "5–8% for solid media; 2–5% for liquid"] },
+        { q: "What does the contamination rate monitor?", a: "The <b>digestion and decontamination</b> procedure." },
+        { q: "When is a culture called contaminated?", a: "When it’s <b>completely overgrown or liquefied</b>, so isolating AFB is impossible or badly compromised." },
+        { q: "Whose contamination rate is tracked separately?", a: "<b>Cystic fibrosis</b> patients, separately from non-CF patients." },
+        { q: "Contamination rate over 5%: what do you do?", a: "1) <b>Cautiously</b> increase the strength, time or temp of the alkali.<br>2) Add a <b>selective medium</b>.<br>3) Make sure specimens are <b>fully digested</b>.<br>4) For <i>Pseudomonas</i>, use <b>oxalic acid</b>." },
+        { q: "Turnaround times monitored in mycobacteriology?", a: "Collection vs receipt time, then TAT for <b>AFB smear, NAAT, growth detection, ID, and AST</b> reports." },
+        { q: "Specimen collection monitors?", a: "<b>Volume</b> collected, <b>number of specimens per patient</b>, and <b>number rejected</b>." },
+        { q: "AFB smear vs culture correlation assesses what?", a: "Contamination in the system (<b>bronchoscopes</b>, <b>hospital water</b>, stains and reagents) and the <b>competency</b> of techs reading smears and working up cultures." },
+        { q: "NAAT vs culture correlation assesses what?", a: "The <b>decontamination</b> procedure and <b>environmental contamination</b>. Monitor first-time positive TB patients; send for molecular typing if contamination is suspected." },
+        { q: "Criteria to remove a patient from isolation?", a: "At least <b>3 negative AFB smears</b> from 3 different sputa, after <b>2 weeks of treatment</b>, with marked symptom improvement." },
+        { q: "QA reporting benchmarks?", a: "AFB smear within <b>24 h</b>; positive TB NAAT within <b>48 h</b>; MTB complex ID within <b>21 days</b>; first-line AST within <b>28 days</b>.",
+          why: "The instructor said these vary by lab and don’t need memorizing." }
+      ]
+    },
+    {
+      code: "MYCO-1",
+      title: "Mycobacteria basics & the four groups",
+      cap: "lavender",
+      group: "Mycobacteria · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "How are mycobacteria different from other bacteria?", a: "<b>Acid-fast</b>, non-sporeforming, non-motile, slightly curved rods with <b>lipid-rich cell walls</b>. They don’t Gram stain, are hard to decolorize even with acid alcohol, look beaded, and most grow <b>slowly (2–8 weeks)</b>." },
+        { q: "Mycobacteria growth characteristics?", a: "Mostly slow (2–8 weeks). One genus, about <b>200 species</b>. Variable temperature needs, colony texture (rough or smooth), and pigment in relation to light." },
+        { q: "Where are mycobacteria found? Are they normal flora?", a: "Nature, water, soil, even <b>tap water</b>. <b>Never</b> part of normal human flora." },
+        { q: "Which two are always pathogenic and never found in the environment?", a: "<b><i>M. tuberculosis</i> complex</b> and <b><i>M. leprae</i></b>. They can’t live outside living cells.", wrong: ["<i>M. kansasii</i> and <i>M. marinum</i>", "<i>M. avium</i> complex and <i>M. xenopi</i>", "<i>M. ulcerans</i> and <i>M. bovis</i> BCG"] },
+        { q: "The four major groups of mycobacteria?", a: "1) <b><i>M. tuberculosis</i> complex</b><br>2) <b><i>M. leprae</i></b><br>3) <b><i>M. ulcerans</i></b><br>4) <b>Non-tuberculous mycobacteria (NTM)</b>" },
+        { q: "Species are classified by which three things?", a: "<b>Pigmentation</b>, <b>colony morphology</b>, and <b>growth rate</b>." },
+        { q: "What do all mycobacterial diseases have in common?", a: "<b>Slow-developing, destructive granulomas</b> that may ulcerate or form cavities. Infections can be localized or systemic." },
+        { q: "Primary modes of transmission?", a: "<b>Leprosy</b>: aerosols (prolonged close contact). <b>TB</b>: aerosols from coughing, singing, talking. <b><i>M. bovis</i></b>: <b>unpasteurized dairy</b>, animal workers. <b><i>M. marinum</i></b>: damaged skin + water. <b><i>M. ulcerans</i></b>: wetlands, trauma, bug bites." },
+        { q: "Alternative names: leprosy and <i>M. ulcerans</i> disease?", a: "Leprosy = <b>Hansen’s disease</b>. <i>M. ulcerans</i> = <b>Buruli ulcer</b> (Africa) and <b>Bairnsdale ulcer</b> (Australia)." },
+        { q: "Johne’s disease: cause and what it is?", a: "<b><i>M. avium</i> subsp. <i>paratuberculosis</i></b>. Chronic diarrhea in <b>ruminants (cows)</b>. Pronounced “YAW-neighs”." },
+        { q: "Mycobacteria and Crohn’s disease?", a: "An organism resembling <i>M. avium</i> subsp. <i>paratuberculosis</i> has been found in some cases, but the <b>link is not confirmed</b>. Studies also tie it to a yeast, <i>Debaryomyces</i>." },
+        { q: "What is BCG?", a: "<b>Bacille Calmette-Guérin</b>: <b>attenuated <i>M. bovis</i></b> used to vaccinate against TB. Helps prevent disseminated disease, especially in kids. Not pathogenic to humans; causes false-positive skin tests." },
+        { q: "<i>M. ulcerans</i>: where, and how is it acquired?", a: "<b>3rd most common</b> mycobacterial disease worldwide. Central and West Africa, Malaysia, New Guinea, Guyana, Mexico, Australia. Linked to <b>wetlands</b> and <b>traumatic inoculation</b>, including bug bites." },
+        { q: "<i>M. ulcerans</i>: presentation?", a: "Starts as a <b>painless boil / lump</b>, becomes a <b>shallow ulcer with a necrotic base</b>. Satellite nodules may appear. Dissemination is rare." },
+        { q: "<i>M. ulcerans</i>: growth requirements and lab clues?", a: "Hard to isolate (killed by routine decontamination). Optimum <b>30 °C, won’t grow at 37 °C</b> (skin is cooler). Needs <b>reduced O₂</b>. Biochemically inert except <b>heat-stable catalase positive</b>. <b>No Runyon group.</b>" },
+        { q: "<i>M. ulcerans</i>: treatment?", a: "<b>Excise</b> the lesion, OR <b>8 weeks RIF + streptomycin</b>, OR 4 weeks RIF + streptomycin then 4 weeks RIF + clarithromycin." }
+      ]
+    },
+    {
+      code: "MYCO-2",
+      title: "Runyon groups",
+      cap: "gold",
+      group: "Mycobacteria · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "Runyon Group I: name and pigment behavior?", a: "<b>Photochromogens.</b> Produce pigment (yellow-orange) <b>only when exposed to light</b>." },
+        { q: "Runyon Group II: name and pigment behavior?", a: "<b>Scotochromogens.</b> Produce pigment <b>with or without light</b>: deep orange, carrot colored." },
+        { q: "Runyon Group III: name and pigment behavior?", a: "<b>Nonphotochromogens.</b> <b>Never</b> produce pigment: tan or buff, and the color doesn’t intensify with light." },
+        { q: "Runyon Group IV?", a: "<b>Rapid growers.</b> Fast the way a turtle is fast compared to a snail." },
+        { q: "Group I species?", a: "<i>M. kansasii</i>, <i>M. marinum</i>, and <i>M. szulgai</i> <b>at 25 °C</b>." },
+        { q: "Group II species?", a: "<i>M. scrofulaceum</i>, <i>M. xenopi</i>, <i>M. gordonae</i>, and <i>M. szulgai</i> <b>at 37 °C</b>." },
+        { q: "Group III species?", a: "<b><i>M. avium-intracellulare</i> complex (MAC)</b>, <i>M. malmoense</i>, <i>M. haemophilum</i>." },
+        { q: "Group IV (rapid growers): list them.", a: "<b><i>M. fortuitum</i> complex</b>, <b><i>M. chelonae</i> complex</b>, <b><i>M. abscessus</i> complex</b>, <i>M. mucogenicum</i>." },
+        { q: "Which species changes Runyon group with temperature?", a: "<b><i>M. szulgai</i></b>: Group I (photochromogen) at <b>25 °C</b>, Group II (scotochromogen) at <b>37 °C</b>.", wrong: ["<i>M. xenopi</i>: Group II at 42 °C, Group III at 37 °C", "<i>M. marinum</i>: Group I at 30 °C, Group III at 37 °C", "<i>M. kansasii</i>: Group I at 37 °C, Group II at 25 °C"] },
+        { q: "Is <i>M. tuberculosis</i> in a Runyon group?", a: "<b>No.</b> It’s nonpigmented like Group III, but the MTB complex is its own group. <i>M. ulcerans</i> has no Runyon group either." },
+        { q: "How do you test for photochromogens?", a: "Incubate <b>wrapped in foil</b>, <b>unwrap and expose to light</b>, then rewrap and reincubate. Photochromogens only turn yellow after light exposure." },
+        { q: "Rapid growers: how fast, and on what media?", a: "Grow on <b>BAP or chocolate agar in 3–5 days</b> (also <i>B. cepacia</i> and <i>Legionella</i> agars), and in <b>under 7 days on LJ</b>. Cause skin lesions, pulmonary and disseminated disease." },
+        { q: "Runyon group of <i>M. kansasii</i>?", a: "<b>Group I</b>: photochromogen", wrong: ["<b>Group II</b>: scotochromogen", "<b>Group III</b>: nonphotochromogen", "<b>Group IV</b>: rapid grower"] },
+        { q: "Runyon group of <i>M. marinum</i>?", a: "<b>Group I</b>: photochromogen", wrong: ["<b>Group II</b>: scotochromogen", "<b>Group III</b>: nonphotochromogen", "<b>Group IV</b>: rapid grower"] },
+        { q: "Runyon group of <i>M. xenopi</i>?", a: "<b>Group II</b>: scotochromogen", wrong: ["<b>Group I</b>: photochromogen", "<b>Group III</b>: nonphotochromogen", "<b>Group IV</b>: rapid grower"] },
+        { q: "Runyon group of <i>M. scrofulaceum</i>?", a: "<b>Group II</b>: scotochromogen", wrong: ["<b>Group I</b>: photochromogen", "<b>Group III</b>: nonphotochromogen", "<b>Group IV</b>: rapid grower"] },
+        { q: "Runyon group of <i>M. gordonae</i>?", a: "<b>Group II</b>: scotochromogen", wrong: ["<b>Group I</b>: photochromogen", "<b>Group III</b>: nonphotochromogen", "<b>Group IV</b>: rapid grower"] },
+        { q: "Runyon group of <i>M. avium-intracellulare</i> complex?", a: "<b>Group III</b>: nonphotochromogen", wrong: ["<b>Group I</b>: photochromogen", "<b>Group II</b>: scotochromogen", "<b>Group IV</b>: rapid grower"] },
+        { q: "Runyon group of <i>M. malmoense</i>?", a: "<b>Group III</b>: nonphotochromogen", wrong: ["<b>Group I</b>: photochromogen", "<b>Group II</b>: scotochromogen", "<b>Group IV</b>: rapid grower"] },
+        { q: "Runyon group of <i>M. haemophilum</i>?", a: "<b>Group III</b>: nonphotochromogen", wrong: ["<b>Group I</b>: photochromogen", "<b>Group II</b>: scotochromogen", "<b>Group IV</b>: rapid grower"] },
+        { q: "Runyon group of <i>M. fortuitum</i>?", a: "<b>Group IV</b>: rapid grower", wrong: ["<b>Group I</b>: photochromogen", "<b>Group II</b>: scotochromogen", "<b>Group III</b>: nonphotochromogen"] },
+        { q: "Runyon group of <i>M. chelonae</i>?", a: "<b>Group IV</b>: rapid grower", wrong: ["<b>Group I</b>: photochromogen", "<b>Group II</b>: scotochromogen", "<b>Group III</b>: nonphotochromogen"] },
+        { q: "Runyon group of <i>M. abscessus</i>?", a: "<b>Group IV</b>: rapid grower", wrong: ["<b>Group I</b>: photochromogen", "<b>Group II</b>: scotochromogen", "<b>Group III</b>: nonphotochromogen"] },
+        { q: "Runyon group of <i>M. mucogenicum</i>?", a: "<b>Group IV</b>: rapid grower", wrong: ["<b>Group I</b>: photochromogen", "<b>Group II</b>: scotochromogen", "<b>Group III</b>: nonphotochromogen"] }
+      ]
+    },
+    {
+      code: "MYCO-3",
+      title: "Leprosy (Hansen’s disease)",
+      cap: "pink",
+      group: "Mycobacteria · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "What causes leprosy, and what’s its other name?", a: "<b><i>Mycobacterium leprae</i></b>; <b>Hansen’s disease</b>." },
+        { q: "What does leprosy infect?", a: "<b>Skin, eyes, mucous membranes</b> (lining of the nose), and <b>peripheral nerves</b>. Infects PNS cells and skin / tissue macrophages; can cause loss of touch and pain sensation." },
+        { q: "The two presentations of leprosy?", a: "<b>Multibacillary</b> = <b>lepromatous</b> leprosy. <b>Paucibacillary</b> = <b>tuberculoid</b> leprosy." },
+        { q: "Lepromatous (multibacillary) leprosy: features?", a: "<b>High numbers</b> of organisms. <b>Widespread, symmetrical</b> red-brown macules, papules, plaques or nodules; skin thickening. <b>Facial changes</b>: lysis of nasal cartilage and bone. Anesthesia; deep nerves involved, possible <b>paralysis</b>." },
+        { q: "Tuberculoid (paucibacillary) leprosy: features?", a: "<b>More common</b> and milder; <b>low numbers</b> of organisms. Few <b>asymmetrical</b> lesions (or none) with <b>sharp margins</b>, <b>hypopigmented</b>, involving peripheral nerves; sensory and motor anesthesia." },
+        { q: "Widespread symmetrical lesions with lots of organisms. Which form?", a: "<b>Lepromatous</b> (multibacillary)", wrong: ["<b>Tuberculoid</b> (paucibacillary)", "<b>Miliary</b> leprosy", "<b>Latent</b> leprosy"] },
+        { q: "A few sharp-edged, hypopigmented, asymmetrical lesions. Which form?", a: "<b>Tuberculoid</b> (paucibacillary)", wrong: ["<b>Lepromatous</b> (multibacillary)", "<b>Miliary</b> leprosy", "<b>Latent</b> leprosy"] },
+        { q: "How is leprosy transmitted?", a: "Person to person by <b>inhaling aerosolized droplets</b>; needs <b>prolonged, intimate contact</b>. <b>Not</b> spread by ordinary touch. Shed from the <b>nose</b> wherever the lesions are." },
+        { q: "Animal associations with leprosy?", a: "<b>Nine-banded armadillo</b> (Louisiana, Texas, Kansas) and the <b>red squirrel</b> (British Isles). The natural host isn’t known." },
+        { q: "How is leprosy diagnosed?", a: "It’s the <b>only mycobacterium that can’t be cultured in vitro</b>. Diagnose by <b>AFB in skin biopsies</b> plus typical histopathology; lots of organisms in nasal and oral secretions; <b>PCR</b> is available." },
+        { q: "Leprosy treatment?", a: "<b>Clofazimine, dapsone, and rifampin</b> together, usually for <b>1–2 years</b>. Patients are <b>no longer infectious after 1 week</b>. Some cases cure themselves." },
+        { q: "Where is leprosy found, and how many people have it?", a: "About <b>2–3 million</b> infected, mostly in <b>India, Brazil, and Indonesia</b>. Tropical / equatorial Asia, Africa, South America, Pacific Islands." },
+        { q: "Are some people predisposed to leprosy? Why?", a: "<b>Yes.</b> 95% of people fight it off. Susceptible people have <b>impaired cell-mediated immunity</b> (thought to be genetic). Type I impaired = cell-mediated response; Type II = immune complexes." }
+      ]
+    },
+    {
+      code: "MYCO-4",
+      title: "Tuberculosis: disease & presentations",
+      cap: "red",
+      group: "Mycobacteria · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "Who discovered TB, and when?", a: "<b>Robert Koch, 1882</b> (he also found cholera and anthrax). TB once killed 1 in 7 people." },
+        { q: "What did TB surpass in 2014?", a: "<b>HIV</b>, as the leading cause of death from infectious disease." },
+        { q: "Who gets TB, and the greatest risk factor for progression?", a: "Mainly the underserved: urban poor, homeless, prisoners, alcoholics, IV drug users, elderly, foreign born, contacts of active cases. <b>HIV</b> is the greatest risk factor for going from <b>latent to active</b>." },
+        { q: "Members of the <i>M. tuberculosis</i> complex?", a: "<i>M. tuberculosis</i>, <b><i>M. bovis</i></b> (and BCG), <b><i>M. africanum</i></b>, <i>M. caprae</i>, <i>M. microti</i>, <i>M. canettii</i>, <i>M. pinnipedii</i>, <i>M. mungi</i>, <i>M. orygis</i>, dassie bacillus, chimpanzee bacillus." },
+        { q: "Can MALDI-TOF or NAATs tell MTB complex members apart?", a: "<b>No.</b> Identical MALDI-TOF profiles and HPLC patterns, 99% identical 16S rRNA. They still <b>differ</b> in morphology, biochemistry, hosts, disease, drug susceptibility and geography." },
+        { q: "TB transmission: the numbers?", a: "Coughing is the main route (also singing, talking, sneezing). Droplets <b>1–5 µm</b>, <b>3000 droplets per cough</b>, and <b>as few as 10 organisms</b> can infect." },
+        { q: "Initial TB exposure: what happens?", a: "Inhaled into the <b>lower and middle lobes</b>. Grows <b>2–12 weeks</b> until an immune response; ingested by <b>macrophages</b>, may spread to local lymph nodes. The immune system kills or contains most of it." },
+        { q: "What happens to most people with primary TB?", a: "<b>95% self-cure</b> with no symptoms. Their skin test converts to positive." },
+        { q: "Latent TB: features?", a: "<b>Positive test, no active disease.</b> No symptoms, negative smear and culture, <b>not infectious</b>. Tubercles (0.5–3 mm); fibrous capsules hold <b>viable</b> bacteria, lifelong foci for reactivation; some calcify." },
+        { q: "Primary pulmonary TB: what happens?", a: "The host can’t contain the infection: slowly progressive lung inflammation, <b>AFB in sputum</b>, necrosis and <b>caseation</b>. Granulomas break into the bronchi and get coughed out. Can happen right away or <b>decades later</b>." },
+        { q: "What is caseation?", a: "Necrosis where dead tissue becomes a <b>firm, dry, cheese-like</b> mass." },
+        { q: "Proliferative vs exudative lung lesions?", a: "<b>Proliferative</b>: few bacilli, <b>strong</b> cellular immunity, compact tubercles in a fibrous capsule; killing works.<br><b>Exudative</b>: many bacilli, <b>weak</b> defenses, loose tubercles with immature WBCs and fibrin, <b>caseation</b>; spreads if untreated." },
+        { q: "Symptoms of pulmonary TB?", a: "Cough (non-productive), <b>night sweats</b>, low-grade fever, <b>cachexia</b> (wasting), dyspnea, chest pain, and <b>hemoptysis</b> as it progresses." },
+        { q: "What is miliary TB?", a: "<b>Disseminated</b> TB with minute tubercles throughout an organ. Starts in the lungs and spreads to the CNS, cervical lymph nodes, GU system, bone, joints, lymphatics." },
+        { q: "Extrapulmonary TB: how common, and where?", a: "<b>1 in 5</b> cases; <b>60%</b> have no lung disease. Favors <b>well-oxygenated</b> sites: mediastinal, retroperitoneal and cervical lymph nodes, <b>vertebral bodies</b>, adrenals, meninges, GI and GU tracts." },
+        { q: "Symptoms of extrapulmonary TB?", a: "<b>Nonspecific</b>: leukocytosis, anemia, <b>hyponatremia</b> (ADH-like hormone from the lungs), swollen lymph nodes, draining sinus tracts." },
+        { q: "Vertebral TB lesions look like what?", a: "<b>Triangular, anterior</b>, with narrowing of the disk space as the bone erodes." },
+        { q: "Meningeal TB presentation?", a: "<b>Headache</b> (intermittent or lasting 2–3 weeks), <b>subtle mental status changes</b> that can progress to coma, and <b>low-grade or no fever</b>." },
+        { q: "TB in children?", a: "Under 5: risk of fatal <b>miliary or meningeal</b> TB. Bone involvement. <b>Rarely</b> pulmonary symptoms, and <b>less infectious</b>." },
+        { q: "TB in HIV / AIDS: how does it look different?", a: "Less localized; <b>no granulomas, no caseation, no miliary dissemination</b>. <b>Fewer organisms in sputum</b> because extrapulmonary disease is more likely. Risk of active TB is <b>7–10% per year</b>." },
+        { q: "<i>M. bovis</i>: source, who’s at risk, treatment twist?", a: "Cattle disease; TB-like in humans. <b>Unpasteurized dairy / cheese</b> (higher along the Mexican border); people who work with cattle, bison, deer, elk. Same treatment as TB but <b>no PZA</b> (intrinsically resistant)." },
+        { q: "<i>M. africanum</i>?", a: "Causes <b>pulmonary TB in Africa</b>. Falls between <i>M. tuberculosis</i> and <i>M. bovis</i> in pathophysiology and biochemistry." },
+        { q: "Why is the HIV epidemic tied to TB history?", a: "HIV drove the <b>resurgence of TB in the mid-1980s</b>." }
+      ]
+    },
+    {
+      code: "MYCO-5",
+      title: "TB treatment & drugs",
+      cap: "green",
+      group: "Mycobacteria · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "Old-timey TB treatment?", a: "Fresh air, sunlight, nutritious food, and <b>TB sanatoriums</b>." },
+        { q: "Three goals of TB treatment?", a: "1) <b>Kill</b> tubercle bacilli rapidly.<br>2) <b>Prevent</b> drug resistance.<br>3) <b>Eliminate persistent bacilli</b> to prevent relapse." },
+        { q: "Modern TB regimen?", a: "<b>DOT</b> for 6–9 months: <b>2 months of INH, RIF, PZA, and EMB</b> daily, then <b>INH + RIF for at least 4 more months</b>." },
+        { q: "What does DOT stand for?", a: "<b>Direct observation therapy</b>: someone watches the patient take each dose." },
+        { q: "When is TB treatment extended 3 more months?", a: "When there’s <b>cavitation</b> on the chest X-ray <b>and</b> the culture is still <b>positive</b> at the end of the 2-month initial phase." },
+        { q: "First-line TB drugs?", a: "<b>Isoniazid (INH), rifampin (RIF), ethambutol (EMB), pyrazinamide (PZA)</b>. Also rifapentine, and rifabutin (MAC only)." },
+        { q: "Rifabutin is used for what?", a: "<b>MAC only.</b>" },
+        { q: "How often are TB bacilli innately resistant to INH?", a: "<b>1 in 10⁵</b> organisms.", wrong: ["1 in 10²", "1 in 10³", "1 in 10⁸"] },
+        { q: "Why is TB treated with two or more drugs?", a: "Resistant mutants are already present at random (1 in 10⁵ for INH). One drug alone selects for them; a combination kills them and <b>prevents resistance (MDR)</b>." },
+        { q: "Second-line TB drugs?", a: "Cycloserine, ethionamide, <b>levofloxacin</b>, <b>moxifloxacin</b>, <b>gatifloxacin</b>, p-aminosalicylic acid, streptomycin, <b>amikacin / kanamycin</b>, capreomycin." },
+        { q: "Which first-line drug is skipped for <i>M. bovis</i>?", a: "<b>Pyrazinamide (PZA)</b>. <i>M. bovis</i> is intrinsically resistant.", wrong: ["Isoniazid (INH)", "Rifampin (RIF)", "Ethambutol (EMB)"] },
+        { q: "Leprosy drugs vs TB drugs?", a: "Leprosy: <b>clofazimine, dapsone, rifampin</b>. TB: <b>INH, RIF, PZA, EMB</b>. Rifampin is in both." }
+      ]
+    },
+    {
+      code: "MYCO-6",
+      title: "NTMs: key features by species",
+      cap: "lightblue",
+      group: "Mycobacteria · Micro II · Exam 5",
+      date: "2026-10-20",
+      html: true,
+      cards: [
+        { q: "How are NTMs categorized, and why are infections increasing?", a: "By <b>growth rate</b>. Rising because of <b>human-made reservoirs</b>: treated water and sewage, pools, hot tubs, footbaths, showers, tattoo ink, fish tanks, endoscopes, ice machines." },
+        { q: "Which NTMs are slow growers?", a: "<b>MAC</b>, <i>M. kansasii</i>, <i>M. szulgai</i>, <i>M. xenopi</i>, <i>M. malmoense</i>, <i>M. haemophilum</i>, <i>M. marinum</i>, <i>M. scrofulaceum</i>, <i>M. ulcerans</i>." },
+        { q: "Slow growers in the environment?", a: "<b>Ubiquitous</b> in natural and human-made environments; they form <b>biofilms</b> and can cause true or pseudo-infections." },
+        { q: "<i>M. avium-intracellulare</i> complex (MAC): key features?", a: "Disease of <b>chickens</b>; pulmonary disease in <b>chicken farmers</b>. 14 organisms, all pathogenic. <b>Runyon III</b>. Chronic infections in kids with <b>cystic fibrosis</b>. Not person to person. Disseminated disease common; <b>GI involvement in AIDS</b>." },
+        { q: "<i>M. kansasii</i>: key features?", a: "Commonly isolated; <b>Runyon I</b>. <b>Always significant.</b> TB-like lung disease, common in the <b>southern US (municipal tap water)</b>; mine workers in the UK and South Africa. Risks: COPD, pneumoconiosis, cancer, alcoholism. Rarely disseminates." },
+        { q: "<i>M. szulgai</i>: key features?", a: "<b>Always significant.</b> Middle-aged men with <b>COPD</b> who smoke or drink. Indistinguishable from TB. Runyon <b>II at 37 °C</b>, <b>I at 25 °C</b>." },
+        { q: "<i>M. xenopi</i>: key features?", a: "<b>Thermophilic</b> (best at <b>42–45 °C</b>); found in <b>hospital hot water systems</b>. <b>Runyon II</b>. Lung disease (cavitary, nodular) with COPD and bronchiectasis; also joint and soft tissue." },
+        { q: "<i>M. malmoense</i>: key features?", a: "From sputum or cervical lymph nodes in people with lung disease. <b>VERY slow</b>: 8–12 weeks to grow. Hard to treat. <b>Runyon III</b>." },
+        { q: "<i>M. haemophilum</i>: key features?", a: "Affects the <b>immunocompromised</b>. Grows best at <b>30 °C</b>; needs <b>ferric ammonium citrate or hemin</b>. Classic look: <b>clustered nodules on the extremities</b>; also abscesses, fistulas, cellulitis, osteomyelitis. <b>Runyon III</b>." },
+        { q: "<i>M. marinum</i>: key features?", a: "Disease of <b>saltwater fish</b>; skin infection when damaged skin meets water. Lifeguards, fishermen, <b>tropical fish hobbyists</b>. Optimum <b>30 °C</b>. <b>Runyon I</b>." },
+        { q: "<i>M. marinum</i>: the two lesion types and treatment?", a: "1) <b>Granuloma</b>: red / blue tender nodules on a knee, elbow, toe or finger.<br>2) <b>Sporotrichosis-like</b>: abscess at the site that spreads <b>along the lymphatics</b>.<br>Treat with excision, curettage, electrodesiccation." },
+        { q: "What is scrofula?", a: "<b>Cervical lymphadenitis in kids</b> (18 months to 4 years), classically from <b><i>M. scrofulaceum</i></b>. Unilateral neck nodes rupture and drain; the child is otherwise healthy with little pain. Enters through the mouth / throat." },
+        { q: "Scrofula: treatment and X-ray?", a: "<b>Incision and drainage</b>; drugs usually not needed. Chest X-ray usually <b>normal</b>." },
+        { q: "Why is scrofula called a “cold abscess”?", a: "It lacks <b>calor</b> (warmth)." },
+        { q: "Besides <i>M. scrofulaceum</i>, what causes scrofula?", a: "<b><i>M. avium-intracellulare</i> complex</b> (most common, per her notes) and <i>M. fortuitum</i>." },
+        { q: "<i>M. scrofulaceum</i>: Runyon group?", a: "<b>Group II</b>: scotochromogen" },
+        { q: "Which NTM needs hemin or ferric ammonium citrate?", a: "<b><i>M. haemophilum</i></b>", wrong: ["<i>M. marinum</i>", "<i>M. xenopi</i>", "<i>M. ulcerans</i>"] },
+        { q: "Which NTM grows best at 42–45 °C in hospital hot water?", a: "<b><i>M. xenopi</i></b>", wrong: ["<i>M. kansasii</i>", "<i>M. haemophilum</i>", "<i>M. gordonae</i>"] },
+        { q: "Which mycobacteria prefer 30 °C?", a: "<b><i>M. marinum</i>, <i>M. haemophilum</i>, <i>M. ulcerans</i></b> (<i>ulcerans</i> won’t grow at 37 °C). Skin pathogens like it cooler." },
+        { q: "Which NTMs are always significant when isolated?", a: "<b><i>M. kansasii</i></b> and <b><i>M. szulgai</i></b>." },
+        { q: "Case: tropical fish hobbyist with nodules spreading up the arm.", a: "<b><i>M. marinum</i></b>", wrong: ["<i>M. haemophilum</i>", "<i>M. ulcerans</i>", "<i>M. fortuitum</i>"] },
+        { q: "Case: chicken farmer with chronic lung disease; nonpigmented slow grower.", a: "<b><i>M. avium-intracellulare</i> complex</b>", wrong: ["<i>M. kansasii</i>", "<i>M. xenopi</i>", "<i>M. bovis</i>"] },
+        { q: "Case: TB-like lung disease, southern US, photochromogen from tap water.", a: "<b><i>M. kansasii</i></b>", wrong: ["<i>M. szulgai</i>", "<i>M. avium-intracellulare</i> complex", "<i>M. gordonae</i>"] },
+        { q: "Case: healthy 2-year-old with a painless, draining lump on one side of the neck.", a: "<b>Scrofula</b> (<i>M. scrofulaceum</i>, or MAC)", wrong: ["Miliary TB", "<i>M. ulcerans</i> (Buruli ulcer)", "Lepromatous leprosy"] },
+        { q: "Case: immunocompromised patient with clusters of nodules on the limbs; grows only with hemin at 30 °C.", a: "<b><i>M. haemophilum</i></b>", wrong: ["<i>M. marinum</i>", "<i>M. malmoense</i>", "<i>M. chelonae</i>"] },
+        { q: "Rapid grower outbreaks after tattoos: likely source?", a: "<b>Tap water.</b> Usually <i>M. fortuitum</i> or <i>M. chelonae</i>; nitrate reduction tells them apart." }
       ]
     }
   ]

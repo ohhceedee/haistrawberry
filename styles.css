@@ -286,29 +286,25 @@ nav .navlink[aria-current="page"]{background:var(--violet);color:var(--surface)}
 @media (orientation:landscape) and (max-height:520px){
   body{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
   .top{position:static}
+  .dk-bar{padding-block:4px}
+  .dk-session{padding-top:8px}
   .top-in{padding-block:6px}
-  /* deck heading squeezed into one row so the card is on screen */
-  .deck-view{padding-block:8px 40px;gap:10px 16px;grid-template-columns:auto minmax(0,1fr) auto;align-items:center}
-  .deck-view > :not(.back):not(.dv-head):not(.modes){grid-column:1 / -1}
-  .dv-head{flex-wrap:nowrap;gap:10px}
-  .dv-head .tube,.dv-head .group-line,.dv-head .code{display:none}
-  .dv-head h1{font-size:1.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .modes button{padding:5px 12px;font-size:.85rem}
   .viewer{max-width:none}
   .face{min-height:0;padding:12px 16px;gap:10px}
   .face p{font-size:1.08rem}
-  .fc .face:has(.card-img){grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"side side" "img txt" "img foot";column-gap:18px;align-content:stretch}
-  .fc .face:has(.card-img) .side{grid-area:side}
-  body:has(.deck-view) .top{display:none} /* inside a deck, the All decks row is enough */
-  .fc .face:has(.card-img) .card-img{grid-area:img;max-height:calc(100vh - 130px);max-height:calc(100dvh - 130px);height:100%}
-  .fc .face:has(.card-img) > p{grid-area:txt;align-self:center}
-  .fc .face:has(.card-img) .foot{grid-area:foot;align-self:end}
+  .fc .face:has(.ci-box){grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"side side" "img txt" "img foot";column-gap:18px;align-content:stretch}
+  .fc .face:has(.ci-box) .side{grid-area:side}
+  .fc .face:has(.ci-box) .ci-box{grid-area:img;height:calc(100vh - 175px);height:calc(100dvh - 175px)}
+  .fc .face:has(.ci-box) > p{grid-area:txt;align-self:center}
+  .fc .face:has(.ci-box) .foot{grid-area:foot;align-self:end}
   /* multiple choice: question card on the left stays put, answers on the right */
   .viewer:has(.qcard){grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:start;justify-items:stretch;column-gap:18px}
   .viewer:has(.qcard) > .qcard{grid-column:1;grid-row:1 / span 6;position:sticky;top:10px}
   .viewer:has(.qcard) > :not(.qcard){grid-column:2}
   .qcard{padding:12px 16px;gap:8px}
-  .qcard .card-img{max-height:calc(100vh - 210px);max-height:calc(100dvh - 210px)}
+  .qcard .ci-box{height:calc(100vh - 190px);height:calc(100dvh - 190px)}
+  .dk-ctrlbar{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+  .sel-bar{top:0}
   .qcard p{font-size:1.02rem}
   .choice{padding:9px 12px}
 }
@@ -323,3 +319,150 @@ nav .navlink[aria-current="page"]{background:var(--violet);color:var(--surface)}
 .tl-nrow{display:flex;justify-content:space-between;align-items:center;margin-top:2px}
 .tl-nrow .tl-saved{position:static}
 .tl-done{background:none;border:0;color:var(--violet);font-weight:600;padding:4px 0}
+
+/* ===== Study Lab: one deck at a time, less clutter ===== */
+/* inside a study session the site header and footer step aside */
+body.in-deck .top,body.in-deck footer{display:none}
+.dk-bar{position:sticky;top:0;z-index:9;display:flex;align-items:center;gap:10px;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding:8px 16px;padding-top:max(8px,env(safe-area-inset-top))}
+.dk-back{flex:none;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font:600 1.1rem/1 var(--body);color:var(--ink);display:grid;place-items:center;padding:0}
+.dk-mid{flex:1;min-width:0;font-size:.9rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk-code{font-family:var(--mono);font-size:.78rem;letter-spacing:.06em;color:var(--ink)}
+.dk-count,.dk-score{font-family:var(--mono);font-size:.82rem;color:var(--ink);white-space:nowrap}
+.dk-score{color:var(--teal)}
+.dk-icon{flex:none;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-size:1.05rem;color:var(--ink);padding:0}
+.dk-session{padding-block:16px 48px;display:grid;gap:16px}
+/* start screen */
+.deck-start{padding-block:24px 60px;display:grid;gap:18px}
+.deck-start .back{justify-self:start}
+.mode-pick{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:-6px}
+.mode-card{display:grid;gap:4px;justify-items:start;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:16px;color:var(--ink);box-shadow:0 8px 22px rgba(28,34,48,.06);transition:border-color .15s,transform .15s}
+.mode-card:hover:not(:disabled){border-color:var(--violet);transform:translateY(-1px)}
+.mode-card:disabled{opacity:.5;cursor:not-allowed}
+.mode-card b{font-family:var(--display);font-weight:400;font-size:1.3rem}
+.mode-card span:last-child{color:var(--muted);font-size:.9rem;line-height:1.35}
+.mc-ico{font-size:1.5rem}
+@media (max-width:420px){.mode-pick{grid-template-columns:1fr}.mode-card{grid-template-columns:auto 1fr;column-gap:12px;align-items:center}.mode-card .mc-ico{grid-row:1 / span 2}}
+.all-cards summary{cursor:pointer;font-weight:600;color:var(--violet);padding:6px 0}
+.all-cards .list{margin-top:10px}
+/* flip controls: one row */
+.dk-ctrl{display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.dk-ctrl .ghost,.dk-ctrl .got{flex:1;max-width:170px}
+.dk-arrow{flex:none;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-size:1.1rem;color:var(--ink)}
+.dk-arrow:disabled{opacity:.35}
+@media (hover:none){.dk-session .hint{display:none}}
+/* end of a deck */
+.dk-done{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px 20px;text-align:center;display:grid;gap:10px;justify-items:center}
+.dk-done h2{font-size:2rem}
+.dk-done h2 small{font-size:.5em;color:var(--muted)}
+.dk-done p{color:var(--muted)}
+.dk-done-acts{display:grid;gap:10px;width:min(320px,100%);margin-top:8px}
+.dk-done-acts .btn{justify-content:center}
+.btn.alt{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.t-plain{background:none;border:0;color:var(--muted);font-weight:600;padding:8px}
+.dk-h2{margin-top:10px}
+/* multiple choice: feedback pops up from the bottom with the Next button */
+.mc-pop-veil{position:fixed;inset:0;z-index:7;background:rgba(16,24,23,.18)}
+.mc-pop{position:fixed;left:50%;bottom:0;z-index:8;width:min(560px,100%);transform:translateX(-50%);background:var(--surface);border-radius:20px 20px 0 0;border-top:4px solid var(--teal);
+  padding:18px 18px calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 40px rgba(20,24,30,.22);display:grid;gap:8px;max-height:70vh;overflow:auto;animation:mc-up .22s cubic-bezier(.2,.8,.3,1) both}
+.mc-pop.no{border-top-color:var(--accent)}
+.mc-pop-h{font-weight:700;font-size:1.2rem;color:var(--teal)}
+.mc-pop.no .mc-pop-h{color:var(--accent)}
+.mc-pop-lbl{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mc-pop-ans{background:var(--teal-soft);border-radius:10px;padding:10px 12px;line-height:1.45}
+.mc-pop-why{color:var(--ink);line-height:1.45}
+.mc-pop-img{max-width:100%;max-height:200px;border-radius:10px;justify-self:start}
+.mc-next{justify-content:center;margin-top:4px}
+@keyframes mc-up{from{transform:translate(-50%,100%)}}
+@media (prefers-reduced-motion:reduce){.mc-pop{animation:none}}
+@media (min-width:700px){.mc-pop{bottom:24px;border-radius:20px;border:1px solid var(--line);border-top:4px solid var(--teal)}.mc-pop.no{border-top-color:var(--accent)}}
+/* front page rotation */
+/* one note card for poems, lines and pictures: soft pink → purple → teal wash, an emoji sticker on the corner; a new random one on each visit or refresh */
+.fp{position:relative;display:grid;gap:10px;justify-items:start;max-width:60ch;margin:18px 0 4px;
+  padding:20px 24px 20px 22px;border-radius:20px;border:1px solid var(--line);
+  background:linear-gradient(135deg,var(--accent-soft) 0%,var(--violet-soft) 55%,var(--teal-soft) 100%);
+  box-shadow:0 10px 28px rgba(28,34,48,.08);animation:fp-in .45s cubic-bezier(.2,.9,.3,1.2) both}
+.fp .about{margin:0}
+.fp-deco{position:absolute;top:-14px;left:-10px;font-size:1.7rem;line-height:1;transform:rotate(-12deg);
+  filter:drop-shadow(0 3px 4px rgba(28,34,48,.18));animation:fp-bob 3.2s ease-in-out infinite}
+.fp-text{font-family:var(--display);font-size:1.22rem;line-height:1.55;color:var(--ink)}
+.fp-img{margin:0;display:grid;gap:6px;justify-items:start}
+.fp-img img{max-width:min(100%,420px);max-height:340px;border-radius:14px;box-shadow:0 10px 26px rgba(28,34,48,.12)}
+.fp-img img[src$=".png"]{max-height:230px;border-radius:0;box-shadow:none;filter:drop-shadow(0 8px 14px rgba(28,34,48,.22))}
+.fp-img figcaption{color:var(--muted);font-size:.95rem}
+.fp-pic .fp-text{font-size:1.6rem}
+@keyframes fp-in{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes fp-bob{0%,100%{transform:rotate(-12deg) translateY(0)}50%{transform:rotate(-6deg) translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.fp,.fp-deco{animation:none}}
+
+/* ===== Study Lab: pick the mode right on the deck, or mix several decks ===== */
+.deck-wrap{display:grid;position:relative}
+.deck-wrap .deck{width:100%;height:100%;position:relative}
+.deck-wrap.is-open .deck{border-color:var(--teal);border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent;transform:none}
+.deck-choose{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 12px;background:var(--surface);border:1px solid var(--teal);border-top:0;border-radius:0 0 14px 14px;margin-top:-1px;animation:dc-open .18s ease both}
+.dc-btn{display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--line);background:var(--surface-2);border-radius:10px;padding:10px 8px;font-weight:600;font-size:.92rem;color:var(--ink)}
+.dc-btn:first-child{background:var(--teal);border-color:var(--teal);color:var(--surface)}
+.dc-btn:disabled{opacity:.45}
+.dc-link{grid-column:1 / -1;background:none;border:0;color:var(--violet);font-weight:600;font-size:.88rem;padding:2px 0 0}
+@keyframes dc-open{from{opacity:0;transform:translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){.deck-choose{animation:none}}
+/* selecting several decks */
+.sel-toggle{margin-top:14px;justify-self:start;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-weight:600;color:var(--ink)}
+.sel-toggle.on{background:var(--violet);border-color:var(--violet);color:var(--surface)}
+.sel-group{margin-left:auto;background:none;border:0;color:var(--violet);font-weight:600;font-size:.88rem;padding:4px 0}
+.pick-dot{position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:.8rem;font-weight:700;color:var(--surface)}
+.deck.picked{border-color:var(--violet);background:var(--violet-soft)}
+.deck.picked .pick-dot{background:var(--violet);border-color:var(--violet)}
+.deck.picked:hover{border-color:var(--violet)}
+.sel-bar{position:sticky;top:64px;z-index:4;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding:10px 16px;box-shadow:0 8px 20px rgba(28,34,48,.06)}
+.sel-bar-in{max-width:1040px;margin-inline:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sel-bar .sel-toggle{margin-top:0}
+.sel-count{flex:1;min-width:0;color:var(--muted);font-size:.9rem}
+.sel-count b{color:var(--ink)}
+.sel-bar .btn{padding:9px 14px;white-space:nowrap}
+.sel-bar .btn[disabled]{opacity:.45}
+@media (max-width:420px){.sel-bar .btn{padding:9px 11px;font-size:.9rem}.sel-bar .em{display:none}.sel-count{white-space:nowrap;font-size:.85rem}}
+
+/* card pictures sit in a fixed frame, so the layout never collapses while the next photo loads */
+.ci-box{position:relative;width:100%;height:min(38vh,300px);border-radius:10px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.ci-box .card-img{position:absolute;inset:0;width:100%;height:100%;max-height:none;object-fit:contain;border:0;border-radius:0;background:transparent}
+.qcard .ci-box{height:min(32vh,240px)}
+/* flip controls pinned to the bottom: same spot for every card, phone and desktop */
+.dk-ctrlbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.dk-ctrlbar .dk-ctrl{max-width:640px;margin-inline:auto}
+.dk-session:has(+ .dk-ctrlbar){padding-bottom:96px}
+@media (max-width:420px){.sel-bar .sel-toggle{padding:8px 12px;font-size:.9rem}}
+/* desktop: the card keeps one fixed size and the buttons sit right under it, so the mouse never has to move */
+@media (min-width:700px) and (min-height:600px){
+  .dk-session .fc-in{height:min(58vh,500px)}
+  .dk-session .fc .face{height:100%;min-height:0;overflow:auto;overscroll-behavior:contain}
+  .dk-ctrlbar{position:static;background:none;border:0;padding:0 16px 40px}
+  .dk-session:has(+ .dk-ctrlbar){padding-bottom:14px}
+}
+/* phones: "Done" + the two study buttons on one row, the count underneath */
+@media (max-width:420px){.sel-long{display:none}}
+.sel-bar .btn{justify-content:center}
+
+/* ===== several decks: Study several decks on the right; Flip / Multiple choice picked before Done ===== */
+.sel-start{display:block;margin-left:auto}
+.sel-bar-in{justify-content:space-between}
+.sel-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 auto}
+.sel-left .sel-count{flex:none}
+.sel-cancel{background:none;border:0;color:var(--muted);font-weight:600;padding:6px 0}
+.sel-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.sel-modes{display:inline-flex;gap:2px;padding:3px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);transition:border-color .2s,box-shadow .2s}
+.sel-modes button{border:0;background:none;border-radius:999px;padding:7px 14px;font-weight:600;font-size:.9rem;color:var(--muted);white-space:nowrap}
+.sel-modes button[aria-checked="true"]{background:var(--teal);color:var(--surface)}
+.sel-modes.cue{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);animation:sel-shake .45s ease}
+.sel-cue-msg{max-width:1040px;margin:8px auto 0;text-align:right;color:var(--accent);font-weight:600;font-size:.9rem}
+@keyframes sel-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){.sel-modes.cue{animation:none}}
+@media (max-width:560px){
+  .sel-right{flex-basis:100%;margin-left:0}
+  .sel-modes{flex:1}
+  .sel-modes button{flex:1;padding:8px 6px}
+  .sel-bar .sel-toggle{flex:none}
+  .sel-cue-msg{text-align:left}
+  .sel-count{order:0;flex-basis:auto}
+}
+/* the answer side shares the class name "back" with the "← All decks" link; keep it full size like the question side */
+.fc .face.back{justify-self:stretch;width:auto;color:inherit;font-weight:inherit}

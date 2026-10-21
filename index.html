@@ -16,6 +16,9 @@
   <style>
     /* lets quick taps on the record register on phones instead of zooming or selecting text */
     .record, .brand { touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+    /* the record can be dragged (scratched), so a finger on it moves the record instead of the page */
+    .record { touch-action: none; cursor: grab; }
+    .record.scratching { cursor: grabbing; }
   </style>
 </head>
 <body>
@@ -28,6 +31,7 @@
   <script src="app.js"></script>
   <script src="brain-break.js"></script>
   <script src="sticky-note.js"></script>
+  <script src="vinyl.js"></script>
 
   <!-- Secret: tap the strawberry record (or the HaiStrawberry name) 5 times to open Jetty Strawbz -->
   <script>
