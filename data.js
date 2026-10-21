@@ -42,7 +42,7 @@ window.SITE_DATA = {
   frontPage: [
     { poem: "sunflowers, then dusk\na slow song, the dog asleep\nwe’ll float on, i think", emoji: "🌻" },
     { text: "That’s such a big stretch for a tiny dog!", emoji: "🐶" },
-    { text: "For her beauty, her wit and elegance he fell from the heavens and kept on falling until he was not able to ever climb out of love.", emoji: "💫" },
+    { text: "For her beauty, her wit and elegance, he fell from the heavens and kept on falling until he was not able to ever climb out of love.", emoji: "💫" },
     { text: "Look!", img: "fun/grumpy-cat.png", alt: "A grumpy yellow cat face, side view", emoji: "😼" }
 
     /* ↓ Paste the song lines here, one per entry, each ending with a comma
