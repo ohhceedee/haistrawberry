@@ -43,6 +43,11 @@ window.SITE_DATA = {
     { poem: "sunflowers, then dusk\na slow song, the dog asleep\nwe’ll float on, i think", emoji: "🌻" },
     { text: "That’s such a big stretch for a tiny dog!", emoji: "🐶" },
     { text: "For her beauty, her wit and elegance, he fell from the heavens and kept on falling until he was not able to ever climb out of love.", emoji: "💫" },
+    { text: "Darker than the ocean, deeper than the sea. You’ve got everything, you got what I need. Touch me, you’re electric, babe." },
+    { text: "Hair poof, band tee, chillin with no make up on - that’s when you the prettiest, I hope that you don’t take it wrong." },
+    { text: "And if I could swim, I’d swim out to you in the ocean. Swim out to where you were floating’, in the dark." },
+    { text: "Your heart felt good. It was dripping’ pitch and made of wood. And your hands and knees felt cold and wet on the grass to me." },
+    { text: "And the audience loves me. And I love them. And they love me for loving them, and I love them for loving me. And we love each other." },
     { text: "Look!", img: "fun/grumpy-cat.png", alt: "A grumpy yellow cat face, side view", emoji: "😼" }
 
     /* ↓ Paste the song lines here, one per entry, each ending with a comma
