@@ -9,7 +9,7 @@
    Optional:     kicker: "small line on top",  kisses: true  (emoji flood)
    ===================================================================== */
 (function () {
-  var SHOW_UNTIL = "2026-10-23T00:00:00-06:00"; // end of Thu Oct 22, Mountain time (micro Wed, blood bank Thu)- go C!
+  var SHOW_UNTIL = "2026-10-28T00:00:00-06:00"; // end of Tue Oct 27, Mountain time (blood bank practical)- go C!
 
   var NOTES = [
     { kicker: "Remember:", text: "You’re a bad ass bitch!" },
@@ -17,10 +17,10 @@
     { text: "I know you got this!" },
     { text: "I’m so proud of you!" },
     { text: "You deserve a thousand kisses for all your hard work", kisses: true },
-    { text: "You know a blood banana when you see one 🍌" },
-    { text: "Every bug on that slide is already in that brain." },
-    { only: "2026-10-21", kicker: "Micro day!", text: "Go show those microbes who’s boss 🦠" },
-    { only: "2026-10-22", kicker: "Blood bank day!", text: "Type, screen & crossmatch your way to an A+ 🩸" },
+    { kicker: "Blood bank day!", text: "Type, screen & crossmatch your way to an A+ 🩸" },
+    { text: "You got this, babe!" },
+    { text: "I’m cheering for you!" },
+    { text: "Your blood type is your grade! 🩸" },
     { kicker: "Deep breath.", text: "You already did the hard part." },
     { text: "Water, snack, then go crush it." },
     { text: "Strawbz believes in you! 🍓" }
