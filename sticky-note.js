@@ -9,7 +9,9 @@
    Optional:     kicker: "small line on top",  kisses: true  (emoji flood)
    ===================================================================== */
 (function () {
-  var SHOW_UNTIL = "2026-10-28T00:00:00-06:00"; // end of Tue Oct 27, Mountain time (blood bank practical)- go C!
+  // Shows only between SHOW_FROM and SHOW_UNTIL (Mountain time). Change both dates for the next exam.
+  var SHOW_FROM  = "2026-11-04T00:00:00-07:00"; // start of Wed Nov 4 (exam day)
+  var SHOW_UNTIL = "2026-11-05T00:00:00-07:00"; // end of Wed Nov 4 - go C!
 
   var NOTES = [
     { kicker: "Remember:", text: "You’re a bad ass bitch!" },
@@ -17,10 +19,10 @@
     { text: "I know you got this!" },
     { text: "I’m so proud of you!" },
     { text: "You deserve a thousand kisses for all your hard work", kisses: true },
-    { kicker: "Blood bank day!", text: "Type, screen & crossmatch your way to an A+ 🩸" },
+    { kicker: "Exam day!", text: "Go show those fungi who’s boss 🍄" },
     { text: "You got this, babe!" },
     { text: "I’m cheering for you!" },
-    { text: "Your blood type is your grade! 🩸" },
+    { text: "You’re a fun-gi, and you’re gonna ace this! 🍄" },
     { kicker: "Deep breath.", text: "You already did the hard part." },
     { text: "Water, snack, then go crush it." },
     { text: "Strawbz believes in you! 🍓" }
@@ -33,7 +35,8 @@
     ['#d3f5ef', '#b9ece3', '#95dacd', '#11433d']
   ];
 
-  if (Date.now() >= new Date(SHOW_UNTIL).getTime()) return;
+  var now = Date.now();
+  if (now < new Date(SHOW_FROM).getTime() || now >= new Date(SHOW_UNTIL).getTime()) return;
 
   // once per visit: coming back from a test, the Test Lab, or a refresh won't pop it up again.
   // (A "visit" lasts until the browser tab is closed.)

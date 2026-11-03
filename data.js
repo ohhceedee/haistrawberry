@@ -2001,6 +2001,135 @@ window.SITE_DATA = {
         { q: "Case: immunocompromised patient with clusters of nodules on the limbs; grows only with hemin at 30 °C.", a: "<b><i>M. haemophilum</i></b>", wrong: ["<i>M. marinum</i>", "<i>M. malmoense</i>", "<i>M. chelonae</i>"] },
         { q: "Rapid grower outbreaks after tattoos: likely source?", a: "<b>Tap water.</b> Usually <i>M. fortuitum</i> or <i>M. chelonae</i>; nitrate reduction tells them apart." }
       ]
+    },
+
+    /* ---------- Mycology · Quiz 1: Dimorphic Fungi (from her Anki deck, her wording) ----------
+       Pictures live in the cards/myc/ folder. Upload that folder too. */
+    {
+      code: "MYC-1",
+      title: "Dimorphic fungi basics",
+      cap: "lavender",
+      group: "Mycology · Quiz 1: Dimorphic Fungi",
+      date: "2026-11-03",
+      html: true,
+      cards: [
+        { q: "This term means occurring in or representing two distinct forms", a: "Dimorphic fungi" },
+        { q: "When are dimorphic fungi moulds?", a: "25-30°C" },
+        { q: "When are dimorphic fungi yeast?", a: "At body temp - 37°C" },
+        { q: "What form of dimorphic fungi causes disease?", a: "Yeast" },
+        { q: "What factors influence the transition from mould to yeast?", a: "Temp, changes in membrane fluidity/lipid composition (saturated to unsaturated fatty acid ratio increases), oxidative stress, steroid hormones" },
+        { q: "What must be activated for neuts, monos, and macrophages to combat inhaled conidia?", a: "Th1 cytokines" },
+        { q: "What about the cell wall changes during phase transition from mould to yeast that contributed to virulence and immune evasion?", a: "Proteins & carbs" },
+        { q: "How are dimorphic fungi diseases transmitted/acquired?", a: "Inhalation of airborne conidia (except for 1 genus)" },
+        { q: "What is indicated if you see something growing at both RT and 37°C?", a: "Dimorphic fungi" },
+        { q: "List 5 reasons to suspect a dimorphic fungi.", a: "Slow growing mould, grows on media containing cycloheximide, has cobweb-like or hair-like mycelia, hyphae are thin parallel and rope-like, conversion from yeast to mould or mould to yeast is achieved" }
+      ]
+    },
+    {
+      code: "MYC-2",
+      title: "Blastomyces",
+      cap: "pink",
+      group: "Mycology · Quiz 1: Dimorphic Fungi",
+      date: "2026-11-03",
+      html: true,
+      cards: [
+        { q: "What is the disease caused by <i>Blastomyces dermatitidis</i>?", a: "Blastomycosis" },
+        { q: "Where is <i>Blastomyces</i> endemic?", a: "N. America around the Great Lakes, Southeast US, upper Mississippi tributaries, southern Canada<br>Hyperendemic in <b>North Central Wisconsin</b>" },
+        { q: "Which organism likes moist, acidic soil with a high humus content as well as bird droppings, rotting wood, and decaying vegetation?", a: "<i>Blastomyces</i>" },
+        { q: "What animal can transmit blastomycosis to humans?", a: "Doggies :( they commonly acquire this infection and can transmit it to their owners" },
+        { q: "How do you acquire blastomycosis?", a: "Inhalation of conidia" },
+        { q: "Is blastomycosis transmitted person to person?", a: "Nope" },
+        { q: "Who is most at risk for blastomycosis?", a: "Middle aged men and aboriginal people/POC<br>It is uncommon in children and adolescents" },
+        { q: "What is the primary presentation of blastomycosis?", a: "Pulmonary/Extrapulmonary Infections" },
+        { q: "Which disease?<br><br>Starts as a pulmonary disease, masses on x-rays in the upper lobes, no cavitation, presents as acute pneumonia, chronic progressive disease (localized chest pain, weight loss, night sweats, malaise) can occur", a: "Pulmonary blastomycosis" },
+        { q: "Which disease?<br><br>Skin & Mucous membrane involvement, grave prognosis w/ 22% mortality rate, 40-80% of lesions become extrapulmonary, non-healing lesions on face hands or legs, bones, draining sinus tracts, RES/liver/any organs, CNS involvement in the immunocompromised", a: "Extrapulmonary blastomycosis" },
+        { q: "Picture 1. Identify.", a: "Blastomyces dermatitidis <br><br><b>Broad pairs</b>, large, spherical, thick-walled<br>Broad base of attachment<br>Bud grows the same size as mother cell before detaching<br>Examine with calcofluor white or KOH", img: "cards/myc/myc_20.jpg" },
+        { q: "Picture 2. Identify.", a: "Blastomyces dermatitidis <br><br><b>Broad pairs</b>, large, spherical, thick-walled<br>Broad base of attachment<br>Bud grows the same size as mother cell before detaching<br>Examine with calcofluor white or KOH", img: "cards/myc/myc_21.jpg" },
+        { q: "Picture 3. Identify.", a: "Blastomyces dermatitidis <br><br><b>Broad pairs</b>, large, spherical, thick-walled<br>Broad base of attachment<br>Bud grows the same size as mother cell before detaching<br>Examine with calcofluor white or KOH", img: "cards/myc/myc_22.jpg" },
+        { q: "Picture 4. Identify.", a: "Blastomyces dermatitidis <br><br>Growth of a non-descript, white colony with hair-like mycelia (~14 days to mature)<br>The back looks the same", img: "cards/myc/myc_23.jpg" },
+        { q: "Picture 5. Identify.", a: "Blastomyces dermatitidis, mould form<br><br>Spherical conidia on short hyphal strands resemble <b>lollipops</b>", img: "cards/myc/myc_24.jpg" },
+        { q: "Picture 6. Identify.", a: "Blastomyces dermatitidis <br>Wrinkled, cream to tan colony<br>Microscopic looks the same as seen in tissues<br><br>Broad based budding (L), hyphae lollipop branches (R)", img: "cards/myc/myc_25.jpg" }
+      ]
+    },
+    {
+      code: "MYC-3",
+      title: "Coccidioides & Histoplasma",
+      cap: "gold",
+      group: "Mycology · Quiz 1: Dimorphic Fungi",
+      date: "2026-11-03",
+      html: true,
+      cards: [
+        { q: "This organism is found in dry, hot, alkaline soil of semiarid regions (the Southwest, Mexico, Central & S. America)", a: "Coccidioides immitis" },
+        { q: "What is another name for the disease caused by <i>Coccidioides immitis</i>?", a: "San Joaquin Valley Fever" },
+        { q: "How is Coccidioides immitis transmitted?", a: "Inhalation of <b>arthroconidia</b>" },
+        { q: "What are bales of cotton/hay, grain, fruit, animal products, and Native American relics fomites of?", a: "Coccidioides immitis" },
+        { q: "What is the formal disease name caused by Coccidioides immitis?", a: "Coccidioidomycosis disease" },
+        { q: "What are the 4 possible presentations of Coccidioidomycosis disease?", a: "Primary pulmonary - mild, flu-like<br>Chronic pulmonary - development of pulmonary nodules, progressive pneumonia, bronchopleural fistulas<br>Extrapulmonary - rare unless immunocompromised<br>Disseminated - leads to cutaneous/soft tissue involvement, osteomyelitis, arthritis, meningitis" },
+        { q: "Picture 1. Identify.", a: "Coccidioides spherules in KOH<br>Tissue form - theoretically have a bunch of budding baby yeast inside", img: "cards/myc/myc_32.jpg" },
+        { q: "Which org has barrel-shaped morphology?", a: "Coccidioides immitis" },
+        { q: "Picture 2. Identify.", a: "Coccidioides immitis colony", img: "cards/myc/myc_34.jpg" },
+        { q: "Picture 3. Identify.", a: "Coccidioides immitis <br><b>Barrel-shaped arthroconidia</b><br>This is the only one that looks like this; diagnostic for <i>Coccidioides</i>", img: "cards/myc/myc_35.jpg" },
+        { q: "Which organism has non-sequential, barrel-shaped arthroconidia?", a: "<i>Coccidioides immitis</i>" },
+        { q: "Which organism is acquired from bat or bird droppings?", a: "Histoplasma capsulatum" },
+        { q: "Which organism likes moist, acidic soils with high nitrogen content?", a: "Histoplasma capsulatum" },
+        { q: "Which organism is found in drainage basins of Ohio, Mississippi, and Missouri rivers?", a: "Histoplasma capsulatum" },
+        { q: "This organism causes several disease presentations, including acute, chronic, disseminated, and self-limiting.", a: "Histoplasma capsulatum" },
+        { q: "Picture 4. Identify.", a: "Histoplasma capsulatum <br>Base of bud is very narrow", img: "cards/myc/myc_41.jpg" },
+        { q: "Picture 5. Identify.", a: "Histoplasma capsulatum", img: "cards/myc/myc_42.jpg" },
+        { q: "Picture 6. Identify.", a: "<i>Histoplasma capsulatum</i>", img: "cards/myc/myc_43.jpg" },
+        { q: "Picture 7. Identify.", a: "Histoplasma capsulatum", img: "cards/myc/myc_44.jpg" }
+      ]
+    },
+    {
+      code: "MYC-4",
+      title: "Paracoccidioides",
+      cap: "green",
+      group: "Mycology · Quiz 1: Dimorphic Fungi",
+      date: "2026-11-03",
+      html: true,
+      cards: [
+        { q: "What is the common name for the disease caused by <i>Paracoccidioides brasiliensis</i>?", a: "South American blastomycosis" },
+        { q: "This organism is limited to Central and South America (Argentina, Venezuela, Colombia, Brazil)", a: "Paracoccidioides brasiliensis" },
+        { q: "This fungus is found in soil. The spores are inhaled.", a: "Paracoccidioides brasiliensis" },
+        { q: "This disease has a subacute form (rapidly progressive, lots of death) and a chronic progressive form (pneumonia or oral/facial lesions or organ involvement and adrenal glands)", a: "Paracoccidioides brasiliensis" },
+        { q: "Picture 1. Identify.", a: "Paracoccidioidomycosis", img: "cards/myc/myc_49.jpg" },
+        { q: "Picture 2. Identify.", a: "Paracoccidioidomycosis", img: "cards/myc/myc_50.jpg" },
+        { q: "This disease has a \"Mariner's wheel\" microscopic morphology.", a: "Paracoccidioides brasiliensis" },
+        { q: "Picture 3. Identify.", a: "Paracoccidioides brasiliensis, yeast", img: "cards/myc/myc_52.jpg" },
+        { q: "Picture 4. Identify.", a: "Paracoccidioides brasiliensis", img: "cards/myc/myc_53.jpg" },
+        { q: "Picture 5. Identify.", a: "Paracoccidioides brasiliensis", img: "cards/myc/myc_54.jpg" },
+        { q: "Picture 6. Identify.", a: "L: Paracoccidioides brasiliensis <br>R: Histoplasma capsulatum", img: "cards/myc/myc_55.jpg" }
+      ]
+    },
+    {
+      code: "MYC-5",
+      title: "Sporothrix & Talaromyces",
+      cap: "lightblue",
+      group: "Mycology · Quiz 1: Dimorphic Fungi",
+      date: "2026-11-03",
+      html: true,
+      cards: [
+        { q: "This org has a worldwide distribution and lives in soil and plant debris.", a: "<i>Sporothrix schenckii</i>" },
+        { q: "Gardeners, greenhouse workers, and brick layers are most at risk of getting this organism.", a: "<i>Sporothrix schenckii</i>" },
+        { q: "This is the only dimorphic fungi not acquired through inhalation.", a: "<i>Sporothrix schenckii</i>" },
+        { q: "This dimorphic fungi is acquired through traumatic implantation.", a: "<i>Sporothrix schenckii</i>" },
+        { q: "This disease is sometimes referred to as \"Rose Grower's\" disease", a: "<i>Sporothrix schenckii</i>" },
+        { q: "Non-healing lesions caused by this organism develop at site of inoculation, usually occurs on the extremities, and progress along the lymphatic tract.", a: "<i>Sporothrix schenckii</i>" },
+        { q: "This dimorphic fungi is also considered a dematiaceous mould.", a: "<i>Sporothrix schenckii</i>" },
+        { q: "This is the disease caused by <i>Sporothrix schenckii</i>", a: "Sporotrichosis" },
+        { q: "Picture 1. Identify.", a: "<i>Sporothrix schenckii</i><br><br>Front & back are the same<br>Pigmentation occurs in rings<br>Looks like <i>Taenia</i> sp!", img: "cards/myc/myc_64.jpg" },
+        { q: "Picture 2. Identify.", a: "<i>Sporothrix schenckii</i><br>Elongated, cigar-shaped yeast cells", img: "cards/myc/myc_65.jpg" },
+        { q: "Picture 3. Identify.", a: "<i>Sporothrix schenckii</i> mould form<br>Looks like bunches of grapes/flowers/roses", img: "cards/myc/myc_66.jpg" },
+        { q: "This is the newest dimorphic fungi!", a: "<i>Talaromyces marneffei</i>" },
+        { q: "This used to be in the <i>Penicillium</i> genus.", a: "<i>Talaromyces marneffei</i>" },
+        { q: "This fungi is endemic in S.E. Asia and rare in the USA.", a: "<i>Talaromyces marneffei</i>" },
+        { q: "This organism is primarily an opportunistic pathogen in HIV patients and can cause localized or systemic disease.", a: "<i>Talaromyces marneffei</i>" },
+        { q: "Picture 4. Identify.", a: "<i>Talaromyces marneffei</i><br>Looks like <i>Histoplasma</i> in this yeast form, but won't see budding!", img: "cards/myc/myc_71.jpg" },
+        { q: "Picture 5. Identify.", a: "<i>Talaromyces marneffei</i><br>Good for diagnosis! It's a lot prettier than the other boring beige dimorphics and has rapid growth unlike the others. <br>Red/orange pigment diffusion, colony itself may look more green/yellow", img: "cards/myc/myc_72.jpg" },
+        { q: "Picture 6. Identify.", a: "<i>Talaromyces marneffei</i> mould form<br>Looks like a weird hand or brush", img: "cards/myc/myc_73.jpg" },
+        { q: "Picture 7. Identify.", a: "<i>Talaromyces marneffei</i> mould form<br>Looks like a weird hand or brush", img: "cards/myc/myc_74.jpg" },
+        { q: "Picture 8. Identify.", a: "<i>Talaromyces marneffei</i> yeast form<br>Reproduces with fission instead of budding; will see a <b>transverse septum</b><br>This differentiates it from <i>Histoplasma</i>", img: "cards/myc/myc_75.jpg" }
+      ]
     }
   ]
 };
