@@ -10,6 +10,8 @@
       every card for that organism updates.
         Fungi:     growth (rate: "slow" | "moderate" | "rapid"), colony,
                    micro (mould form), tissue (yeast / tissue form)
+                   (microLabel / tissueLabel rename those two rows,
+                   e.g. "Microscopic", "In specimens", "Infects")
         Parasites: type, size, specimen
         Both:      keys (list of key ID features), lookalike (optional)
       <i> and <b> work inside the text.
@@ -457,11 +459,391 @@
       size: 'Adult only a few mm (about 3 segments)', specimen: 'Cyst fluid / surgical specimen (humans); adult from dogs',
       keys: ['Tiny adult: scolex + about 3 segments', '<b>Hydatid sand:</b> loose protoscolices with hooklets', 'Hydatid cyst with brood capsules / <b>daughter cysts</b>; liver & lung'],
       lookalike: 'Coenurus (many scolices on one bladder, no daughter cysts).'
+    },
+
+    /* ---------------- Mycology: yeasts & superficial fungi ---------------- */
+    calb: {
+      name: '<i>Candida albicans</i>', type: 'Yeast',
+      growth: { rate: 'rapid', text: 'mature in 3 days; can test at 24 h' },
+      colony: 'Cream-colored, smooth, waxy. Grows on SDA and with cycloheximide. EMB: “puff balls.”',
+      micro: 'Budding yeast, pseudohyphae and true hyphae; <b>terminal chlamydoconidia</b> on cornmeal agar.', microLabel: 'Microscopic',
+      tissue: 'Budding yeast + pseudohyphae in KOH skin scrapings and urine.', tissueLabel: 'In specimens',
+      keys: ['<b>Germ tube positive</b>', 'Terminal chlamydoconidia', 'Grows at 37 °C and with cycloheximide', 'Normal flora: thrush, skin, nails, urine, blood'],
+      lookalike: '<i>C. dubliniensis</i> (also germ tube +; “Christmas tree” on EMB, no growth at 42 °C).'
+    },
+    cdub: {
+      name: '<i>Candida dubliniensis</i>', type: 'Yeast',
+      colony: 'Like <i>C. albicans</i>; dark green on CHROMagar. EMB: <b>“Charlie Brown Christmas tree.”</b>',
+      micro: 'Chlamydoconidia in <b>pairs, chains & clusters</b> (not just terminal).', microLabel: 'Microscopic',
+      keys: ['Can be germ tube positive: easy to confuse with <i>albicans</i>', '<b>No growth at 42 °C</b>', 'Fluconazole resistance develops quickly; MALDI-TOF separates it'],
+      lookalike: '<i>C. albicans</i> (puff balls on EMB, terminal chlamydoconidia).'
+    },
+    cauris: {
+      name: '<i>Candida auris</i>', type: 'Yeast · emerging multidrug-resistant',
+      colony: 'Creamy white yeast colonies.',
+      micro: 'Small budding yeast with <b>no hyphae or pseudohyphae</b>.', microLabel: 'Microscopic',
+      keys: ['<b>Sensitive</b> to cycloheximide (<i>albicans</i> is resistant)', 'Multidrug resistant; healthcare-acquired outbreaks', 'Survives on surfaces; high mortality'],
+      lookalike: '<i>C. parapsilosis</i> (makes pseudohyphae on cornmeal).'
+    },
+    cpara: {
+      name: '<i>Candida parapsilosis</i>', type: 'Yeast',
+      colony: 'Creamy yeast colonies.',
+      micro: 'Makes <b>pseudohyphae</b> on cornmeal agar; no true hyphae.', microLabel: 'Microscopic',
+      keys: ['Sensitive to cycloheximide', 'Pseudohyphae separate it from <i>C. auris</i>', '2nd most common <i>Candida</i>; neonatal ICUs, line biofilms, spread on healthcare workers’ hands'],
+      lookalike: '<i>C. auris</i>.'
+    },
+    cneo: {
+      name: '<i>Cryptococcus neoformans</i>', type: 'Encapsulated yeast',
+      growth: { rate: 'rapid', text: 'matures in 3 days' },
+      colony: '<b>Mucoid</b> (capsule) on SDA; grows at 25 & 37 °C. <b>Bird seed agar:</b> dark brown colonies (phenol oxidase).',
+      micro: 'Round budding yeast with a thick capsule; <b>no pseudohyphae</b>.', microLabel: 'Microscopic',
+      tissue: '<b>India ink:</b> clear halo (capsule) around the yeast in CSF.', tissueLabel: 'In specimens',
+      keys: ['<b>India ink positive</b>; cryptococcal antigen (latex) on CSF or serum', 'Urease positive (rapid); non-fermenter', 'Meningitis, especially HIV; bird (pigeon) droppings'],
+      lookalike: '<i>C. gattii</i> (CGB agar positive).'
+    },
+    cgattii: {
+      name: '<i>Cryptococcus gattii</i>', type: 'Encapsulated yeast',
+      colony: 'Like <i>C. neoformans</i>. <b>CGB agar turns blue</b> (positive).',
+      micro: 'Encapsulated budding yeast.', microLabel: 'Microscopic',
+      keys: ['CGB agar positive (blue); <i>C. neoformans</i> stays yellow', 'Infects <b>immunocompetent</b> people', 'Tropics, Australia, Pacific Northwest'],
+      lookalike: '<i>C. neoformans</i>.'
+    },
+    malass: {
+      name: '<i>Malassezia furfur</i>', type: 'Lipophilic yeast · tinea versicolor',
+      growth: { rate: 'moderate', text: 'mature in 5 days at 30–37 °C, poor at 25 °C' },
+      colony: 'Smooth and creamy, then dry, dull, wrinkled. <b>Must overlay with olive oil.</b>',
+      micro: 'Cells round at one end, blunt at the other; buds on a broad base.', microLabel: 'Microscopic',
+      tissue: '<b>“Spaghetti & meatballs”:</b> short hyphae + round yeast in KOH skin scrapings.', tissueLabel: 'In specimens',
+      keys: ['Needs <b>olive oil</b> (fatty acids) to grow', 'Spaghetti & meatballs in skin scrapings', 'Tinea versicolor; yellow on Wood’s lamp'],
+      lookalike: ''
+    },
+    pneumo: {
+      name: '<i>Pneumocystis jirovecii</i>', type: 'Atypical fungus (can’t be cultured)',
+      tissue: 'Round, non-budding cysts (4–7 µm), <b>saucer-shaped</b> or collapsed crescents on GMS or calcofluor.', tissueLabel: 'In specimens',
+      keys: ['<b>Cannot be cultured</b>', 'GMS (Gomori methenamine silver) stain on BAL or induced sputum', 'Pneumonia in HIV'],
+      lookalike: '<i>Histoplasma</i> (budding yeast, inside cells).'
+    },
+    trichos: {
+      name: '<i>Trichosporon</i>', type: 'Yeast-like · white piedra',
+      growth: { rate: 'moderate', text: '5–7 days' },
+      colony: 'Cream, moist and soft, then wrinkled, powdery or crumb-like; sticks to and may <b>crack the agar</b>.',
+      tissue: 'White piedra: <b>soft</b>, light nodules on facial, axillary or genital hair.', tissueLabel: 'On hair',
+      keys: ['Soft white nodules on hair (white piedra)', 'Colony may crack the agar'],
+      lookalike: 'Black piedra (hard, dark nodules); lice nits.'
+    },
+    piedraia: {
+      name: '<i>Piedraia hortae</i>', type: 'Black piedra',
+      tissue: '<b>Hard, gritty</b>, dark brown-black nodules stuck to scalp hair. Crush between two slides to examine.', tissueLabel: 'On hair',
+      keys: ['Hard black nodules on scalp hair', 'Tropical'],
+      lookalike: 'White piedra (<i>Trichosporon</i>, soft nodules); lice nits.'
+    },
+
+    /* ---------------- Mycology: dematiaceous (black) moulds ---------------- */
+    chromo: {
+      name: 'Chromoblastomycosis (sclerotic bodies)', type: 'Tissue form of the chromoblastomycosis agents',
+      tissue: 'Brown, thick-walled, round bodies that divide in planes: <b>muriform cells / Medlar bodies / “copper pennies.”</b>', tissueLabel: 'In specimens',
+      keys: ['Finding them is <b>diagnostic</b> of chromoblastomycosis', 'Agents: <i>Fonsecaea</i>, <i>Cladophialophora</i>, <i>Phialophora</i>', 'Warty “cauliflower” lesions after traumatic implantation'],
+      lookalike: ''
+    },
+    phialo: {
+      name: '<i>Phialophora verrucosa</i>', type: 'Dematiaceous mould · chromoblastomycosis',
+      growth: { rate: 'slow', text: '7–12 days' },
+      colony: 'Suede-like, embedded in the agar; reverse black.',
+      micro: '<b>Vase-shaped phialides</b> with collarettes and conidia clustered at the tip: “vase & flower.”',
+      keys: ['Vase & flower sporulation', 'Chromoblastomycosis agent'],
+      lookalike: '<i>Fonsecaea</i> (can show this pattern too).'
+    },
+    fonsec: {
+      name: '<i>Fonsecaea pedrosoi</i>', type: 'Dematiaceous mould · chromoblastomycosis',
+      growth: { rate: 'slow', text: '' },
+      colony: 'Silvery, velvety surface that turns black; slightly embedded; reverse black.',
+      micro: '“A mould of many hats”: Fonsecaea, Cladosporium, Rhinocladiella and Phialophora-type sporulation; conidia on denticles.',
+      keys: ['Several sporulation types on one isolate', 'Most common chromoblastomycosis agent'],
+      lookalike: '<i>Cladophialophora</i>, <i>Phialophora</i>.'
+    },
+    cladoph: {
+      name: '<i>Cladophialophora carrionii</i>', type: 'Dematiaceous mould · chromoblastomycosis',
+      growth: { rate: 'slow', text: 'matures in 18 days' },
+      colony: 'Velvety, dull, dark purplish-black; reverse black.',
+      micro: 'Long, branching chains of <b>pointed</b> conidia (Cladosporium-type): delicate bare tree branches.',
+      keys: ['Long branched chains, pointy conidia', 'Slow (18 days)'],
+      lookalike: '<i>Cladosporium</i> (rounder conidia, faster, contaminant).'
+    },
+    exoph: {
+      name: '<i>Exophiala jeanselmei</i>', type: 'Dematiaceous mould · mycetoma',
+      growth: { rate: 'slow', text: 'matures in 14 days; slower or none at 37 °C' },
+      colony: 'Moist and skin-like at first, then short velvety mycelium; reverse black.',
+      micro: 'Slender, tapered <b>annellides</b> with oval, <b>pill-shaped</b> conidia clustered at the tip.',
+      keys: ['Pill-shaped conidia in clusters', 'Eumycotic mycetoma agent'],
+      lookalike: ''
+    },
+    sced: {
+      name: '<i>Scedosporium</i> (formerly <i>Pseudallescheria boydii</i>)', type: 'Mould · mycetoma',
+      growth: { rate: 'moderate', text: 'matures in 7 days' },
+      colony: 'White, cottony, “mousy” mycelium turning gray to dark brown; reverse white turning black.',
+      micro: 'Single oval conidia cut off flat at the base on simple conidiophores; sexual stage makes big <b>cleistothecia</b>.',
+      keys: ['Lollipops like <i>Blastomyces</i>, but thicker and it grows dark', 'Cleistothecia rule out <i>Blastomyces</i> (inhibited by cycloheximide)', 'Eumycotic mycetoma agent'],
+      lookalike: '<i>Blastomyces</i> mould form.'
+    },
+    altern: {
+      name: '<i>Alternaria</i>', type: 'Dematiaceous mould · phaeohyphomycosis',
+      growth: { rate: 'rapid', text: 'matures in 5 days' },
+      colony: 'Woolly, gray-green to black with a light border; reverse black.',
+      micro: 'Brown, <b>club/racquet-shaped muriform</b> conidia, often in chains: “lil bugs.”',
+      keys: ['Racquet-shaped muriform conidia', 'Common contaminant too'],
+      lookalike: '<i>Bipolaris</i>, <i>Curvularia</i> (no cross-walls lengthwise).'
+    },
+    aureo: {
+      name: '<i>Aureobasidium pullulans</i>', type: 'Dematiaceous mould · phaeohyphomycosis',
+      growth: { rate: 'rapid', text: 'matures in 3–5 days' },
+      colony: 'White, moist, creamy at first, then shiny brown-black areas; reverse black when mature.',
+      micro: 'Two hyphae: dark hyphae breaking into <b>chains of arthroconidia</b>, and hyaline hyphae with oval conidia on denticles.',
+      keys: ['Dark arthroconidia in a <b>continuous chain</b>', 'Yeast-like start, then black'],
+      lookalike: '<i>Coccidioides</i> (arthroconidia alternate with empty cells).'
+    },
+    bipol: {
+      name: '<i>Bipolaris</i>', type: 'Dematiaceous mould · phaeohyphomycosis',
+      growth: { rate: 'rapid', text: 'matures in 5 days' },
+      colony: 'Gray-brown turning black; reverse black.',
+      micro: 'Dark, multi-celled macroconidia on <b>zig-zag (geniculate)</b> conidiophores.',
+      keys: ['Germ tubes from <b>both ends</b> (bi-polar)', 'Straight, not curved, conidia'],
+      lookalike: '<i>Curvularia</i> (curved conidia).'
+    },
+    curv: {
+      name: '<i>Curvularia</i>', type: 'Dematiaceous mould · phaeohyphomycosis',
+      growth: { rate: 'rapid', text: 'matures in 5 days' },
+      colony: 'Black, woolly; reverse black.',
+      micro: 'Dark multi-celled conidia that are <b>curved</b> (a central cell grows bigger) on geniculate conidiophores.',
+      keys: ['Curved? It’s this one'],
+      lookalike: '<i>Bipolaris</i>.'
+    },
+    hortaea: {
+      name: '<i>Hortaea werneckii</i>', type: 'Dematiaceous yeast-like mould · tinea nigra',
+      growth: { rate: 'slow', text: 'matures in 21 days' },
+      colony: 'Moist, shiny, yeast-like; brownish, then dull olive-black; reverse dark.',
+      micro: '<b>Two-celled</b>, pale brown yeast-like cells with a dark septum.',
+      keys: ['Two-celled dark yeast-like cells', 'Tinea nigra: flat dark patches on palms and soles'],
+      lookalike: ''
+    },
+    cladosp: {
+      name: '<i>Cladosporium</i>', type: 'Dematiaceous mould · usually a contaminant',
+      growth: { rate: 'moderate', text: 'matures in 7 days' },
+      colony: 'Greenish-brown to black, heaped and folded, velvety.',
+      micro: 'Branching chains of conidia that are <b>rounder</b> (not pointy).',
+      keys: ['Like <i>Cladophialophora</i> but rounder conidia and faster'],
+      lookalike: '<i>Cladophialophora carrionii</i>.'
+    },
+    stachy: {
+      name: '<i>Stachybotrys chartarum</i>', type: 'Dematiaceous mould · “toxic black mold”',
+      growth: { rate: 'moderate', text: 'matures in 6–10 days' },
+      colony: 'Dark to black; loves high-cellulose material (drywall, paper) that stays wet.',
+      micro: 'Dark oval conidia clustered on the tips of phialides.',
+      keys: ['Toxins in the conidia (hemorrhage with constant exposure)', 'Water-damaged buildings'],
+      lookalike: ''
+    },
+
+    /* ---------------- Mycology: dermatophytes ---------------- */
+    efloc: {
+      name: '<i>Epidermophyton floccosum</i>', type: 'Dermatophyte',
+      growth: { rate: 'moderate', text: 'about 10 days (textbook value, not in your notes)' },
+      colony: 'Lumpy, then radially grooved and velvety; <b>“taffy”</b> (khaki-yellow) colored.',
+      micro: 'Smooth, thin-walled, multi-celled macroconidia on a broad base, in clusters: <b>“beaver tails.”</b> <b>No microconidia.</b>',
+      tissue: 'Hair and skin, <b>never nails</b> (lecture table). Most textbooks say skin and nails, never hair, so go with the lecture.', tissueLabel: 'Infects',
+      keys: ['Beaver-tail macroconidia', 'No microconidia', 'Tinea corporis, cruris, pedis, manuum'],
+      lookalike: ''
+    },
+    maud: {
+      name: '<i>Microsporum audouinii</i>', type: 'Dermatophyte',
+      growth: { rate: 'slow', text: 'about 10–14 days (textbook value, not in your notes)' },
+      colony: 'Downy to silky with a radiating edge. Reverse light salmon with a reddish-brown center.',
+      micro: 'Rarely any conidia; terminal and intercalary chlamydoconidia; <b>pectinate</b> (comb-like) hyphae.',
+      tissue: 'Hair and skin.', tissueLabel: 'Infects',
+      keys: ['Pectinate hyphae', 'Hardly sporulates', 'Tinea capitis: hair loss and scaling'],
+      lookalike: ''
+    },
+    mgyp: {
+      name: '<i>Microsporum gypseum</i>', type: 'Dermatophyte',
+      growth: { rate: 'moderate', text: 'about 6 days' },
+      colony: 'Flat, spreading, <b>granular</b>, fringed border; tan (“cinnamon sugar”).',
+      micro: 'Many ellipsoidal, thin-walled, rough macroconidia with <b>rounded ends, 4–6 cells</b>; a few club-shaped microconidia.',
+      tissue: 'Hair and skin.', tissueLabel: 'Infects',
+      keys: ['Lots of thin-walled 4–6 cell macroconidia', 'Primary agent of tinea capitis (per notes)'],
+      lookalike: '<i>M. canis</i> (spindle-shaped, thick-walled, >6 cells).'
+    },
+    mcanis: {
+      name: '<i>Microsporum canis</i>', type: 'Dermatophyte',
+      growth: { rate: 'rapid', text: 'about 5–7 days (textbook value, not in your notes)' },
+      colony: 'Coarse, fluffy, fur-like with a yellow edge and radial grooves; reverse <b>deep lemon yellow</b>.',
+      micro: '<b>Spindle-shaped</b>, thick-walled, rough macroconidia with <b>more than 6 cells</b>, sometimes a terminal knob.',
+      tissue: 'Hair and skin.', tissueLabel: 'Infects',
+      keys: ['Spindle macroconidia, >6 cells', 'Ask about cats and dogs', 'Tinea corporis and capitis (kerion)'],
+      lookalike: '<i>M. gypseum</i>.'
+    },
+    tment: {
+      name: '<i>Trichophyton mentagrophytes</i>', type: 'Dermatophyte',
+      growth: { rate: 'moderate', text: 'about 7–10 days (textbook value, not in your notes)' },
+      colony: 'Powdery, concentric radial folds; reverse yellow-brown to pinkish-brown.',
+      micro: 'Round microconidia in “ill-tempered” clusters, cigar-shaped macroconidia, <b>spiral hyphae</b>, nodular bodies.',
+      tissue: 'Hair, skin and nails.', tissueLabel: 'Infects',
+      keys: ['<b>Spiral hyphae</b> are very diagnostic', 'Clustered round microconidia', 'Tinea cruris (jock itch), barbae'],
+      lookalike: '<i>T. rubrum</i> (teardrop microconidia singly along hyphae).'
+    },
+    trubrum: {
+      name: '<i>Trichophyton rubrum</i>', type: 'Dermatophyte',
+      growth: { rate: 'slow', text: 'about 2 weeks (textbook value, not in your notes)' },
+      colony: 'Granular to fluffy, suede-like; reverse <b>deep wine-red</b>.',
+      micro: '<b>Teardrop</b> microconidia singly along the hyphae (“cartoon vines”); rare long pencil-shaped macroconidia.',
+      tissue: 'Skin and nails.', tissueLabel: 'Infects',
+      keys: ['Wine-red reverse', 'Teardrops along the hyphae', 'Most common: tinea pedis, unguium, manuum, barbae'],
+      lookalike: '<i>T. tonsurans</i>.'
+    },
+    tton: {
+      name: '<i>Trichophyton tonsurans</i>', type: 'Dermatophyte',
+      growth: { rate: 'slow', text: 'about 10–14 days (textbook value, not in your notes)' },
+      colony: 'Highly variable color (white, gray, yellow, rose, brown), suede-like, many radial folds; reverse reddish-brown.',
+      micro: 'Microconidia of <b>many shapes</b> (teardrop, club, “balloon” forms) along broad, irregular hyphae; chlamydoconidia.',
+      tissue: 'Hair, skin and nails.', tissueLabel: 'Infects',
+      keys: ['Variable microconidia (balloons, prongs on a ladder)', 'Tinea capitis with minimal hair loss'],
+      lookalike: '<i>T. rubrum</i>.'
+    },
+    tschoen: {
+      name: '<i>Trichophyton schoenleinii</i>', type: 'Dermatophyte · tinea favus',
+      growth: { rate: 'slow', text: '3 weeks or more (textbook value, not in your notes)' },
+      colony: 'Waxy, heaped and folded (“dried ramen”); embedded, may split the agar; reverse pale.',
+      micro: '<b>Favic chandeliers</b>: antler-like hyphae with nail-head tips; chlamydoconidia; no micro- or macroconidia.',
+      tissue: 'Hair (favus: yellow cup-shaped crusts called scutula).', tissueLabel: 'Infects',
+      keys: ['Favic chandeliers', 'Scutula on the scalp', 'No conidia'],
+      lookalike: ''
+    },
+
+    /* ---------------- Mycology: Aspergillus ---------------- */
+    afum: {
+      name: '<i>Aspergillus fumigatus</i>', type: 'Hyaline mould · opportunist',
+      growth: { rate: 'rapid', text: 'mature in about 3 days' },
+      colony: 'Velvety/powdery, white turning blue-green to gray-turquoise; reverse white-tan.',
+      micro: '<b>Uniseriate</b>, columnar heads; phialides on the <b>upper 2/3</b> of the vesicle (“paint brush”).',
+      keys: ['Grows at <b>42–45 °C</b>', 'Most common cause of aspergillosis; fungus balls'],
+      lookalike: '<i>A. clavatus</i> (huge club vesicle); <i>A. versicolor</i>.'
+    },
+    aniger: {
+      name: '<i>Aspergillus niger</i>', type: 'Hyaline mould · opportunist',
+      growth: { rate: 'rapid', text: 'mature in about 3 days' },
+      colony: 'Woolly, white to yellow, then <b>black</b> (“dark dandelions”); reverse <b>white</b> to yellow.',
+      micro: 'Biseriate; phialides cover the <b>entire</b> vesicle; dark conidia in a big round head.',
+      keys: ['Only black <i>Aspergillus</i>', 'Reverse stays light (not a dematiaceous mould)'],
+      lookalike: 'Dematiaceous moulds (black reverse).'
+    },
+    avers: {
+      name: '<i>Aspergillus versicolor</i>', type: 'Hyaline mould · opportunist',
+      growth: { rate: 'rapid', text: 'mature in about 3 days' },
+      colony: 'Huge variety of colors (green, pink, yellow, orange).',
+      micro: 'Biseriate, loosely radiating heads; phialides past the 2/3 mark, more spaced out than <i>fumigatus</i>.',
+      keys: ['Many colony colors', 'Doesn’t grow as hot as <i>fumigatus</i>'],
+      lookalike: '<i>A. fumigatus</i>.'
+    },
+    aflav: {
+      name: '<i>Aspergillus flavus</i>', type: 'Hyaline mould · opportunist',
+      growth: { rate: 'rapid', text: 'mature in about 3 days' },
+      colony: 'Velvety yellow to <b>matcha green</b>; reverse goldish to red-brown.',
+      micro: 'Rough, <b>pitted conidiophore</b> (“needs a shave”); uni- and biseriate heads covering the vesicle.',
+      keys: ['Rough conidiophore', 'Yellow-green colony'],
+      lookalike: '<i>A. terreus</i> (smooth conidiophore, pink colony).'
+    },
+    aterr: {
+      name: '<i>Aspergillus terreus</i>', type: 'Hyaline mould · opportunist',
+      growth: { rate: 'rapid', text: 'mature in about 3 days' },
+      colony: 'Velvety, <b>pink / cinnamon-brown</b>; reverse white to brown.',
+      micro: 'Short, <b>smooth</b> conidiophore; biseriate; long compact columns of conidia.',
+      keys: ['Pink-cinnamon colony', 'Smooth conidiophore'],
+      lookalike: '<i>A. flavus</i>.'
+    },
+    anid: {
+      name: '<i>Aspergillus nidulans</i>', type: 'Hyaline mould · opportunist',
+      growth: { rate: 'rapid', text: 'mature in about 3 days' },
+      colony: 'Velvety green to brown with a white border; reverse purplish-red, darkening.',
+      micro: 'Short, smooth brown conidiophore; biseriate on the upper half of a rounded vesicle; <b>Hülle cells</b> and <b>cleistothecia</b>.',
+      keys: ['Hülle cells (look like RBCs)', 'Cleistothecia'],
+      lookalike: ''
+    },
+    aclav: {
+      name: '<i>Aspergillus clavatus</i>', type: 'Hyaline mould · opportunist',
+      growth: { rate: 'rapid', text: 'mature in about 3 days' },
+      colony: 'Like <i>fumigatus</i> but woollier and rougher, moss-like.',
+      micro: 'Huge <b>club-shaped vesicle</b> (“cattail”).',
+      keys: ['Giant club vesicle', 'Grain: wheat, flour, bread, maize, rice'],
+      lookalike: '<i>A. fumigatus</i>.'
+    },
+
+    /* ---------------- Mycology: other hyaline moulds ---------------- */
+    penic: {
+      name: '<i>Penicillium</i> (not <i>marneffei</i>)', type: 'Hyaline mould · usually a contaminant',
+      growth: { rate: 'rapid', text: '4 days' },
+      colony: 'Many colors and textures, usually green.',
+      micro: '<b>Broom</b>: branched conidiophores and phialides with chains of conidia; <b>no vesicle</b>.',
+      keys: ['Broom, no vesicle', 'Isolation alone doesn’t mean infection'],
+      lookalike: '<i>Paecilomyces</i> (rake).'
+    },
+    paec: {
+      name: '<i>Paecilomyces</i>', type: 'Hyaline mould',
+      growth: { rate: 'rapid', text: '(textbook value, not in your notes)' },
+      colony: 'More <b>yellow</b>/tan than <i>Penicillium</i> (green).',
+      micro: '<b>Rake</b>: long tapered phialides bending away, with oval conidia in chains.',
+      keys: ['Rake, not broom', 'Yellowish colony'],
+      lookalike: '<i>Penicillium</i>.'
+    },
+    fusar: {
+      name: '<i>Fusarium</i>', type: 'Hyaline mould',
+      growth: { rate: 'rapid', text: '4 days' },
+      colony: '<b>Lavender, rose-red or magenta</b>.',
+      micro: 'Large <b>sickle/canoe-shaped</b> macroconidia with 3–5 septa.',
+      keys: ['Canoe-shaped macroconidia: nothing else looks like this', 'Keratitis, onychomycosis, <b>burn patients</b>'],
+      lookalike: ''
+    },
+    scop: {
+      name: '<i>Scopulariopsis</i>', type: 'Hyaline mould · nails',
+      growth: { rate: 'rapid', text: '5 days' },
+      colony: 'Tan/buff, powdery, may be folded.',
+      micro: '<b>Spiky, thick-walled</b> conidia in chains (“Pokey”), flat at the base.',
+      tissue: 'Round thick-walled conidia in KOH nail preps.', tissueLabel: 'In specimens',
+      keys: ['Spiky chained conidia', 'Usually nail infections'],
+      lookalike: ''
+    },
+    acrem: {
+      name: '<i>Acremonium</i>', type: 'Hyaline mould',
+      growth: { rate: 'moderate', text: '5–7 days' },
+      colony: 'White to pinkish, moist then velvety.',
+      micro: 'Erect, unbranched, tapering conidiophores with cylindrical conidia <b>clustered in balls</b> at the tips.',
+      keys: ['Single tapered stalks with conidia balls', 'Mycetoma, keratitis, onychomycosis'],
+      lookalike: '<i>Gliocladium</i> (branched, phialides together); <i>Trichoderma</i>.'
+    },
+    beauv: {
+      name: '<i>Beauveria</i>', type: 'Hyaline mould · insect pathogen',
+      growth: { rate: 'rapid', text: '4 days' },
+      colony: 'White, cottony <b>puff balls</b>.',
+      micro: '<b>Zig-zag</b> (geniculate) conidiophores with oval conidia on denticles at each bend.',
+      keys: ['Zig-zag conidiophores', 'Nature’s biopesticide'],
+      lookalike: ''
+    },
+    glio: {
+      name: '<i>Gliocladium</i>', type: 'Hyaline mould',
+      growth: { rate: 'rapid', text: '4 days; covers the plate in a week' },
+      colony: 'White turning green, spreading fast.',
+      micro: 'Branched phialides whose conidia clump into one <b>big ball</b> (“boulder”).',
+      keys: ['Big conidial ball on branched phialides'],
+      lookalike: '<i>Acremonium</i>, <i>Trichoderma</i>.'
+    },
+    trichod: {
+      name: '<i>Trichoderma</i>', type: 'Hyaline mould',
+      growth: { rate: 'rapid', text: 'matures in 5 days' },
+      colony: 'White turning green, woolly, often in rings.',
+      micro: 'Branched conidiophores with flask-shaped phialides at wide angles and <b>small round clusters</b> of conidia.',
+      keys: ['Small round conidia clusters on flask-shaped phialides'],
+      lookalike: '<i>Acremonium</i>, <i>Gliocladium</i>.'
     }
   };
 
   /* ["picture", "organism key", "what this picture shows"] */
-  var M = 'cards/myc/', P = 'cards/p1/', H = 'cards/hel/';
+  var M = 'cards/myc/', P = 'cards/p1/', H = 'cards/hel/', Y = 'cards/myc2/';
   var VID_DECKS = [
     { code: 'VID-P1', title: 'Intestinal amoebae', cap: 'lavender', group: 'Visual ID · Parasites', cards: [
       ['s018_1.jpg', 'ehist', 'Trophozoite with ingested RBCs · trichrome'],
@@ -736,6 +1118,132 @@
       [M + 'myc_65.jpg', 'sporo', 'Yeast in tissue'],
       [M + 'myc_71.jpg', 'talaro', 'Yeast-like cells inside a macrophage'],
       [M + 'myc_75.jpg', 'talaro', 'Yeast form dividing by fission']
+    ] },
+
+    /* ---- Added from the Micro II notes doc (Mycology Units 1–3) ---- */
+    { code: 'VID-M4', title: 'Yeasts & superficial fungi', cap: 'lavender', group: 'Visual ID · Mycology', cards: [
+      [Y + 'm2_332.jpg', 'calb', 'Colonies on SDA'],
+      [Y + 'm2_333.jpg', 'calb', 'Skin scraping, 10% KOH'],
+      [Y + 'm2_334.jpg', 'calb', 'Urine direct smear'],
+      [Y + 'm2_335.jpg', 'calb', 'Yeast cells, pseudohyphae and true hyphae'],
+      [Y + 'm2_336.jpg', 'calb', 'Chlamydoconidia'],
+      [Y + 'm2_337b.jpg', 'calb', 'Growth on EMB agar'],
+      [Y + 'm2_337a.jpg', 'cdub', 'Growth on EMB agar'],
+      [Y + 'm2_339.jpg', 'cauris', 'Microscopic and colonies'],
+      [Y + 'm2_341.jpg', 'cpara', 'Microscopic (light and electron)'],
+      [Y + 'm2_346.jpg', 'cneo', 'India ink, CSF'],
+      [Y + 'm2_347.jpg', 'cneo', 'Colonies on SDA'],
+      [Y + 'm2_348.jpg', 'cneo', 'Bird seed agar'],
+      [Y + 'm2_349.jpg', 'cgattii', 'CGB agar'],
+      [Y + 'm2_351.jpg', 'malass', 'Colonies (with olive oil)'],
+      [Y + 'm2_352.jpg', 'malass', 'Microscopic'],
+      [Y + 'm2_431.jpg', 'malass', 'Skin scraping'],
+      [Y + 'm2_354.jpg', 'pneumo', 'Cysts in BAL'],
+      [Y + 'm2_355.jpg', 'pneumo', 'Cysts in BAL fluid'],
+      [Y + 'm2_437.jpg', 'trichos', 'Colony'],
+      [Y + 'm2_435.jpg', 'trichos', 'Nodule on a hair shaft'],
+      [Y + 'm2_436.jpg', 'trichos', 'Nodules on hair'],
+      [Y + 'm2_434.jpg', 'piedraia', 'Nodules on hair']
+    ] },
+    { code: 'VID-M5', title: 'Dematiaceous (black) moulds', cap: 'gray', group: 'Visual ID · Mycology', cards: [
+      [Y + 'm2_357.jpg', 'chromo', 'KOH prep of a lesion'],
+      [Y + 'm2_365.jpg', 'phialo', 'Colonies'],
+      [Y + 'm2_366.jpg', 'phialo', 'Microscopic'],
+      [Y + 'm2_371a.jpg', 'fonsec', 'Colony'],
+      [Y + 'm2_369.jpg', 'fonsec', 'Microscopic'],
+      [Y + 'm2_371b.jpg', 'fonsec', 'Microscopic'],
+      [Y + 'm2_374.jpg', 'cladoph', 'Colony'],
+      [Y + 'm2_372.jpg', 'cladoph', 'Microscopic'],
+      [Y + 'm2_373.jpg', 'cladoph', 'Microscopic'],
+      [Y + 'm2_375.jpg', 'exoph', 'Colony: front, side, reverse'],
+      [Y + 'm2_376.jpg', 'exoph', 'Microscopic'],
+      [Y + 'm2_377.jpg', 'sced', 'Colonies as they age'],
+      [Y + 'm2_378.jpg', 'sced', 'Microscopic (asexual stage)'],
+      [Y + 'm2_379.jpg', 'sced', 'Cleistothecia (sexual stage)'],
+      [Y + 'm2_382.jpg', 'altern', 'Colony and microscopic'],
+      [Y + 'm2_381.jpg', 'altern', 'Microscopic'],
+      [Y + 'm2_384.jpg', 'altern', 'Microscopic'],
+      [Y + 'm2_385.jpg', 'aureo', 'Colonies'],
+      [Y + 'm2_387.jpg', 'aureo', 'Microscopic'],
+      [Y + 'm2_388.jpg', 'bipol', 'Colonies and microscopic'],
+      [Y + 'm2_389.jpg', 'bipol', 'Microscopic'],
+      [Y + 'm2_390.jpg', 'bipol', 'Conidia with germ tubes'],
+      [Y + 'm2_392.jpg', 'curv', 'Colony'],
+      [Y + 'm2_391.jpg', 'curv', 'Microscopic'],
+      [Y + 'm2_393.jpg', 'curv', 'Conidia and conidiophores'],
+      [Y + 'm2_395.jpg', 'hortaea', 'Colonies'],
+      [Y + 'm2_396.jpg', 'hortaea', 'Microscopic'],
+      [Y + 'm2_398.jpg', 'cladosp', 'Colony'],
+      [Y + 'm2_397.jpg', 'cladosp', 'Microscopic'],
+      [Y + 'm2_402.jpg', 'stachy', 'Colonies'],
+      [Y + 'm2_401.jpg', 'stachy', 'Microscopic']
+    ] },
+    { code: 'VID-M6', title: 'Dermatophytes', cap: 'gold', group: 'Visual ID · Mycology', cards: [
+      [Y + 'm2_409.jpg', 'efloc', 'Colonies as they age'],
+      [Y + 'm2_410.jpg', 'efloc', 'Microscopic'],
+      [Y + 'm2_411.jpg', 'efloc', 'Macroconidia'],
+      [Y + 'm2_413.jpg', 'maud', 'Colony, front'],
+      [Y + 'm2_412.jpg', 'maud', 'Colony, reverse'],
+      [Y + 'm2_414.jpg', 'maud', 'Microscopic'],
+      [Y + 'm2_415.jpg', 'mgyp', 'Colonies'],
+      [Y + 'm2_416.jpg', 'mgyp', 'Microscopic'],
+      [Y + 'm2_417.jpg', 'mcanis', 'Colonies: reverse and front'],
+      [Y + 'm2_419.jpg', 'mcanis', 'Macroconidia'],
+      [Y + 'm2_420.jpg', 'tment', 'Colonies'],
+      [Y + 'm2_421.jpg', 'tment', 'Microscopic'],
+      [Y + 'm2_422.jpg', 'tment', 'Microscopic'],
+      [Y + 'm2_423.jpg', 'tment', 'Microscopic'],
+      [Y + 'm2_424.jpg', 'trubrum', 'Colonies: fronts and reverses'],
+      [Y + 'm2_425.jpg', 'trubrum', 'Microscopic'],
+      [Y + 'm2_426.jpg', 'tton', 'Colonies'],
+      [Y + 'm2_427.jpg', 'tton', 'Microscopic'],
+      [Y + 'm2_428.jpg', 'tton', 'Microscopic'],
+      [Y + 'm2_429.jpg', 'tschoen', 'Colony: reverse (R) and front (F)'],
+      [Y + 'm2_430.jpg', 'tschoen', 'Microscopic']
+    ] },
+    { code: 'VID-M7', title: 'Aspergillus', cap: 'green', group: 'Visual ID · Mycology', cards: [
+      [Y + 'm2_447a.jpg', 'afum', 'Colonies'],
+      [Y + 'm2_447b.jpg', 'afum', 'Microscopic'],
+      [Y + 'm2_448b.jpg', 'aniger', 'Colonies'],
+      [Y + 'm2_448a.jpg', 'aniger', 'Microscopic'],
+      [Y + 'm2_450.jpg', 'avers', 'Colonies'],
+      [Y + 'm2_449.jpg', 'avers', 'Microscopic'],
+      [Y + 'm2_453.jpg', 'aflav', 'Colonies'],
+      [Y + 'm2_454.jpg', 'aflav', 'Colony'],
+      [Y + 'm2_452.jpg', 'aflav', 'Microscopic'],
+      [Y + 'm2_457.jpg', 'aterr', 'Colonies'],
+      [Y + 'm2_455.jpg', 'aterr', 'Microscopic'],
+      [Y + 'm2_456.jpg', 'aterr', 'Microscopic'],
+      [Y + 'm2_459.jpg', 'anid', 'Colonies'],
+      [Y + 'm2_461.jpg', 'anid', 'Microscopic'],
+      [Y + 'm2_460.jpg', 'anid', 'Cleistothecium'],
+      [Y + 'm2_462.jpg', 'anid', 'Hülle cells'],
+      [Y + 'm2_465.jpg', 'aclav', 'Colonies'],
+      [Y + 'm2_463.jpg', 'aclav', 'Microscopic'],
+      [Y + 'm2_464.jpg', 'aclav', 'Microscopic']
+    ] },
+    { code: 'VID-M8', title: 'Other hyaline moulds', cap: 'pink', group: 'Visual ID · Mycology', cards: [
+      [Y + 'm2_468.jpg', 'penic', 'Microscopic'],
+      [Y + 'm2_471.jpg', 'paec', 'Colonies'],
+      [Y + 'm2_469.jpg', 'paec', 'Microscopic'],
+      [Y + 'm2_470.jpg', 'paec', 'Microscopic'],
+      [Y + 'm2_473.jpg', 'fusar', 'Colonies'],
+      [Y + 'm2_472.jpg', 'fusar', 'Macroconidia'],
+      [Y + 'm2_477.jpg', 'scop', 'Colony'],
+      [Y + 'm2_478.jpg', 'scop', 'Colony'],
+      [Y + 'm2_475.jpg', 'scop', 'Microscopic'],
+      [Y + 'm2_476.jpg', 'scop', 'Microscopic'],
+      [Y + 'm2_407.jpg', 'scop', 'Nail, 10% KOH'],
+      [Y + 'm2_482.jpg', 'acrem', 'Colony'],
+      [Y + 'm2_479.jpg', 'acrem', 'Microscopic'],
+      [Y + 'm2_481.jpg', 'acrem', 'Microscopic'],
+      [Y + 'm2_484.jpg', 'beauv', 'Colony'],
+      [Y + 'm2_483.jpg', 'beauv', 'Microscopic'],
+      [Y + 'm2_489.jpg', 'glio', 'Colonies'],
+      [Y + 'm2_486.jpg', 'glio', 'Microscopic'],
+      [Y + 'm2_488.jpg', 'glio', 'Electron micrograph'],
+      [Y + 'm2_491.jpg', 'trichod', 'Colonies'],
+      [Y + 'm2_490.jpg', 'trichod', 'Microscopic']
     ] }
   ];
 
@@ -752,7 +1260,7 @@
     if (v.view) h += '<p class="vid-view"><span>This picture</span>' + v.view + '</p>';
     h += '<dl class="vid-rows">' + row('Type', o.type);
     if (o.growth) h += row('Growth', '<span class="vid-rate vid-' + o.growth.rate + '">' + RATE[o.growth.rate] + '</span> ' + (o.growth.text || ''));
-    h += row('Colony', o.colony) + row('Mould form', o.micro) + row('Tissue / yeast', o.tissue) + row('Size', o.size) + row('Specimen', o.specimen) + '</dl>';
+    h += row('Colony', o.colony) + row(o.microLabel || 'Mould form', o.micro) + row(o.tissueLabel || 'Tissue / yeast', o.tissue) + row('Size', o.size) + row('Specimen', o.specimen) + '</dl>';
     if (o.keys && o.keys.length) h += '<p class="vid-h">Key ID features</p><ul class="vid-keys">' + o.keys.map(function (k) { return '<li>' + k + '</li>'; }).join('') + '</ul>';
     if (o.lookalike) h += '<p class="vid-look"><b>Don’t confuse with:</b> ' + o.lookalike + '</p>';
     return h + '</div>';
