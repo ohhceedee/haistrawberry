@@ -11,7 +11,7 @@
     return {
       id: slug(d.code || d.title) + '-' + i, code: d.code || '', title: d.title || 'Untitled deck', group: d.group || '', date: d.date || '', html: !!d.html,
       cards: (d.cards || []).filter(function (c) { return c && c.q && c.a; }).map(function (c) {
-        return { id: hash(c.q), q: c.q, a: c.a, wrong: Array.isArray(c.wrong) ? c.wrong.filter(Boolean) : [], why: c.why || '', img: c.img || '', aimg: c.aimg || '', html: !!(c.html || d.html) };
+        return { id: hash(c.q), q: c.q, a: c.a, wrong: Array.isArray(c.wrong) ? c.wrong.filter(Boolean) : [], why: c.why || '', img: c.img || '', aimg: c.aimg || '', html: !!(c.html || d.html), vid: c.vid || null };
       })
     };
   }).filter(function (d) { return d.cards.length; });
@@ -199,7 +199,7 @@
         if (!c) return '<li><div class="t-from">' + (d ? esc(d.code) + ' · ' + esc(d.title) : 'Removed deck') + '</div><p class="q"><i>This card has been edited or removed since this test.</i></p>' + (q.your ? '<div class="yours"><span class="tag">Your answer</span>' + rich({ html: true }, q.your) + '</div>' : '') + '</li>';
         return '<li><div class="t-from">' + esc(d.code) + ' · ' + esc(d.title) + '</div>' + img(c.img, 'Question image') + '<div class="q">' + rich(c, c.q) + '</div>' +
           '<div class="yours"><span class="tag">Your answer</span>' + (q.your == null ? '<i>Skipped</i>' : rich(c, q.your)) + '</div>' +
-          '<div class="right"><span class="tag">Correct answer</span>' + rich(c, c.a) + (c.why ? '<p style="margin-top:6px">' + rich(c, c.why) + '</p>' : '') + img(c.aimg, 'Answer image') + '</div></li>';
+          '<div class="right"><span class="tag">Correct answer</span>' + rich(c, c.a) + (c.why ? '<p style="margin-top:6px">' + rich(c, c.why) + '</p>' : '') + (c.vid && window.VISUAL_ID ? window.VISUAL_ID.render(c) : '') + img(c.aimg, 'Answer image') + '</div></li>';
       }).join('') + '</ol>';
     }
     return h;

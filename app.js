@@ -14,7 +14,7 @@
       id: slug(d.code || d.title) + '-' + i,
       code: d.code || '', title: d.title || 'Untitled deck', cap: d.cap || 'lavender', group: d.group || '', date: d.date || '', html: !!d.html,
       cards: (d.cards || []).filter(function (c) { return c && c.q && c.a; })
-        .map(function (c) { return { id: hash(c.q), q: c.q, a: c.a, wrong: Array.isArray(c.wrong) ? c.wrong.filter(Boolean) : [], why: c.why || '', img: c.img || '', aimg: c.aimg || '', html: !!(c.html || d.html) }; })
+        .map(function (c) { return { id: hash(c.q), q: c.q, a: c.a, wrong: Array.isArray(c.wrong) ? c.wrong.filter(Boolean) : [], why: c.why || '', img: c.img || '', aimg: c.aimg || '', html: !!(c.html || d.html), vid: c.vid || null }; })
     };
   });
 
@@ -37,6 +37,7 @@
   function rich(c, str) { var t = esc(str); return c && c.html ? t.replace(OKTAG, '<$1$2>') : t; }
   // a path with a slash (e.g. cards/p1/x.jpg) is a real image file next to the site
   function imgSrc(v) { if (!v) return ''; if (/^data:|^https?:|\//.test(v)) return v; var m = window.CARD_IMAGES || {}; return m[v] || ''; }
+  function vidHtml(c) { return c && c.vid && window.VISUAL_ID ? window.VISUAL_ID.render(c) : ''; }
   function cardImg(c, cls) { var src = imgSrc(c.img); return src ? '<img class="' + cls + '" src="' + esc(src) + '" alt="Study image" loading="lazy">' : ''; }
   // a picture that belongs to the answer side (a chart or table), shown only once the answer is revealed
   function ansImg(c, cls) { var src = imgSrc(c.aimg); return src ? '<img class="' + cls + '" src="' + esc(src) + '" alt="Answer image" loading="lazy">' : ''; }
@@ -271,7 +272,7 @@
     return deckBar(d, 'Flip cards', (idx + 1) + ' / ' + n, '<button class="dk-icon" data-act="shuffle" aria-label="Shuffle">⤮</button>') +
       '<section class="wrap dk-session"><div class="viewer"><button class="fc' + (flipped ? ' is-flipped' : '') + '" data-act="flip" aria-label="Flip card"><div class="fc-in">' +
       '<div class="face front"><span class="side">Question</span>' + picBox(c.img) + '<p>' + rich(c, c.q) + '</p><div class="foot">' + (isKnown(c) ? '<span class="known-tag">Known</span>' : '<span></span>') + '<span class="count">Tap to flip</span></div></div>' +
-      '<div class="face back"><span class="side">Answer</span><p>' + rich(c, c.a) + '</p>' + picBox(c.aimg) + '<div class="foot"><span></span><span class="count">' + (idx + 1) + ' / ' + n + '</span></div></div>' +
+      '<div class="face back' + (c.vid ? ' has-vid' : '') + '"><span class="side">Answer</span><p>' + rich(c, c.a) + '</p>' + vidHtml(c) + picBox(c.aimg) + '<div class="foot"><span></span><span class="count">' + (idx + 1) + ' / ' + n + '</span></div></div>' +
       '</div></button>' +
       '<p class="hint">Space flips · arrow keys move</p></div></section>' +
       '<div class="dk-ctrlbar"><div class="dk-ctrl"><button class="dk-arrow" data-act="prev" aria-label="Previous card"' + (idx === 0 ? ' disabled' : '') + '>←</button>' +
@@ -303,7 +304,7 @@
       h += '<div class="mc-pop-veil"></div><div class="mc-pop ' + (ok ? 'ok' : 'no') + '" role="dialog" aria-modal="false" aria-labelledby="mc-pop-h">' +
         '<p class="mc-pop-h" id="mc-pop-h">' + (ok ? '✓ Correct!' : '✗ Not quite') + '</p>' +
         (ok ? '' : '<p class="mc-pop-lbl">The answer</p><div class="mc-pop-ans">' + rich(c, c.a) + '</div>') +
-        (c.why ? '<p class="mc-pop-why">' + rich(c, c.why) + '</p>' : '') + ansImg(c, 'mc-pop-img') +
+        (c.why ? '<p class="mc-pop-why">' + rich(c, c.why) + '</p>' : '') + vidHtml(c) + ansImg(c, 'mc-pop-img') +
         '<button class="btn mc-next" data-act="quiz-next">' + (quiz.i + 1 < n ? 'Next question →' : 'See results') + '</button></div>';
     }
     return h;

@@ -101,3 +101,20 @@ four picture decks (`BT-PIC1` to `BT-PIC4`, images named `e4_*.jpg` inside
 `card-images.js`) and two text decks (`BT-5`, `BT-6`). Re-upload both
 `data.js` and `card-images.js` together, since the picture cards need both.
 
+
+## Visual ID decks (mycology + parasites)
+
+`visual-id.js` adds the "Visual ID · Mycology" and "Visual ID · Parasites"
+decks. They reuse the pictures already on the site. Each card shows a
+picture; the answer is the organism's name (so multiple choice still works),
+and the back of the card shows that organism's ID profile:
+
+- Fungi: growth rate (slow / moderately fast / fast), colony morphology,
+  mould form, tissue/yeast form, key ID features, look-alikes
+- Parasites: type, size, specimen, key ID features, look-alikes
+
+Edit an organism's profile once in `ORGANISMS` and every card for it
+updates. Add a picture by adding `["picture", "organism key", "what it shows"]`
+to a deck in `VID_DECKS`. Add new decks at the end of the list so saved
+"Got it" progress stays put. `index.html` and `test.html` load
+`visual-id.js` right after `data.js`.
